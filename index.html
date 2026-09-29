@@ -6,16 +6,15 @@
 <!-- ============ POLÍTICA DE CONTEÚDO ============
      Mesma lógica do site da HARGUS: o GitHub Pages não deixa configurar
      cabeçalhos HTTP, então a CSP vai por <meta>. A página só conversa com o
-     formsubmit.co (formulário de contato, enviado por fetch) e com o Google
-     Fonts; não carrega script, imagem nem plugin de terceiro. form-action
-     'none' porque o formulário nunca é enviado de forma nativa: qualquer envio
-     fora do fetch é barrado em vez de despejar nome e e-mail na URL.
+     formsubmit.co — por fetch (contato e cotação) e por envio de formulário
+     (currículo, que precisa do POST tradicional para o anexo chegar) — e com
+     o Google Fonts; não carrega script, imagem nem plugin de terceiro.
      'unsafe-inline' é obrigatório porque todo o CSS e o JS são inline, e nada
      do que o visitante digita vira HTML (os textos entram por textContent). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://formsubmit.co; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://formsubmit.co; form-action https://formsubmit.co; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>HORIZON Comercial Importadora — Conectando oportunidades globais ao mercado brasileiro</title>
-<meta name="description" content="Comercial importadora em Curitiba/PR. Inteligência comercial, tributária e regulatória, logística internacional e distribuição para levar produtos e marcas globais ao mercado brasileiro.">
+<title data-en="HORIZON Import Trading — Connecting global opportunities to the Brazilian market">HORIZON Comercial Importadora — Conectando oportunidades globais ao mercado brasileiro</title>
+<meta name="description" data-en-content="Import trading company in Curitiba, Brazil. Commercial, tax and regulatory intelligence, international logistics and distribution to bring global products and brands to the Brazilian market." content="Comercial importadora em Curitiba/PR. Inteligência comercial, tributária e regulatória, logística internacional e distribuição para levar produtos e marcas globais ao mercado brasileiro.">
 <meta name="theme-color" content="#00193F">
 <link rel="icon" href="favicon.png" type="image/png" sizes="64x64">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -46,7 +45,8 @@
   --fonte-corpo:  'Poppins', -apple-system, 'Segoe UI', sans-serif;
 
   --container: 1280px;
-  --nav-h: 80px;
+  --topo-h: 38px;  /* faixa de utilidades (contato, portal, idioma) */
+  --nav-h: 80px;   /* faixa da navegação */
 }
 
 *,*::before,*::after{ box-sizing:border-box; }
@@ -93,12 +93,13 @@ figure{ margin:0; }
   fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;
 }
 
-/* página congelada com o menu mobile ou o modal abertos — o <script> guarda
+/* página congelada com o menu mobile ou um modal abertos — o <script> guarda
    a posição em body.style.top e a devolve ao fechar */
 body.travado{ position:fixed; left:0; right:0; width:100%; overflow:hidden; }
 
 /* a nav é fixa: sem isto o salto para a âncora para com o topo da seção
-   escondido atrás dela */
+   escondido atrás dela. Só a faixa da navegação conta: ao chegar na âncora a
+   página já rolou, e a faixa de utilidades já subiu. */
 main section[id]{ scroll-margin-top:var(--nav-h); }
 
 /* ============ REVELAÇÃO AO ROLAR ============
@@ -160,6 +161,8 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .botao--contorno:hover{ background:rgba(255,255,255,.1); border-color:var(--branco); }
 .botao--escuro{ background:var(--azul); color:var(--branco); }
 .botao--escuro:hover{ background:#0A2A5C; }
+.botao--contorno-escuro{ background:transparent; color:var(--azul); border-color:rgba(0,25,63,.3); }
+.botao--contorno-escuro:hover{ background:var(--azul); color:var(--branco); border-color:var(--azul); }
 
 @media (prefers-reduced-motion: reduce){
   .botao, .botao .icone{ transition:none; }
@@ -173,27 +176,55 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
    tela retina. No rodapé escuro, palavra branca e arco dourado, como no
    layout aprovado. Se o cliente mandar o logo em SVG, é só trocar o src. */
 .marca{ display:block; flex:none; }
-.marca img{ width:190px; height:auto; }
+.marca img{ width:180px; height:auto; }
 .marca--rodape img{ width:220px; }
 
-/* ============ CABEÇALHO ============ */
+/* ============ CABEÇALHO ============
+   Duas faixas num bloco fixo: a de utilidades (contato, Portal do Cliente e
+   PT/EN) em cima e a navegação embaixo. Juntas elas não caberiam numa linha
+   só com os sete itens do menu e o botão do layout. Ao rolar, o bloco sobe a
+   altura da faixa de cima e só a navegação fica na tela: as utilidades servem
+   a quem chega, não a quem já está lendo. */
 .nav{
   position:fixed; top:0; left:0; right:0; z-index:500;
+  transition:transform .3s ease;
+}
+.nav.nav--rolada{ transform:translateY(calc(-1 * var(--topo-h))); }
+@media (prefers-reduced-motion: reduce){ .nav{ transition:none; } }
+
+.nav-topo{ height:var(--topo-h); background:var(--azul); color:rgba(226,233,243,.82); font-size:12.5px; }
+.nav-topo .container{ height:100%; display:flex; align-items:center; justify-content:space-between; gap:24px; }
+.nav-topo-grupo{ display:flex; align-items:center; gap:26px; }
+.nav-topo a{ display:inline-flex; align-items:center; gap:8px; transition:color .2s ease; }
+.nav-topo a:hover{ color:var(--dourado); }
+.nav-topo .icone{ width:15px; height:15px; }
+
+/* seletor PT/EN: o idioma ativo ganha o selo dourado, o outro fica discreto */
+.idioma{ display:flex; align-items:center; gap:2px; }
+.idioma-btn{
+  padding:4px 9px; border:none; border-radius:3px; background:transparent;
+  font-size:11.5px; font-weight:700; letter-spacing:.08em; color:rgba(226,233,243,.62);
+  transition:color .2s ease, background-color .2s ease;
+}
+.idioma-btn:hover{ color:var(--branco); }
+.idioma-btn.ativo{ background:var(--dourado); color:var(--azul); }
+
+.nav-barra{
   height:var(--nav-h); display:flex; align-items:center;
   background:rgba(234,240,246,.94);
   -webkit-backdrop-filter:saturate(1.5) blur(10px);
   backdrop-filter:saturate(1.5) blur(10px);
   transition:box-shadow .3s ease;
 }
-/* no topo o cabeçalho encosta no azul do hero e dispensa sombra; rolando,
-   ela o separa do conteúdo claro que passa por baixo */
-.nav.nav--rolada{ box-shadow:0 6px 28px rgba(0,25,63,.1); }
-.nav .container{ display:flex; align-items:center; justify-content:space-between; gap:28px; }
+/* no topo a navegação encosta no azul do hero e dispensa sombra; rolando,
+   ela a separa do conteúdo claro que passa por baixo */
+.nav--rolada .nav-barra{ box-shadow:0 6px 28px rgba(0,25,63,.1); }
+.nav-barra .container{ display:flex; align-items:center; justify-content:space-between; gap:28px; }
 
-.nav-menu{ display:flex; align-items:center; gap:clamp(20px, 2.6vw, 42px); }
+.nav-menu{ display:flex; align-items:center; gap:clamp(16px, 1.9vw, 36px); }
 .nav-menu a{
   position:relative; display:block; padding:10px 0;
-  font-size:14px; font-weight:500; color:#2A3550;
+  font-size:13.5px; font-weight:500; color:#2A3550; white-space:nowrap;
   transition:color .2s ease;
 }
 /* peso fixo no item ativo: trocar para negrito ao rolar faria o menu inteiro
@@ -225,9 +256,9 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .nav-hamburguer[aria-expanded="true"] span{ opacity:0; }
 .nav-hamburguer[aria-expanded="true"]::after{ top:21px; transform:rotate(-45deg); }
 
-/* painel do menu mobile — irmão do <header>, não filho: o backdrop-filter da
-   nav vira bloco de contenção para position:fixed e prenderia o painel
-   dentro dos 80px do cabeçalho */
+/* painel do menu mobile — irmão do <header>, não filho: o transform e o
+   backdrop-filter da nav viram bloco de contenção para position:fixed e
+   prenderiam o painel dentro do cabeçalho */
 .menu-mobile{
   position:fixed; top:var(--nav-h); left:0; right:0; bottom:0; z-index:490;
   display:flex; flex-direction:column; overflow-y:auto;
@@ -240,15 +271,22 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   transition:opacity .25s ease, transform .25s ease;
 }
 .menu-mobile a:not(.botao){
-  padding:16px 4px; border-bottom:1px solid var(--linha);
+  padding:15px 4px; border-bottom:1px solid var(--linha);
   font-size:17px; font-weight:500; color:var(--azul);
 }
-.menu-mobile .botao{ margin-top:28px; }
+.menu-mobile .botao{ margin-top:12px; }
+/* o primeiro botão depois da lista de links ganha respiro maior */
+.menu-mobile a:not(.botao) + .botao{ margin-top:28px; }
+.menu-mobile .icone{ width:18px; height:18px; }
+.menu-mobile-idioma{ display:flex; gap:6px; margin-top:24px; }
+.menu-mobile-idioma .idioma-btn{ padding:8px 14px; font-size:13px; color:rgba(0,25,63,.55); }
+.menu-mobile-idioma .idioma-btn:hover{ color:var(--azul); }
+.menu-mobile-idioma .idioma-btn.ativo{ background:var(--azul); color:var(--branco); }
 
 /* ============ HERO ============ */
 .hero{
   position:relative; overflow:hidden;
-  padding:calc(var(--nav-h) + 68px) 0 64px;
+  padding:calc(var(--topo-h) + var(--nav-h) + 68px) 0 64px;
   background:var(--azul); color:var(--branco);
 }
 /* a foto ocupa a direita e se dissolve no azul à esquerda: o texto nunca
@@ -421,6 +459,21 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .diferencial strong{ display:block; font-size:15.5px; font-weight:600; line-height:1.35; color:var(--branco); margin-bottom:4px; }
 .diferencial span{ display:block; font-size:13px; line-height:1.55; color:rgba(226,233,243,.72); }
 
+/* ============ TRABALHE CONOSCO ============
+   Faixa própria, como a da HARGUS, mas em branco: entre o azul dos
+   diferenciais e o cinza da chamada final, ela mantém a alternância
+   claro/escuro da página. */
+.trabalhe{ padding:84px 0; background:var(--branco); border-bottom:1px solid var(--linha); }
+.trabalhe .container{
+  display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
+  gap:28px 64px; align-items:center;
+}
+.trabalhe-cabeca{ display:flex; align-items:center; gap:24px; }
+.trabalhe-cabeca .icone{ width:58px; height:58px; color:var(--dourado-escuro); stroke-width:1.2; }
+.trabalhe .eyebrow{ margin-bottom:10px; }
+.trabalhe .titulo{ font-size:clamp(1.7rem, 2.6vw, 2.2rem); }
+.trabalhe-lado p{ font-size:15px; max-width:46ch; margin-bottom:22px; }
+
 /* ============ CHAMADA FINAL (#contato) ============ */
 .cta{ position:relative; overflow:hidden; padding:104px 0 140px; }
 /* o mapa-múndi claro do layout vira um campo de pontos, mais leve que imagem */
@@ -441,6 +494,7 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 }
 .cta .titulo{ font-size:clamp(1.8rem, 2.6vw, 2.3rem); }
 .cta-lado p{ font-size:15px; max-width:52ch; margin-bottom:28px; }
+.cta-botoes{ display:flex; flex-wrap:wrap; gap:14px; }
 .cta-curva{ position:absolute; left:0; bottom:16px; width:100%; height:110px; pointer-events:none; }
 
 /* ============ RODAPÉ ============ */
@@ -468,7 +522,7 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 }
 .rodape-baixo p{ margin:0; }
 
-/* ============ MODAL "FALAR COM A HORIZON" ============
+/* ============ MODAIS: contato, cotação e currículo ============
    <dialog> nativo, como nos modais da HARGUS: foco preso, Esc fecha e o resto
    da página fica inerte sem JS extra. Navegador sem <dialog> segue o href dos
    botões e cai na chamada final, onde está o e-mail. */
@@ -482,6 +536,8 @@ dialog:not([open]){ display:none; }
   box-shadow:0 30px 80px rgba(0,10,25,.4);
   overflow:hidden;
 }
+/* cotação e currículo têm formulário maior: mais largura, dois campos por linha */
+.modal--ampla{ width:min(680px, calc(100vw - 28px)); }
 .modal[open]{ display:flex; flex-direction:column; animation:modal-entra .28s cubic-bezier(.16,.8,.24,1); }
 .modal::backdrop{ background:rgba(0,12,28,.66); }
 .modal[open]::backdrop{ animation:modal-veu .28s ease; }
@@ -518,20 +574,57 @@ dialog:not([open]){ display:none; }
   display:block; margin-bottom:7px;
   font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--azul);
 }
-.campo label span{ font-weight:400; letter-spacing:0; text-transform:none; color:var(--texto); }
-.campo input, .campo textarea{
+.opcional{ font-weight:400; letter-spacing:0; text-transform:none; color:var(--texto); }
+.campo input, .campo textarea, .campo select{
   width:100%; padding:12px 14px; border:1px solid #D5DCE6; border-radius:5px;
-  font-family:inherit; font-size:15px; color:var(--azul); background:var(--branco);
+  font-family:inherit; font-size:15px; color:var(--azul); background-color:var(--branco);
   transition:border-color .2s ease, box-shadow .2s ease;
 }
 .campo textarea{ min-height:112px; resize:vertical; line-height:1.6; }
+.campo textarea.campo-baixo{ min-height:78px; }
 .campo input::placeholder, .campo textarea::placeholder{ color:#A3ADBB; }
-.campo input:focus, .campo textarea:focus{
+.campo input:focus, .campo textarea:focus, .campo select:focus{
   outline:none; border-color:var(--dourado-escuro); box-shadow:0 0 0 3px rgba(214,184,58,.3);
 }
 .campo [aria-invalid="true"]{ border-color:#B3261E; }
 .campo [aria-invalid="true"]:focus{ box-shadow:0 0 0 3px rgba(179,38,30,.16); }
 .campo-erro{ display:block; margin-top:6px; font-size:12.5px; color:#B3261E; }
+
+/* <select> imita o <input>; a seta vai desenhada no próprio fundo porque
+   appearance:none tira a nativa */
+.campo select{
+  padding-right:38px; appearance:none; -webkit-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A5568' stroke-width='2' stroke-linecap='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat:no-repeat; background-position:right 12px center; background-size:16px;
+}
+/* opção vazia em cinza enquanto nada foi escolhido, como um placeholder; as
+   opções reais ganham a cor normal de volta quando a lista abre */
+.campo select:invalid, .campo select option[value=""]{ color:#A3ADBB; }
+.campo select option:not([value=""]){ color:var(--azul); }
+
+.campo input[type="file"]{
+  padding:10px 12px; border-style:dashed; border-color:#C3CCD8; background-color:#F7F9FC;
+  font-size:13.5px; color:var(--texto); cursor:pointer;
+}
+.campo input[type="file"]::file-selector-button{
+  margin-right:12px; padding:8px 14px; border:none; border-radius:4px;
+  background:var(--azul); color:var(--branco); font-family:inherit;
+  font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
+}
+.campo input[type="file"][aria-invalid="true"]{ border-style:solid; border-color:#B3261E; }
+
+/* divisor da parte opcional do formulário de cotação */
+.modal-secao{
+  margin:26px 0 16px; padding-top:20px; border-top:1px solid var(--linha);
+  font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--azul);
+}
+
+.consentimento{
+  display:flex; align-items:flex-start; gap:10px; margin:4px 0 2px;
+  font-size:13px; line-height:1.5; cursor:pointer;
+}
+.consentimento input{ width:16px; height:16px; margin-top:2px; flex:none; accent-color:var(--azul); cursor:pointer; }
+.consentimento + .campo-erro{ margin-bottom:12px; }
 
 /* a isca do FormSubmit: preenchida só por robô, some da tela e da leitura de tela */
 .modal-isca{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
@@ -571,19 +664,22 @@ dialog:not([open]){ display:none; }
 .modal-sucesso p{ font-size:14px; max-width:38ch; margin:0 auto 22px; }
 
 /* ============ RESPONSIVO ============ */
+/* sete itens de menu, o botão e a marca deixam de caber numa linha: o menu
+   vira painel e as utilidades (portal, idioma) descem para dentro dele */
+@media (max-width:1220px){
+  :root{ --topo-h:0px; }
+  .nav-topo{ display:none; }
+  .nav-menu{ display:none; }
+  .nav-hamburguer{ display:block; }
+}
+@media (min-width:1221px){
+  .menu-mobile{ display:none; }
+}
+
 @media (max-width:1180px){
   .solucoes-grade{ grid-template-columns:repeat(3, minmax(0,1fr)); gap:20px; }
   .diferenciais-lista{ grid-template-columns:repeat(3, minmax(0,1fr)); }
   .pilar{ padding:0 32px; }
-}
-
-/* seis itens + botão deixam de caber ao lado da marca: o menu vira painel */
-@media (max-width:1080px){
-  .nav-menu{ display:none; }
-  .nav-hamburguer{ display:block; }
-}
-@media (min-width:1081px){
-  .menu-mobile{ display:none; }
 }
 
 @media (max-width:960px){
@@ -623,6 +719,7 @@ dialog:not([open]){ display:none; }
   .diferenciais-foto{ width:100%; }
   .diferenciais-foto::after{ background:linear-gradient(0deg, var(--azul) 25%, rgba(0,25,63,.72) 100%); }
 
+  .trabalhe .container{ grid-template-columns:1fr; }
   .cta .container{ grid-template-columns:1fr; }
   .rodape-grade{ grid-template-columns:1fr 1fr; }
 }
@@ -645,14 +742,21 @@ dialog:not([open]){ display:none; }
   .solucao-corpo{ padding:18px 16px 22px; }
   .modelos-grade{ grid-template-columns:1fr; }
   .diferenciais-lista{ grid-template-columns:1fr; gap:24px; }
+  .trabalhe{ padding:64px 0; }
+  .trabalhe-cabeca{ align-items:flex-start; gap:18px; }
+  .trabalhe-cabeca .icone{ width:44px; height:44px; }
   .cta{ padding:76px 0 128px; }
+  .cta-botoes .botao{ flex:1 1 100%; }
   .rodape-grade{ grid-template-columns:1fr; gap:36px; }
 
   .modal-topo{ padding:22px 62px 22px 22px; }
+  .modal-topo h2{ font-size:1.35rem; }
   .modal-forma, .modal-enviando, .modal-sucesso{ padding:22px; }
   .campo-linha{ grid-template-columns:1fr; }
-  /* abaixo de 16px o iOS dá zoom na página ao focar o campo */
-  .campo input, .campo textarea{ font-size:16px; }
+  /* abaixo de 16px o iOS dá zoom na página ao focar o campo — vale para o
+     <select> também, não só para input e textarea */
+  .campo input, .campo textarea, .campo select{ font-size:16px; }
+  .campo input[type="file"]{ font-size:13px; }
 }
 
 @media (max-width:420px){
@@ -661,7 +765,7 @@ dialog:not([open]){ display:none; }
 </style>
 </head>
 <body>
-<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<a class="skip-link" href="#conteudo" data-en="Skip to content">Pular para o conteúdo</a>
 
 <!-- ============ SPRITE DE ÍCONES ============
      Todos os ícones do site num lugar só, chamados por <use href="#i-...">.
@@ -690,6 +794,8 @@ dialog:not([open]){ display:none; }
   <symbol id="i-documento" viewBox="0 0 24 24"><path d="M14 3H6.8A1.8 1.8 0 0 0 5 4.8v14.4A1.8 1.8 0 0 0 6.8 21h10.4a1.8 1.8 0 0 0 1.8-1.8V8z"/><path d="M14 3v5h5"/><path d="M9 17.5l6-6"/><circle cx="9.6" cy="12.1" r="1.1"/><circle cx="14.4" cy="16.9" r="1.1"/></symbol>
   <symbol id="i-navio" viewBox="0 0 24 24"><path d="M2.5 14.5h19l-2.2 4.5a1.5 1.5 0 0 1-1.3.8H6a1.5 1.5 0 0 1-1.3-.8z"/><path d="M5.5 14.5v-4H10v4M10 14.5v-4h4.5v4M14.5 14.5V7h4v7.5M16.5 7V4.5"/></symbol>
   <symbol id="i-caixas" viewBox="0 0 24 24"><rect x="3.5" y="12.5" width="8" height="8" rx=".8"/><rect x="12.5" y="12.5" width="8" height="8" rx=".8"/><rect x="8" y="3.5" width="8" height="8" rx=".8"/><path d="M7.5 12.5V15M16.5 12.5V15M12 3.5V6"/></symbol>
+  <symbol id="i-maleta" viewBox="0 0 24 24"><rect x="3" y="7.5" width="18" height="12.5" rx="2"/><path d="M9 7.5V5.6A1.6 1.6 0 0 1 10.6 4h2.8A1.6 1.6 0 0 1 15 5.6v1.9M3 13h18M10.5 13v1.6h3V13"/></symbol>
+  <symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6.5 7-6.5s7 2.9 7 6.5"/></symbol>
   <symbol id="i-email" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.8 6.5L12 13l8.2-6.5"/></symbol>
   <symbol id="i-telefone" viewBox="0 0 24 24"><path d="M6.6 3.5h2.6l1.6 4.4-2.1 1.5a11.5 11.5 0 0 0 5.9 5.9l1.5-2.1 4.4 1.6v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></symbol>
   <symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21.5s7-6.4 7-11.8a7 7 0 1 0-14 0c0 5.4 7 11.8 7 11.8z"/><circle cx="12" cy="9.7" r="2.5"/></symbol>
@@ -699,45 +805,95 @@ dialog:not([open]){ display:none; }
 
 <!-- ============ CABEÇALHO ============ -->
 <header class="nav" id="nav">
-  <div class="container">
-    <a href="#inicio" class="marca">
-      <img src="img/logo-horizon.png" alt="HORIZON Comercial Importadora — início" width="710" height="119">
-    </a>
+  <div class="nav-topo">
+    <div class="container">
+      <div class="nav-topo-grupo">
+        <a href="mailto:comercial@horizoncomercial.com.br">
+          <svg class="icone" aria-hidden="true"><use href="#i-email"/></svg>
+          comercial@horizoncomercial.com.br
+        </a>
+        <a href="tel:+5541992067373">
+          <svg class="icone" aria-hidden="true"><use href="#i-telefone"/></svg>
+          +55 41 99206-7373
+        </a>
+      </div>
+      <div class="nav-topo-grupo">
+        <!-- Placeholder: o portal do cliente ainda não existe — trocar o href="#"
+             pelo link real assim que ele estiver no ar. São DOIS: este e o do
+             painel do menu mobile, lá embaixo. -->
+        <a href="#" class="nav-portal">
+          <svg class="icone" aria-hidden="true"><use href="#i-pessoa"/></svg>
+          <span data-en="Client Portal">Portal do Cliente</span>
+        </a>
+        <!-- Seletor de idioma: troca todo o texto marcado com data-en* (ver
+             <script>, seção IDIOMA). O painel mobile tem uma cópia; as duas
+             ficam em sincronia porque aplicarIdioma() atualiza todo .idioma-btn. -->
+        <div class="idioma" role="group" aria-label="Idioma / Language">
+          <button type="button" class="idioma-btn ativo" data-lang="pt" aria-pressed="true">PT</button>
+          <button type="button" class="idioma-btn" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <nav aria-label="Navegação principal">
-      <ul class="nav-menu">
-        <li><a href="#inicio" class="ativo">Início</a></li>
-        <li><a href="#a-horizon">A Horizon</a></li>
-        <li><a href="#solucoes">Soluções</a></li>
-        <li><a href="#como-atuamos">Como atuamos</a></li>
-        <li><a href="#diferenciais">Diferenciais</a></li>
-        <li><a href="#contato">Contato</a></li>
-      </ul>
-    </nav>
-
-    <div class="nav-controles">
-      <a href="#contato" class="botao botao--dourado nav-cta" data-contato>
-        Falar com a Horizon
-        <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+  <div class="nav-barra">
+    <div class="container">
+      <a href="#inicio" class="marca">
+        <img src="img/logo-horizon.png" alt="HORIZON Comercial Importadora — início" data-en-alt="HORIZON Import Trading — home" width="710" height="119">
       </a>
-      <button type="button" class="nav-hamburguer" id="hamburguer" aria-expanded="false" aria-controls="menu-mobile" aria-label="Abrir menu">
-        <span></span>
-      </button>
+
+      <nav aria-label="Navegação principal" data-en-aria-label="Main navigation">
+        <ul class="nav-menu">
+          <li><a href="#inicio" class="ativo" data-en="Home">Início</a></li>
+          <li><a href="#a-horizon" data-en="About">A Horizon</a></li>
+          <li><a href="#solucoes" data-en="Solutions">Soluções</a></li>
+          <li><a href="#como-atuamos" data-en="How we work">Como atuamos</a></li>
+          <li><a href="#diferenciais" data-en="Why Horizon">Diferenciais</a></li>
+          <li><a href="#trabalhe-conosco" data-en="Careers">Trabalhe conosco</a></li>
+          <li><a href="#contato" data-en="Contact">Contato</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-controles">
+        <a href="#contato" class="botao botao--dourado nav-cta" data-contato>
+          <span data-en="Talk to Horizon">Falar com a Horizon</span>
+          <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+        </a>
+        <button type="button" class="nav-hamburguer" id="hamburguer" aria-expanded="false" aria-controls="menu-mobile" aria-label="Abrir menu">
+          <span></span>
+        </button>
+      </div>
     </div>
   </div>
 </header>
 
-<nav class="menu-mobile" id="menu-mobile" aria-label="Navegação móvel">
-  <a href="#inicio">Início</a>
-  <a href="#a-horizon">A Horizon</a>
-  <a href="#solucoes">Soluções</a>
-  <a href="#como-atuamos">Como atuamos</a>
-  <a href="#diferenciais">Diferenciais</a>
-  <a href="#contato">Contato</a>
+<nav class="menu-mobile" id="menu-mobile" aria-label="Navegação móvel" data-en-aria-label="Mobile navigation">
+  <a href="#inicio" data-en="Home">Início</a>
+  <a href="#a-horizon" data-en="About">A Horizon</a>
+  <a href="#solucoes" data-en="Solutions">Soluções</a>
+  <a href="#como-atuamos" data-en="How we work">Como atuamos</a>
+  <a href="#diferenciais" data-en="Why Horizon">Diferenciais</a>
+  <a href="#trabalhe-conosco" data-en="Careers">Trabalhe conosco</a>
+  <a href="#contato" data-en="Contact">Contato</a>
   <a href="#contato" class="botao botao--dourado" data-contato>
-    Falar com a Horizon
+    <span data-en="Talk to Horizon">Falar com a Horizon</span>
     <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
   </a>
+  <a href="#contato" class="botao botao--escuro" data-cotacao>
+    <span data-en="Request a quote">Solicite uma cotação</span>
+    <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+  </a>
+  <!-- irmão do .nav-portal da faixa de utilidades: aquela some abaixo de
+       1220px, então o portal precisa existir aqui também. Os dois href="#"
+       trocam juntos. -->
+  <a href="#" class="botao botao--contorno-escuro">
+    <svg class="icone" aria-hidden="true"><use href="#i-pessoa"/></svg>
+    <span data-en="Client Portal">Portal do Cliente</span>
+  </a>
+  <div class="menu-mobile-idioma" role="group" aria-label="Idioma / Language">
+    <button type="button" class="idioma-btn ativo" data-lang="pt" aria-pressed="true">Português</button>
+    <button type="button" class="idioma-btn" data-lang="en" aria-pressed="false">English</button>
+  </div>
 </nav>
 
 <main id="conteudo">
@@ -752,28 +908,27 @@ dialog:not([open]){ display:none; }
     </figure>
     <div class="container">
       <div class="hero-conteudo">
-        <p class="eyebrow eyebrow--claro">Comercial importadora</p>
-        <h1>Conectando<br>oportunidades globais<br><span class="destaque">ao mercado brasileiro.</span></h1>
-        <p class="hero-texto">Transformamos produtos, marcas e oportunidades globais em negócios sustentáveis no Brasil.</p>
+        <h1 data-en-html='Connecting<br>global opportunities<br><span class="destaque">to the Brazilian market.</span>'>Conectando<br>oportunidades globais<br><span class="destaque">ao mercado brasileiro.</span></h1>
+        <p class="hero-texto" data-en="We turn global products, brands and opportunities into sustainable business in Brazil.">Transformamos produtos, marcas e oportunidades globais em negócios sustentáveis no Brasil.</p>
         <div class="hero-botoes">
           <a href="#contato" class="botao botao--dourado" data-contato>
-            Falar com a Horizon
+            <span data-en="Talk to Horizon">Falar com a Horizon</span>
             <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
           </a>
-          <a href="#solucoes" class="botao botao--contorno">Conheça nossas soluções</a>
+          <a href="#solucoes" class="botao botao--contorno"><span data-en="Explore our solutions">Conheça nossas soluções</span></a>
         </div>
         <ul class="hero-destaques">
           <li>
             <svg class="icone" aria-hidden="true"><use href="#i-globo"/></svg>
-            <p><strong>Visão global</strong><span>com foco no Brasil</span></p>
+            <p><strong data-en="Global vision">Visão global</strong><span data-en="focused on Brazil">com foco no Brasil</span></p>
           </li>
           <li>
             <svg class="icone" aria-hidden="true"><use href="#i-grafico"/></svg>
-            <p><strong>Inteligência para</strong><span>negócios internacionais</span></p>
+            <p><strong data-en="Intelligence for">Inteligência para</strong><span data-en="international business">negócios internacionais</span></p>
           </li>
           <li>
             <svg class="icone" aria-hidden="true"><use href="#i-escudo"/></svg>
-            <p><strong>Da oportunidade</strong><span>ao mercado</span></p>
+            <p><strong data-en="From opportunity">Da oportunidade</strong><span data-en="to market">ao mercado</span></p>
           </li>
         </ul>
       </div>
@@ -784,22 +939,22 @@ dialog:not([open]){ display:none; }
   <section class="sobre" id="a-horizon" data-secao="#a-horizon">
     <div class="container">
       <div class="sobre-texto reveal reveal--esq">
-        <p class="eyebrow">A Horizon</p>
-        <h2 class="titulo">Mais do que importar.<br>Construímos negócios.</h2>
-        <p>Estruturamos negócios internacionais e a entrada de produtos no Brasil, com visão comercial, inteligência tributária e regulatória e uma rede de parceiros estratégicos.</p>
+        <p class="eyebrow" data-en="About Horizon">A Horizon</p>
+        <h2 class="titulo" data-en-html="More than importing.<br>We build businesses.">Mais do que importar.<br>Construímos negócios.</h2>
+        <p data-en="We structure international business and the entry of products into Brazil, with commercial vision, tax and regulatory intelligence and a network of strategic partners.">Estruturamos negócios internacionais e a entrada de produtos no Brasil, com visão comercial, inteligência tributária e regulatória e uma rede de parceiros estratégicos.</p>
         <a href="#quem-somos" class="botao botao--escuro">
-          Conheça a Horizon
+          <span data-en="Get to know Horizon">Conheça a Horizon</span>
           <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
         </a>
       </div>
 
       <figure class="sobre-foto reveal reveal--dir">
-        <img src="img/escritorio.jpg" alt="Executivos conversando em um escritório envidraçado, com a cidade ao entardecer ao fundo" width="849" height="438" loading="lazy">
+        <img src="img/escritorio.jpg" alt="Executivos conversando em um escritório envidraçado, com a cidade ao entardecer ao fundo" data-en-alt="Executives talking in a glass-walled office, with the city at sunset in the background" width="849" height="438" loading="lazy">
         <div class="sobre-cartao">
           <svg class="icone" aria-hidden="true"><use href="#i-aperto"/></svg>
           <div>
-            <h3>Comercial importadora</h3>
-            <p>Operações de importação com foco no desenvolvimento comercial e na geração de valor.</p>
+            <h3 data-en="Import trading company">Comercial importadora</h3>
+            <p data-en="Import operations focused on commercial development and value creation.">Operações de importação com foco no desenvolvimento comercial e na geração de valor.</p>
           </div>
         </div>
       </figure>
@@ -813,33 +968,33 @@ dialog:not([open]){ display:none; }
     <div class="container">
       <div class="secao-topo reveal">
         <div>
-          <p class="eyebrow eyebrow--claro">Quem somos</p>
-          <h2 class="titulo titulo--claro">Nossa missão, visão e valores.</h2>
+          <p class="eyebrow eyebrow--claro" data-en="Who we are">Quem somos</p>
+          <h2 class="titulo titulo--claro" data-en="Our mission, vision and values.">Nossa missão, visão e valores.</h2>
         </div>
-        <p>Relações de longo prazo, construídas com ética, responsabilidade e sustentabilidade.</p>
+        <p data-en="Long-term relationships, built on ethics, responsibility and sustainability.">Relações de longo prazo, construídas com ética, responsabilidade e sustentabilidade.</p>
       </div>
 
       <div class="pilares">
         <article class="pilar reveal">
           <svg class="icone" aria-hidden="true"><use href="#i-alvo"/></svg>
-          <h3>Missão</h3>
-          <p>Oferecer a importadores e exportadores serviços confiáveis e éticos, com conformidade regulatória e sustentabilidade.</p>
+          <h3 data-en="Mission">Missão</h3>
+          <p data-en="To provide importers and exporters with reliable, ethical services, with regulatory compliance and sustainability.">Oferecer a importadores e exportadores serviços confiáveis e éticos, com conformidade regulatória e sustentabilidade.</p>
         </article>
         <article class="pilar reveal" style="--atraso:.1s">
           <svg class="icone" aria-hidden="true"><use href="#i-olho"/></svg>
-          <h3>Visão</h3>
-          <p>Dar aos clientes segurança tributária e orientação do desembaraço aduaneiro à chegada dos produtos ao mercado.</p>
+          <h3 data-en="Vision">Visão</h3>
+          <p data-en="To give clients tax certainty and guidance from customs clearance to the products' arrival on the market.">Dar aos clientes segurança tributária e orientação do desembaraço aduaneiro à chegada dos produtos ao mercado.</p>
         </article>
         <article class="pilar reveal" style="--atraso:.2s">
           <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
-          <h3>Valores</h3>
+          <h3 data-en="Values">Valores</h3>
           <ul class="valores">
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Ética e integridade</li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Foco no cliente</li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Conformidade regulatória</li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Agilidade e eficiência</li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Visão de longo prazo</li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Desenvolvimento sustentável</li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Ethics and integrity">Ética e integridade</span></li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Customer focus">Foco no cliente</span></li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Regulatory compliance">Conformidade regulatória</span></li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Agility and efficiency">Agilidade e eficiência</span></li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Long-term vision">Visão de longo prazo</span></li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Sustainable development">Desenvolvimento sustentável</span></li>
           </ul>
         </article>
       </div>
@@ -851,10 +1006,10 @@ dialog:not([open]){ display:none; }
     <div class="container">
       <div class="secao-topo reveal">
         <div>
-          <p class="eyebrow">Nossas soluções</p>
-          <h2 class="titulo">Soluções para transformar oportunidades em negócios.</h2>
+          <p class="eyebrow" data-en="Our solutions">Nossas soluções</p>
+          <h2 class="titulo" data-en="Solutions that turn opportunities into business.">Soluções para transformar oportunidades em negócios.</h2>
         </div>
-        <p>Do entendimento do mercado à distribuição no Brasil.</p>
+        <p data-en="From market insight to distribution in Brazil.">Do entendimento do mercado à distribuição no Brasil.</p>
       </div>
 
       <div class="solucoes-grade">
@@ -862,48 +1017,48 @@ dialog:not([open]){ display:none; }
           <img src="img/solucao-comercial.jpg" alt="" width="332" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-lupa"/></svg>
-            <h3>Inteligência Comercial</h3>
-            <p>Mercado, produto, concorrência e oportunidades.</p>
+            <h3 data-en="Commercial Intelligence">Inteligência Comercial</h3>
+            <p data-en="Market, product, competition and opportunities.">Mercado, produto, concorrência e oportunidades.</p>
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.06s">
           <img src="img/solucao-tributaria.jpg" alt="" width="336" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-documento"/></svg>
-            <h3>Inteligência Tributária</h3>
-            <p>Classificação, regimes e incentivos para ganhar competitividade.</p>
+            <h3 data-en="Tax Intelligence">Inteligência Tributária</h3>
+            <p data-en="Classification, tax regimes and incentives to gain competitiveness.">Classificação, regimes e incentivos para ganhar competitividade.</p>
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.12s">
           <img src="img/solucao-regulatoria.jpg" alt="" width="332" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-escudo"/></svg>
-            <h3>Consultoria Regulatória</h3>
-            <p>Licenças, registros e certificações na ANVISA, MAPA, INMETRO e Receita Federal.</p>
+            <h3 data-en="Regulatory Consulting">Consultoria Regulatória</h3>
+            <p data-en="Licenses, registrations and certifications with ANVISA, MAPA, INMETRO and the Federal Revenue.">Licenças, registros e certificações na ANVISA, MAPA, INMETRO e Receita Federal.</p>
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.18s">
           <img src="img/solucao-logistica.jpg" alt="" width="332" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-navio"/></svg>
-            <h3>Logística Internacional</h3>
-            <p>Transporte internacional integrado a fornecedores e armadores.</p>
+            <h3 data-en="International Logistics">Logística Internacional</h3>
+            <p data-en="International transport integrated with suppliers and shipping lines.">Transporte internacional integrado a fornecedores e armadores.</p>
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.24s">
           <img src="img/solucao-estoques.jpg" alt="" width="336" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-caixas"/></svg>
-            <h3>Gestão de Estoques e Distribuição</h3>
-            <p>Armazenagem, preparação de carga e distribuição para varejo e distribuidores.</p>
+            <h3 data-en="Inventory and Distribution">Gestão de Estoques e Distribuição</h3>
+            <p data-en="Warehousing, cargo preparation and distribution to retailers and distributors.">Armazenagem, preparação de carga e distribuição para varejo e distribuidores.</p>
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.3s">
           <img src="img/solucao-desenvolvimento.jpg" alt="" width="332" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
-            <h3>Desenvolvimento Comercial</h3>
-            <p>Distribuição, posicionamento e desenvolvimento de canais.</p>
+            <h3 data-en="Business Development">Desenvolvimento Comercial</h3>
+            <p data-en="Distribution, positioning and channel development.">Distribuição, posicionamento e desenvolvimento de canais.</p>
           </div>
         </article>
       </div>
@@ -915,32 +1070,32 @@ dialog:not([open]){ display:none; }
     <div class="container">
       <div class="secao-topo reveal">
         <div>
-          <p class="eyebrow eyebrow--claro">Modelos de negócio</p>
-          <h2 class="titulo titulo--claro">Diferentes estruturas.<br>Um objetivo: viabilizar o negócio.</h2>
+          <p class="eyebrow eyebrow--claro" data-en="Business models">Modelos de negócio</p>
+          <h2 class="titulo titulo--claro" data-en-html="Different structures.<br>One goal: making the business happen.">Diferentes estruturas.<br>Um objetivo: viabilizar o negócio.</h2>
         </div>
-        <p>O modelo certo para cada produto, empresa e objetivo.</p>
+        <p data-en="The right model for each product, company and goal.">O modelo certo para cada produto, empresa e objetivo.</p>
       </div>
 
       <div class="modelos-grade">
         <article class="modelo reveal">
           <span class="modelo-numero">01</span>
-          <h3>Importação<br>por Conta e Ordem</h3>
-          <p>Para empresas que compram com recursos próprios, com a Horizon estruturando e executando a operação.</p>
+          <h3 data-en-html="Import on Behalf<br>of Third Parties">Importação<br>por Conta e Ordem</h3>
+          <p data-en="For companies buying with their own funds, with Horizon structuring and running the operation.">Para empresas que compram com recursos próprios, com a Horizon estruturando e executando a operação.</p>
         </article>
         <article class="modelo reveal" style="--atraso:.08s">
           <span class="modelo-numero">02</span>
-          <h3>Importação<br>por Encomenda</h3>
-          <p>A Horizon participa da importação e da comercialização, com responsabilidades definidas em contrato.</p>
+          <h3 data-en-html="Import<br>by Order">Importação<br>por Encomenda</h3>
+          <p data-en="Horizon takes part in both the import and the sale, with responsibilities defined by contract.">A Horizon participa da importação e da comercialização, com responsabilidades definidas em contrato.</p>
         </article>
         <article class="modelo reveal" style="--atraso:.16s">
           <span class="modelo-numero">03</span>
-          <h3>Desenvolvimento<br>Comercial</h3>
-          <p>Produtos internacionais com potencial no mercado brasileiro.</p>
+          <h3 data-en-html="Business<br>Development">Desenvolvimento<br>Comercial</h3>
+          <p data-en="International products with potential in the Brazilian market.">Produtos internacionais com potencial no mercado brasileiro.</p>
         </article>
         <article class="modelo reveal" style="--atraso:.24s">
           <span class="modelo-numero">04</span>
-          <h3>Projetos<br>Personalizados</h3>
-          <p>Soluções sob medida para operações fora dos modelos tradicionais.</p>
+          <h3 data-en-html="Custom<br>Projects">Projetos<br>Personalizados</h3>
+          <p data-en="Tailor-made solutions for operations outside traditional models.">Soluções sob medida para operações fora dos modelos tradicionais.</p>
         </article>
       </div>
     </div>
@@ -951,37 +1106,37 @@ dialog:not([open]){ display:none; }
     <div class="container">
       <div class="secao-topo reveal">
         <div>
-          <p class="eyebrow">Como atuamos</p>
-          <h2 class="titulo">Da oportunidade ao mercado.</h2>
+          <p class="eyebrow" data-en="How we work">Como atuamos</p>
+          <h2 class="titulo" data-en="From opportunity to market.">Da oportunidade ao mercado.</h2>
         </div>
-        <p>Do potencial de um produto a uma operação sustentável no Brasil.</p>
+        <p data-en="From a product's potential to a sustainable operation in Brazil.">Do potencial de um produto a uma operação sustentável no Brasil.</p>
       </div>
 
       <ol class="etapas">
         <li class="etapa reveal">
           <span class="etapa-numero">01</span>
-          <h3>Entendemos</h3>
-          <p>Produto, empresa, mercado e objetivo do negócio.</p>
+          <h3 data-en="We understand">Entendemos</h3>
+          <p data-en="Product, company, market and business goal.">Produto, empresa, mercado e objetivo do negócio.</p>
         </li>
         <li class="etapa reveal" style="--atraso:.08s">
           <span class="etapa-numero">02</span>
-          <h3>Analisamos</h3>
-          <p>Viabilidade comercial, tributária, regulatória e operacional.</p>
+          <h3 data-en="We analyze">Analisamos</h3>
+          <p data-en="Commercial, tax, regulatory and operational feasibility.">Viabilidade comercial, tributária, regulatória e operacional.</p>
         </li>
         <li class="etapa reveal" style="--atraso:.16s">
           <span class="etapa-numero">03</span>
-          <h3>Estruturamos</h3>
-          <p>O modelo mais adequado para a operação.</p>
+          <h3 data-en="We structure">Estruturamos</h3>
+          <p data-en="The best-suited model for the operation.">O modelo mais adequado para a operação.</p>
         </li>
         <li class="etapa reveal" style="--atraso:.24s">
           <span class="etapa-numero">04</span>
-          <h3>Executamos</h3>
-          <p>Coordenamos cada etapa da operação.</p>
+          <h3 data-en="We execute">Executamos</h3>
+          <p data-en="We coordinate every stage of the operation.">Coordenamos cada etapa da operação.</p>
         </li>
         <li class="etapa reveal" style="--atraso:.32s">
           <span class="etapa-numero">05</span>
-          <h3>Desenvolvemos</h3>
-          <p>Uma relação comercial recorrente e escalável.</p>
+          <h3 data-en="We grow">Desenvolvemos</h3>
+          <p data-en="A recurring, scalable business relationship.">Uma relação comercial recorrente e escalável.</p>
         </li>
       </ol>
     </div>
@@ -994,45 +1149,74 @@ dialog:not([open]){ display:none; }
     </figure>
     <div class="container">
       <div class="reveal">
-        <p class="eyebrow eyebrow--claro">Nossos diferenciais</p>
-        <h2 class="titulo titulo--claro">Experiência para reduzir<br>a complexidade.</h2>
+        <p class="eyebrow eyebrow--claro" data-en="Why Horizon">Nossos diferenciais</p>
+        <h2 class="titulo titulo--claro" data-en-html="Experience that<br>reduces complexity.">Experiência para reduzir<br>a complexidade.</h2>
       </div>
 
       <ul class="diferenciais-lista">
         <li class="diferencial reveal">
           <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
-          <p><strong>+30 anos</strong><span>de experiência em comércio internacional</span></p>
+          <p><strong data-en="30+ years">+30 anos</strong><span data-en="of experience in international trade">de experiência em comércio internacional</span></p>
         </li>
         <li class="diferencial reveal" style="--atraso:.06s">
           <svg class="icone" aria-hidden="true"><use href="#i-rede"/></svg>
-          <p><strong>Visão integrada</strong><span>comercial, tributária, regulatória, operacional e logística</span></p>
+          <p><strong data-en="Integrated view">Visão integrada</strong><span data-en="commercial, tax, regulatory, operational and logistics">comercial, tributária, regulatória, operacional e logística</span></p>
         </li>
         <li class="diferencial reveal" style="--atraso:.12s">
           <svg class="icone" aria-hidden="true"><use href="#i-relogio"/></svg>
-          <p><strong>Agilidade</strong><span>para tomar decisões e adaptar soluções</span></p>
+          <p><strong data-en="Agility">Agilidade</strong><span data-en="to make decisions and adapt solutions">para tomar decisões e adaptar soluções</span></p>
         </li>
         <li class="diferencial reveal" style="--atraso:.18s">
           <svg class="icone" aria-hidden="true"><use href="#i-escudo"/></svg>
-          <p><strong>Segurança</strong><span>com foco em conformidade e previsibilidade</span></p>
+          <p><strong data-en="Security">Segurança</strong><span data-en="focused on compliance and predictability">com foco em conformidade e previsibilidade</span></p>
         </li>
         <li class="diferencial reveal" style="--atraso:.24s">
           <svg class="icone" aria-hidden="true"><use href="#i-grafico"/></svg>
-          <p><strong>Visão de longo prazo</strong><span>para relações comerciais recorrentes</span></p>
+          <p><strong data-en="Long-term vision">Visão de longo prazo</strong><span data-en="for recurring business relationships">para relações comerciais recorrentes</span></p>
         </li>
       </ul>
     </div>
   </section>
 
-  <!-- ============ CHAMADA FINAL ============ -->
-  <section class="cta" id="contato" data-secao="#contato">
+  <!-- ============ TRABALHE CONOSCO ============ -->
+  <section class="trabalhe" id="trabalhe-conosco" data-secao="#trabalhe-conosco">
     <div class="container">
-      <h2 class="titulo reveal reveal--esq">Existe uma oportunidade no Brasil?<br>Vamos estruturá-la.</h2>
-      <div class="cta-lado reveal reveal--dir">
-        <p>Conte-nos sobre seu produto ou projeto e mostramos os caminhos para levá-lo ao mercado brasileiro.</p>
-        <a href="mailto:comercial@horizoncomercial.com.br" class="botao botao--dourado" data-contato>
-          Falar com a Horizon
+      <div class="trabalhe-cabeca reveal reveal--esq">
+        <svg class="icone" aria-hidden="true"><use href="#i-maleta"/></svg>
+        <div>
+          <p class="eyebrow" data-en="Careers">Trabalhe conosco</p>
+          <h2 class="titulo" data-en="Join the Horizon team.">Venha fazer parte do time Horizon.</h2>
+        </div>
+      </div>
+      <div class="trabalhe-lado reveal reveal--dir">
+        <p data-en="We're looking for people who share our values of ethics, agility and long-term vision.">Buscamos pessoas que compartilhem nossos valores de ética, agilidade e visão de longo prazo.</p>
+        <a href="#contato" class="botao botao--escuro" data-trabalhe>
+          <span data-en="Send your resume">Enviar currículo</span>
           <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
         </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CHAMADA FINAL ============
+       Faz também o papel da faixa "Fale com um especialista" da HARGUS: os
+       dois botões de contato moram aqui, e e-mail e telefone estão logo
+       abaixo, no rodapé. -->
+  <section class="cta" id="contato" data-secao="#contato">
+    <div class="container">
+      <h2 class="titulo reveal reveal--esq" data-en-html="Is there an opportunity in Brazil?<br>Let&#39;s structure it.">Existe uma oportunidade no Brasil?<br>Vamos estruturá-la.</h2>
+      <div class="cta-lado reveal reveal--dir">
+        <p data-en="Tell us about your product or project and we'll show you the paths to take it to the Brazilian market.">Conte-nos sobre seu produto ou projeto e mostramos os caminhos para levá-lo ao mercado brasileiro.</p>
+        <div class="cta-botoes">
+          <a href="mailto:comercial@horizoncomercial.com.br" class="botao botao--dourado" data-contato>
+            <span data-en="Talk to Horizon">Falar com a Horizon</span>
+            <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+          </a>
+          <a href="mailto:comercial@horizoncomercial.com.br" class="botao botao--escuro" data-cotacao>
+            <span data-en="Request a quote">Solicite uma cotação</span>
+            <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+          </a>
+        </div>
       </div>
     </div>
     <svg class="cta-curva" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true">
@@ -1048,35 +1232,36 @@ dialog:not([open]){ display:none; }
     <div class="rodape-grade">
       <div class="rodape-sobre">
         <a href="#inicio" class="marca marca--rodape">
-          <img src="img/logo-horizon-branco.png" alt="HORIZON Comercial Importadora — voltar ao início" width="710" height="119" loading="lazy">
+          <img src="img/logo-horizon-branco.png" alt="HORIZON Comercial Importadora — voltar ao início" data-en-alt="HORIZON Import Trading — back to top" width="710" height="119" loading="lazy">
         </a>
-        <p>Comercial Importadora<br>Conectando oportunidades globais ao mercado brasileiro.</p>
+        <p data-en-html="Import Trading Company<br>Connecting global opportunities to the Brazilian market.">Comercial Importadora<br>Conectando oportunidades globais ao mercado brasileiro.</p>
       </div>
 
-      <nav aria-label="Soluções">
-        <h2 class="rodape-titulo">Soluções</h2>
+      <nav aria-label="Soluções" data-en-aria-label="Solutions">
+        <h2 class="rodape-titulo" data-en="Solutions">Soluções</h2>
         <ul>
-          <li><a href="#solucoes">Inteligência Comercial</a></li>
-          <li><a href="#solucoes">Inteligência Tributária</a></li>
-          <li><a href="#solucoes">Consultoria Regulatória</a></li>
-          <li><a href="#solucoes">Logística Internacional</a></li>
-          <li><a href="#solucoes">Gestão de Estoques e Distribuição</a></li>
-          <li><a href="#solucoes">Desenvolvimento Comercial</a></li>
+          <li><a href="#solucoes" data-en="Commercial Intelligence">Inteligência Comercial</a></li>
+          <li><a href="#solucoes" data-en="Tax Intelligence">Inteligência Tributária</a></li>
+          <li><a href="#solucoes" data-en="Regulatory Consulting">Consultoria Regulatória</a></li>
+          <li><a href="#solucoes" data-en="International Logistics">Logística Internacional</a></li>
+          <li><a href="#solucoes" data-en="Inventory and Distribution">Gestão de Estoques e Distribuição</a></li>
+          <li><a href="#solucoes" data-en="Business Development">Desenvolvimento Comercial</a></li>
         </ul>
       </nav>
 
-      <nav aria-label="Institucional">
-        <h2 class="rodape-titulo">Institucional</h2>
+      <nav aria-label="Institucional" data-en-aria-label="Company">
+        <h2 class="rodape-titulo" data-en="Company">Institucional</h2>
         <ul>
-          <li><a href="#a-horizon">A Horizon</a></li>
-          <li><a href="#como-atuamos">Como atuamos</a></li>
-          <li><a href="#diferenciais">Diferenciais</a></li>
-          <li><a href="#contato">Contato</a></li>
+          <li><a href="#a-horizon" data-en="About">A Horizon</a></li>
+          <li><a href="#como-atuamos" data-en="How we work">Como atuamos</a></li>
+          <li><a href="#diferenciais" data-en="Why Horizon">Diferenciais</a></li>
+          <li><a href="#trabalhe-conosco" data-en="Careers">Trabalhe conosco</a></li>
+          <li><a href="#contato" data-en="Contact">Contato</a></li>
         </ul>
       </nav>
 
       <div>
-        <h2 class="rodape-titulo">Contato</h2>
+        <h2 class="rodape-titulo" data-en="Contact">Contato</h2>
         <ul class="rodape-contato">
           <li>
             <svg class="icone" aria-hidden="true"><use href="#i-email"/></svg>
@@ -1088,67 +1273,69 @@ dialog:not([open]){ display:none; }
           </li>
           <li>
             <svg class="icone" aria-hidden="true"><use href="#i-local"/></svg>
-            <span>Curitiba - PR | Brasil</span>
+            <span data-en="Curitiba - PR | Brazil">Curitiba - PR | Brasil</span>
           </li>
           <li>
             <svg class="icone" aria-hidden="true"><use href="#i-globo"/></svg>
-            <span>Operações Internacionais</span>
+            <span data-en="International Operations">Operações Internacionais</span>
           </li>
         </ul>
       </div>
     </div>
 
     <div class="rodape-baixo">
-      <p>© <span id="ano-atual">2026</span> HORIZON Comercial Importadora. Todos os direitos reservados.</p>
+      <p>© <span id="ano-atual">2026</span> HORIZON <span data-en="Import Trading">Comercial Importadora</span>. <span data-en="All rights reserved.">Todos os direitos reservados.</span></p>
     </div>
   </div>
 </footer>
 
-<!-- ============ MODAL "FALAR COM A HORIZON" ============
-     Aberto por qualquer elemento com [data-contato]; fecha por
-     [data-fechar-contato], Esc ou clique fora. Três telas por data-estado. -->
+<!-- ============ MODAL: FALAR COM A HORIZON ============
+     Contato geral — o equivalente ao "Tire sua dúvida" da HARGUS. Aberto por
+     qualquer [data-contato]; fecha por [data-fechar-contato], Esc ou clique
+     fora. Três telas por data-estado. -->
 <dialog class="modal" id="fale-conosco" data-estado="formulario" aria-labelledby="fale-titulo">
   <div class="modal-topo">
-    <p class="eyebrow eyebrow--claro">Falar com a Horizon</p>
-    <h2 id="fale-titulo">Conte-nos sobre sua oportunidade</h2>
-    <button type="button" class="modal-fechar" data-fechar-contato aria-label="Fechar">
+    <p class="eyebrow eyebrow--claro" data-en="Talk to Horizon">Falar com a Horizon</p>
+    <h2 id="fale-titulo" data-en="How can we help?">Como podemos ajudar?</h2>
+    <button type="button" class="modal-fechar" data-fechar-contato aria-label="Fechar" data-en-aria-label="Close">
       <svg class="icone" aria-hidden="true"><use href="#i-fechar"/></svg>
     </button>
   </div>
 
   <form class="modal-forma" id="fale-forma" method="post" novalidate>
-    <p class="modal-intro">Deixe seus dados e conte um pouco sobre o produto ou projeto. Retornamos em breve.</p>
+    <p class="modal-intro" data-en="Leave your details and your message. We'll get back to you shortly.">Deixe seus dados e sua mensagem. Retornamos em breve.</p>
 
     <div class="modal-falha" role="alert">
       <svg class="icone" aria-hidden="true"><use href="#i-alerta"/></svg>
-      <span>Não conseguimos enviar agora. Tente de novo em instantes ou escreva para
+      <span data-en-html='We couldn&#39;t send this right now. Please try again shortly or write to
+        <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>.'>Não conseguimos enviar agora. Tente de novo em instantes ou escreva para
         <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>.</span>
     </div>
 
     <div class="campo">
-      <label for="fale-nome">Nome completo</label>
+      <label for="fale-nome" data-en="Full name">Nome completo</label>
       <input id="fale-nome" name="nome" type="text" autocomplete="name" maxlength="120"
-             placeholder="Como podemos te chamar?" aria-describedby="erro-fale-nome" required>
+             placeholder="Como podemos te chamar?" data-en-placeholder="What should we call you?" aria-describedby="erro-fale-nome" required>
       <span class="campo-erro" id="erro-fale-nome"></span>
     </div>
 
     <div class="campo">
-      <label for="fale-empresa">Empresa <span>(opcional)</span></label>
+      <label for="fale-empresa"><span data-en="Company">Empresa</span> <span class="opcional" data-en="(optional)">(opcional)</span></label>
       <input id="fale-empresa" name="empresa" type="text" autocomplete="organization" maxlength="120"
-             placeholder="Nome da empresa">
+             placeholder="Nome da empresa" data-en-placeholder="Company name">
     </div>
 
     <div class="campo-linha">
       <div class="campo">
-        <label for="fale-email">E-mail</label>
+        <label for="fale-email" data-en="Email">E-mail</label>
         <input id="fale-email" name="email" type="email" autocomplete="email" maxlength="160"
-               placeholder="voce@empresa.com" aria-describedby="erro-fale-email" required>
+               placeholder="voce@empresa.com" data-en-placeholder="you@company.com" aria-describedby="erro-fale-email" required>
         <span class="campo-erro" id="erro-fale-email"></span>
       </div>
       <!-- sem máscara brasileira de propósito: quem escreve para uma importadora
            muitas vezes é o fornecedor lá fora, com telefone de outro país -->
       <div class="campo">
-        <label for="fale-telefone">Telefone</label>
+        <label for="fale-telefone" data-en="Phone">Telefone</label>
         <input id="fale-telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24"
                placeholder="+55 41 99999-9999" aria-describedby="erro-fale-telefone" required>
         <span class="campo-erro" id="erro-fale-telefone"></span>
@@ -1156,9 +1343,9 @@ dialog:not([open]){ display:none; }
     </div>
 
     <div class="campo">
-      <label for="fale-mensagem">Sua oportunidade</label>
+      <label for="fale-mensagem" data-en="Message">Mensagem</label>
       <textarea id="fale-mensagem" name="mensagem" rows="4" maxlength="3000"
-                placeholder="Produto, origem, volume, objetivo no Brasil…" aria-describedby="erro-fale-mensagem" required></textarea>
+                placeholder="Sua dúvida, produto ou projeto…" data-en-placeholder="Your question, product or project…" aria-describedby="erro-fale-mensagem" required></textarea>
       <span class="campo-erro" id="erro-fale-mensagem"></span>
     </div>
 
@@ -1169,24 +1356,330 @@ dialog:not([open]){ display:none; }
     </div>
 
     <button type="submit" class="botao botao--dourado modal-enviar">
-      Enviar mensagem
+      <span data-en="Send message">Enviar mensagem</span>
       <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
     </button>
-    <p class="modal-aviso">Usamos seus dados apenas para responder ao seu contato.</p>
+    <p class="modal-aviso" data-en="We only use your data to reply to you.">Usamos seus dados apenas para responder ao seu contato.</p>
   </form>
 
   <div class="modal-enviando" aria-live="polite">
     <div class="modal-roda" aria-hidden="true"></div>
-    <p>Enviando sua mensagem…</p>
+    <p data-en="Sending your message…">Enviando sua mensagem…</p>
   </div>
 
   <div class="modal-sucesso" aria-live="polite">
     <div class="modal-selo" aria-hidden="true">
       <svg class="icone"><use href="#i-check"/></svg>
     </div>
-    <h3>Mensagem enviada</h3>
-    <p>Recebemos seu contato. Nossa equipe vai analisar sua oportunidade e retornar em breve.</p>
-    <button type="button" class="botao botao--escuro modal-enviar" id="fale-sucesso-fechar" data-fechar-contato>Fechar</button>
+    <h3 data-en="Message sent">Mensagem enviada</h3>
+    <p data-en="We've received your message. Our team will get back to you shortly.">Recebemos seu contato. Nossa equipe retorna em breve.</p>
+    <button type="button" class="botao botao--escuro modal-enviar" id="fale-sucesso-fechar" data-fechar-contato><span data-en="Close">Fechar</span></button>
+  </div>
+</dialog>
+
+<!-- ============ MODAL: SOLICITE UMA COTAÇÃO ============
+     Mesmo formulário da HARGUS: só o contato e a área de atuação são
+     obrigatórios; os dados da mercadoria são opcionais e só os preenchidos
+     vão para o e-mail. Aberto por [data-cotacao]. -->
+<dialog class="modal modal--ampla" id="cotacao" data-estado="formulario" aria-labelledby="cotacao-titulo">
+  <div class="modal-topo">
+    <p class="eyebrow eyebrow--claro" data-en="Request a quote">Solicite uma cotação</p>
+    <h2 id="cotacao-titulo" data-en="Leave your details">Deixe seus dados</h2>
+    <button type="button" class="modal-fechar" data-fechar-cotacao aria-label="Fechar" data-en-aria-label="Close">
+      <svg class="icone" aria-hidden="true"><use href="#i-fechar"/></svg>
+    </button>
+  </div>
+
+  <form class="modal-forma" id="cotacao-forma" method="post" novalidate>
+    <p class="modal-intro" data-en="We only need your contact details to reply. Goods details are optional — the more you fill in, the more accurate the quote.">Precisamos só do contato para responder. Os dados da mercadoria são opcionais — quanto mais você preencher, mais precisa vem a cotação.</p>
+
+    <div class="modal-falha" role="alert">
+      <svg class="icone" aria-hidden="true"><use href="#i-alerta"/></svg>
+      <span data-en-html='We couldn&#39;t send this right now. Please try again shortly or write to
+        <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>.'>Não conseguimos enviar agora. Tente de novo em instantes ou escreva para
+        <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>.</span>
+    </div>
+
+    <div class="campo">
+      <label for="cotacao-nome" data-en="Full name">Nome completo</label>
+      <input id="cotacao-nome" name="nome" type="text" autocomplete="name" maxlength="120"
+             placeholder="Como podemos te chamar?" data-en-placeholder="What should we call you?" aria-describedby="erro-cotacao-nome" required>
+      <span class="campo-erro" id="erro-cotacao-nome"></span>
+    </div>
+
+    <div class="campo-linha">
+      <div class="campo">
+        <label for="cotacao-telefone" data-en="Phone">Telefone</label>
+        <input id="cotacao-telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24"
+               placeholder="+55 41 99999-9999" aria-describedby="erro-cotacao-telefone" required>
+        <span class="campo-erro" id="erro-cotacao-telefone"></span>
+      </div>
+      <div class="campo">
+        <label for="cotacao-email" data-en="Email">E-mail</label>
+        <input id="cotacao-email" name="email" type="email" autocomplete="email" maxlength="160"
+               placeholder="voce@empresa.com" data-en-placeholder="you@company.com" aria-describedby="erro-cotacao-email" required>
+        <span class="campo-erro" id="erro-cotacao-email"></span>
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="cotacao-area" data-en="What industry does your company operate in?">Em qual área sua empresa atua?</label>
+      <select id="cotacao-area" name="area_atuacao" aria-describedby="erro-cotacao-area" required>
+        <option value="" data-en="Select">Selecione</option>
+        <option data-en="Automotive/naval/aerospace">Automobilística/naval/aeronáutica</option>
+        <option data-en="Food/beverages">Alimentícia/bebidas</option>
+        <option data-en="Construction">Construção civil</option>
+        <option data-en="Clean/solar energy">Energia limpa/solar</option>
+        <option data-en="Electronics/IT equipment">Equipamentos eletrônicos/informática</option>
+        <option data-en="Timber/furniture">Madeireira/moveleira</option>
+        <option data-en="Machinery">Maquinários</option>
+        <option data-en="Metallurgy/steel">Metalúrgica/siderúrgica</option>
+        <option data-en="Pulp and paper">Papel e celulose</option>
+        <option data-en="Chemical/petrochemical">Química/petroquímica</option>
+        <option data-en="Textile">Têxtil</option>
+        <option data-en="Other">Outros</option>
+      </select>
+      <span class="campo-erro" id="erro-cotacao-area"></span>
+    </div>
+
+    <p class="modal-secao"><span data-en="Goods details">Dados da mercadoria</span> <span class="opcional" data-en="— optional">— opcional</span></p>
+
+    <div class="campo">
+      <label for="cotacao-descricao" data-en="Full description of the goods">Descrição completa da mercadoria</label>
+      <textarea id="cotacao-descricao" class="campo-baixo" name="descricao" rows="3" maxlength="2000" placeholder="O que é, para que serve, embalagem..." data-en-placeholder="What it is, its purpose, packaging..."></textarea>
+    </div>
+
+    <div class="campo-linha">
+      <div class="campo">
+        <label for="cotacao-valor" data-en="Value of the goods">Valor da mercadoria</label>
+        <input id="cotacao-valor" name="valor" type="text" maxlength="60" placeholder="Ex.: USD 12.000,00" data-en-placeholder="E.g.: USD 12,000.00">
+      </div>
+      <div class="campo">
+        <label for="cotacao-ncm" data-en="NCM / HS code">NCM</label>
+        <input id="cotacao-ncm" name="ncm" type="text" inputmode="numeric" maxlength="20" placeholder="Ex.: 8471.30.19" data-en-placeholder="E.g.: 8471.30.19">
+      </div>
+    </div>
+
+    <div class="campo-linha">
+      <div class="campo">
+        <label for="cotacao-incoterm">Incoterm</label>
+        <select id="cotacao-incoterm" name="incoterm">
+          <option value="" data-en="Select">Selecione</option>
+          <option>EXW</option><option>FCA</option><option>FAS</option><option>FOB</option>
+          <option>CFR</option><option>CIF</option><option>CPT</option><option>CIP</option>
+          <option>DAP</option><option>DPU</option><option>DDP</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="cotacao-pais" data-en="Country of origin">País de origem</label>
+        <input id="cotacao-pais" name="pais" type="text" maxlength="60" placeholder="Ex.: China" data-en-placeholder="E.g.: China">
+      </div>
+    </div>
+
+    <div class="campo-linha">
+      <div class="campo">
+        <label for="cotacao-porto-origem" data-en="Port of origin">Porto de origem</label>
+        <input id="cotacao-porto-origem" name="porto_origem" type="text" maxlength="60" placeholder="Ex.: Shanghai" data-en-placeholder="E.g.: Shanghai">
+      </div>
+      <div class="campo">
+        <label for="cotacao-porto-destino" data-en="Port of destination">Porto de destino</label>
+        <input id="cotacao-porto-destino" name="porto_destino" type="text" maxlength="60" placeholder="Ex.: Paranaguá" data-en-placeholder="E.g.: Paranaguá">
+      </div>
+    </div>
+
+    <div class="campo-linha">
+      <div class="campo">
+        <label for="cotacao-tipo-carga" data-en="General or special cargo">Carga geral ou especial</label>
+        <select id="cotacao-tipo-carga" name="tipo_carga">
+          <option value="" data-en="Select">Selecione</option>
+          <option data-en="General">Geral</option>
+          <option data-en="Special">Especial</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="cotacao-temperatura" data-en="Temperature control">Controle de temperatura</label>
+        <input id="cotacao-temperatura" name="temperatura" type="text" maxlength="60" placeholder="Se sim, qual? Ex.: 2 °C a 8 °C" data-en-placeholder="If yes, which range? E.g.: 2°C to 8°C">
+      </div>
+    </div>
+
+    <div class="campo-linha">
+      <div class="campo">
+        <label for="cotacao-quantidade" data-en="Quantity">Quantidade</label>
+        <input id="cotacao-quantidade" name="quantidade" type="text" maxlength="60" placeholder="Ex.: 12 pallets" data-en-placeholder="E.g.: 12 pallets">
+      </div>
+      <div class="campo">
+        <label for="cotacao-peso" data-en="Gross weight">Peso bruto</label>
+        <input id="cotacao-peso" name="peso" type="text" maxlength="60" placeholder="Ex.: 4.800 kg" data-en-placeholder="E.g.: 4,800 kg">
+      </div>
+    </div>
+
+    <div class="campo-linha">
+      <div class="campo">
+        <label for="cotacao-volume">Volume (CBM)</label>
+        <input id="cotacao-volume" name="volume" type="text" maxlength="30" placeholder="Ex.: 18,5" data-en-placeholder="E.g.: 18.5">
+      </div>
+      <div class="campo">
+        <label for="cotacao-modal" data-en="Transport mode">Modal de transporte</label>
+        <select id="cotacao-modal" name="modal">
+          <option value="" data-en="Select">Selecione</option>
+          <option data-en="Air">Aéreo</option>
+          <option data-en="Sea">Marítimo</option>
+          <option data-en="Road">Rodoviário</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="cotacao-enderecos" data-en="Pickup and/or delivery addresses">Endereços para coleta e/ou entrega</label>
+      <textarea id="cotacao-enderecos" class="campo-baixo" name="enderecos" rows="2" maxlength="1000" placeholder="Caso seja necessário" data-en-placeholder="If applicable"></textarea>
+    </div>
+
+    <div class="modal-isca" aria-hidden="true">
+      <label for="cotacao-isca">Não preencha este campo</label>
+      <input id="cotacao-isca" name="_honey" type="text" tabindex="-1" autocomplete="off">
+    </div>
+
+    <button type="submit" class="botao botao--dourado modal-enviar">
+      <span data-en="Submit request">Enviar solicitação</span>
+      <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+    </button>
+    <p class="modal-aviso" data-en="We only use your data to respond to this request.">Usamos seus dados apenas para responder a esta solicitação.</p>
+  </form>
+
+  <div class="modal-enviando" aria-live="polite">
+    <div class="modal-roda" aria-hidden="true"></div>
+    <p data-en="Submitting your request…">Enviando sua solicitação…</p>
+  </div>
+
+  <div class="modal-sucesso" aria-live="polite">
+    <div class="modal-selo" aria-hidden="true">
+      <svg class="icone"><use href="#i-check"/></svg>
+    </div>
+    <h3 data-en="Request submitted">Solicitação enviada</h3>
+    <p data-en="We've received your details. Our team will get back to you with a quote shortly.">Recebemos seus dados. Nossa equipe retorna com a cotação em breve.</p>
+    <button type="button" class="botao botao--escuro modal-enviar" id="cotacao-sucesso-fechar" data-fechar-cotacao><span data-en="Close">Fechar</span></button>
+  </div>
+</dialog>
+
+<!-- ============ MODAL: TRABALHE CONOSCO ============
+     Currículo anexado e enviado por POST tradicional ao FormSubmit (ver o
+     <script>): a página sai para o formsubmit.co e volta pelo _next, que
+     reabre este modal já na tela de sucesso. Aberto por [data-trabalhe]. -->
+<dialog class="modal modal--ampla" id="trabalhe" data-estado="formulario" aria-labelledby="trabalhe-titulo">
+  <div class="modal-topo">
+    <p class="eyebrow eyebrow--claro" data-en="Careers">Trabalhe conosco</p>
+    <h2 id="trabalhe-titulo" data-en="Submit your resume">Envie seu currículo</h2>
+    <button type="button" class="modal-fechar" data-fechar-trabalhe aria-label="Fechar" data-en-aria-label="Close">
+      <svg class="icone" aria-hidden="true"><use href="#i-fechar"/></svg>
+    </button>
+  </div>
+
+  <form class="modal-forma" id="trabalhe-forma" method="POST" enctype="multipart/form-data" novalidate>
+    <p class="modal-intro" data-en="Fill in your details and attach your resume.">Preencha seus dados e anexe seu currículo.</p>
+
+    <div class="modal-falha" role="alert">
+      <svg class="icone" aria-hidden="true"><use href="#i-alerta"/></svg>
+      <span data-en-html='We couldn&#39;t send this right now. Please try again shortly or send your resume directly to
+        <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>.'>Não conseguimos enviar agora. Tente de novo em instantes ou envie seu currículo direto para
+        <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>.</span>
+    </div>
+
+    <div class="campo-linha">
+      <div class="campo">
+        <label for="trabalhe-nome" data-en="Name">Nome</label>
+        <input id="trabalhe-nome" name="nome" type="text" autocomplete="name" maxlength="120"
+               placeholder="Seu nome completo" data-en-placeholder="Your full name" aria-describedby="erro-trabalhe-nome" required>
+        <span class="campo-erro" id="erro-trabalhe-nome"></span>
+      </div>
+      <div class="campo">
+        <label for="trabalhe-email" data-en="Email">E-mail</label>
+        <input id="trabalhe-email" name="email" type="email" autocomplete="email" maxlength="160"
+               placeholder="voce@email.com" data-en-placeholder="you@email.com" aria-describedby="erro-trabalhe-email" required>
+        <span class="campo-erro" id="erro-trabalhe-email"></span>
+      </div>
+    </div>
+
+    <div class="campo-linha">
+      <div class="campo">
+        <label for="trabalhe-telefone" data-en="Phone">Telefone</label>
+        <input id="trabalhe-telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24"
+               placeholder="+55 41 99999-9999" aria-describedby="erro-trabalhe-telefone" required>
+        <span class="campo-erro" id="erro-trabalhe-telefone"></span>
+      </div>
+      <div class="campo">
+        <label for="trabalhe-cargo" data-en="Desired position">Cargo desejado</label>
+        <input id="trabalhe-cargo" name="cargo" type="text" maxlength="80"
+               placeholder="Ex.: Analista de Comércio Exterior" data-en-placeholder="E.g.: Foreign Trade Analyst" aria-describedby="erro-trabalhe-cargo" required>
+        <span class="campo-erro" id="erro-trabalhe-cargo"></span>
+      </div>
+    </div>
+
+    <div class="campo-linha">
+      <div class="campo">
+        <label for="trabalhe-cidade" data-en="City">Cidade</label>
+        <input id="trabalhe-cidade" name="cidade" type="text" autocomplete="address-level2" maxlength="80"
+               placeholder="Sua cidade" data-en-placeholder="Your city" aria-describedby="erro-trabalhe-cidade" required>
+        <span class="campo-erro" id="erro-trabalhe-cidade"></span>
+      </div>
+      <div class="campo">
+        <label for="trabalhe-estado" data-en="State">Estado</label>
+        <input id="trabalhe-estado" name="estado" type="text" autocomplete="address-level1"
+               placeholder="UF" data-en-placeholder="State code" maxlength="2" style="text-transform:uppercase"
+               aria-describedby="erro-trabalhe-estado" required>
+        <span class="campo-erro" id="erro-trabalhe-estado"></span>
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="trabalhe-curriculo" data-en="Resume (PDF, DOC or DOCX, up to 5MB)">Currículo (PDF, DOC ou DOCX, até 5MB)</label>
+      <input id="trabalhe-curriculo" name="curriculo" type="file" accept=".pdf,.doc,.docx"
+             aria-describedby="erro-trabalhe-curriculo" required>
+      <span class="campo-erro" id="erro-trabalhe-curriculo"></span>
+    </div>
+
+    <div class="campo">
+      <label for="trabalhe-mensagem"><span data-en="Message">Mensagem</span> <span class="opcional" data-en="(optional)">(opcional)</span></label>
+      <textarea id="trabalhe-mensagem" class="campo-baixo" name="mensagem" rows="3" maxlength="2000" placeholder="Conte um pouco sobre você" data-en-placeholder="Tell us a bit about yourself"></textarea>
+    </div>
+
+    <div class="modal-isca" aria-hidden="true">
+      <label for="trabalhe-isca">Não preencha este campo</label>
+      <input id="trabalhe-isca" name="_honey" type="text" tabindex="-1" autocomplete="off">
+    </div>
+
+    <!-- controles do FormSubmit: assunto, endereço de retorno e origem são
+         preenchidos pelo <script> no momento do envio -->
+    <input type="hidden" name="_subject" value="Currículo Enviado">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_next" value="">
+    <input type="hidden" name="Origem" value="">
+
+    <label class="consentimento" for="trabalhe-consentimento">
+      <input id="trabalhe-consentimento" type="checkbox" aria-describedby="erro-trabalhe-consentimento" required>
+      <span data-en="I agree that my data will be collected and stored to evaluate my application.">Concordo que meus dados sejam recolhidos e armazenados para avaliar minha candidatura.</span>
+    </label>
+    <span class="campo-erro" id="erro-trabalhe-consentimento"></span>
+
+    <button type="submit" class="botao botao--dourado modal-enviar">
+      <span data-en="Submit application">Enviar candidatura</span>
+      <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+    </button>
+    <p class="modal-aviso" data-en="We only use your data to evaluate your application.">Usamos seus dados apenas para avaliar sua candidatura.</p>
+  </form>
+
+  <div class="modal-enviando" aria-live="polite">
+    <div class="modal-roda" aria-hidden="true"></div>
+    <p data-en="Submitting your application…">Enviando sua candidatura…</p>
+  </div>
+
+  <div class="modal-sucesso" aria-live="polite">
+    <div class="modal-selo" aria-hidden="true">
+      <svg class="icone"><use href="#i-check"/></svg>
+    </div>
+    <h3 data-en="Resume submitted">Currículo enviado</h3>
+    <p data-en="We've received your application. Our team will review your profile and get in touch if a matching opportunity comes up.">Recebemos sua candidatura. Nossa equipe vai avaliar seu perfil e entrar em contato caso haja uma oportunidade compatível.</p>
+    <button type="button" class="botao botao--escuro modal-enviar" id="trabalhe-sucesso-fechar" data-fechar-trabalhe><span data-en="Close">Fechar</span></button>
   </div>
 </dialog>
 
@@ -1198,12 +1691,24 @@ dialog:not([open]){ display:none; }
 
   document.getElementById('ano-atual').textContent = new Date().getFullYear();
 
-  /* ============ CABEÇALHO: sombra ao rolar + menu mobile ============ */
+  /* Para onde chegam contato, cotação e currículo. O FormSubmit só entrega
+     depois que o dono deste endereço clicar no e-mail de ativação que ele
+     manda no primeiro envio — e a ativação vale por endereço E por domínio:
+     refazer quando o site for para o endereço definitivo. Até lá os
+     formulários mostram o aviso de falha, com o e-mail para contato direto. */
+  var DESTINO = 'comercial@horizoncomercial.com.br';
+
+  /* ============ CABEÇALHO: faixa de utilidades + menu mobile ============ */
   var nav = document.getElementById('nav');
   var hamburguer = document.getElementById('hamburguer');
   var menuMobile = document.getElementById('menu-mobile');
 
-  function marcarRolagem(){ nav.classList.toggle('nav--rolada', window.scrollY > 8); }
+  /* com a página travada o scrollY lido é 0 — sem este guarda, abrir um
+     modal no meio da página faria a faixa de utilidades reaparecer atrás dele */
+  function marcarRolagem(){
+    if (document.body.classList.contains('travado')) return;
+    nav.classList.toggle('nav--rolada', window.scrollY > 8);
+  }
   window.addEventListener('scroll', marcarRolagem, { passive:true });
   marcarRolagem();
 
@@ -1235,38 +1740,104 @@ dialog:not([open]){ display:none; }
   function menuAberto(){ return menuMobile.classList.contains('aberto'); }
   function abrirMenu(aberto){
     hamburguer.setAttribute('aria-expanded', String(aberto));
-    hamburguer.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu');
+    hamburguer.setAttribute('aria-label', aberto ? msg('Fechar menu', 'Close menu') : msg('Abrir menu', 'Open menu'));
     menuMobile.classList.toggle('aberto', aberto);
     travarPagina(aberto);
   }
   hamburguer.addEventListener('click', function(){ abrirMenu(!menuAberto()); });
-  menuMobile.querySelectorAll('a:not([data-contato])').forEach(function(a){
+  menuMobile.querySelectorAll('a:not([data-contato]):not([data-cotacao])').forEach(function(a){
     a.addEventListener('click', function(){ abrirMenu(false); });
   });
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape' && menuAberto()) abrirMenu(false);
   });
-  /* girar o tablet ou alargar a janela com o painel aberto esconderia o
-     painel (ele não existe no desktop) e deixaria a página travada */
-  var telaLarga = window.matchMedia('(min-width: 1081px)');
+  /* alargar a janela com o painel aberto o esconderia (ele não existe no
+     desktop) e deixaria a página travada sem nada na tela explicando por quê */
+  var telaLarga = window.matchMedia('(min-width: 1221px)');
   if (telaLarga.addEventListener){
     telaLarga.addEventListener('change', function(e){ if (e.matches && menuAberto()) abrirMenu(false); });
   }
 
+  /* ============ IDIOMA: PT/EN ============
+     Como na HARGUS: as duas versões de cada texto convivem no HTML — a
+     visível, em português, e um data-en* ao lado. Trocar de idioma é
+     percorrer quem tem esses atributos e virar o conteúdo; o português é
+     guardado uma vez só, na primeira leitura, e continua vivendo só no HTML.
+     data-en troca o texto, data-en-html o HTML (para <br> e destaques), e
+     data-en-placeholder/-content/-aria-label/-alt trocam o atributo de mesmo
+     nome. A escolha persiste entre visitas. */
+  var CHAVE_IDIOMA = 'horizon-idioma';
+  var idioma = 'pt';
+  /* o armazenamento pode estar bloqueado (aba anônima, cookies desligados):
+     aí o site só não lembra a escolha, mas continua trocando */
+  try { if (localStorage.getItem(CHAVE_IDIOMA) === 'en') idioma = 'en'; } catch (e) {}
+  function msg(pt, en){ return idioma === 'en' ? en : pt; }
+
+  var ATRIBUTOS_TRADUZIDOS = ['placeholder', 'content', 'aria-label', 'alt'];
+  var traduziveis = document.querySelectorAll('[data-en], [data-en-html], [data-en-placeholder], [data-en-content], [data-en-aria-label], [data-en-alt]');
+  traduziveis.forEach(function(el){
+    if (el.hasAttribute('data-en-html')) el.setAttribute('data-pt-html', el.innerHTML);
+    else if (el.hasAttribute('data-en')) el.setAttribute('data-pt', el.textContent);
+    ATRIBUTOS_TRADUZIDOS.forEach(function(attr){
+      if (el.hasAttribute('data-en-' + attr)) el.setAttribute('data-pt-' + attr, el.getAttribute(attr) || '');
+    });
+  });
+
+  /* os modais registram aqui como revalidar o que está com erro na tela, para
+     a mensagem vermelha trocar de idioma junto com o resto */
+  var aoTrocarIdioma = [];
+
+  function aplicarIdioma(novo){
+    idioma = novo === 'en' ? 'en' : 'pt';
+    var en = idioma === 'en';
+    var sufixo = en ? 'en' : 'pt';
+    document.documentElement.lang = en ? 'en' : 'pt-BR';
+
+    traduziveis.forEach(function(el){
+      if (el.hasAttribute('data-en-html')) el.innerHTML = el.getAttribute('data-' + sufixo + '-html');
+      else if (el.hasAttribute('data-en')) el.textContent = el.getAttribute('data-' + sufixo);
+      ATRIBUTOS_TRADUZIDOS.forEach(function(attr){
+        if (el.hasAttribute('data-en-' + attr)) el.setAttribute(attr, el.getAttribute('data-' + sufixo + '-' + attr));
+      });
+    });
+
+    document.querySelectorAll('.idioma-btn').forEach(function(b){
+      var ativo = b.getAttribute('data-lang') === idioma;
+      b.classList.toggle('ativo', ativo);
+      b.setAttribute('aria-pressed', String(ativo));
+    });
+    hamburguer.setAttribute('aria-label', menuAberto() ? msg('Fechar menu', 'Close menu') : msg('Abrir menu', 'Open menu'));
+    aoTrocarIdioma.forEach(function(f){ f(); });
+
+    try { localStorage.setItem(CHAVE_IDIOMA, idioma); } catch (e) {}
+  }
+
+  document.querySelectorAll('.idioma-btn').forEach(function(b){
+    b.addEventListener('click', function(){ aplicarIdioma(b.getAttribute('data-lang')); });
+  });
+  aplicarIdioma(idioma);
+
   /* ============ MENU: item da seção que está na tela ============
      Cada seção diz em data-secao qual item do menu ela acende (missão acende
      "A Horizon", modelos acende "Soluções"). A faixa observada é uma linha
-     fina a 40% da altura da tela: só uma seção a cruza por vez. */
+     fina a 40% da altura da tela; entre as seções que a cruzam, vale a última
+     na ordem da página. */
   var linksMenu = document.querySelectorAll('.nav-menu a');
+  var secoes = Array.prototype.slice.call(document.querySelectorAll('[data-secao]'));
   if ('IntersectionObserver' in window){
+    var naFaixa = [];
     var vigia = new IntersectionObserver(function(entradas){
       entradas.forEach(function(entrada){
-        if (!entrada.isIntersecting) return;
-        var alvo = entrada.target.getAttribute('data-secao');
-        linksMenu.forEach(function(a){ a.classList.toggle('ativo', a.getAttribute('href') === alvo); });
+        var i = naFaixa.indexOf(entrada.target);
+        if (entrada.isIntersecting && i < 0) naFaixa.push(entrada.target);
+        if (!entrada.isIntersecting && i >= 0) naFaixa.splice(i, 1);
       });
+      var atual = secoes.filter(function(s){ return naFaixa.indexOf(s) >= 0; }).pop();
+      if (!atual) return;
+      var alvo = atual.getAttribute('data-secao');
+      linksMenu.forEach(function(a){ a.classList.toggle('ativo', a.getAttribute('href') === alvo); });
     }, { rootMargin:'-40% 0px -59% 0px' });
-    document.querySelectorAll('[data-secao]').forEach(function(s){ vigia.observe(s); });
+    secoes.forEach(function(s){ vigia.observe(s); });
   }
 
   /* ============ REVELAÇÃO AO ROLAR ============ */
@@ -1285,155 +1856,346 @@ dialog:not([open]){ display:none; }
     revelaveis.forEach(function(el){ observador.observe(el); });
   }
 
-  /* ============ FALAR COM A HORIZON: modal de contato ============
-     Todo [data-contato] abre o mesmo <dialog>. O envio vai pelo FormSubmit (o
-     site é estático, não há servidor próprio para receber POST) e chega como
-     e-mail, com o "responder" já apontando para quem escreveu. */
+  /* ============ MODAIS: base comum ============
+     Os três formulários (contato, cotação e currículo) dividem abrir, fechar,
+     validar e devolver o foco — a HARGUS repete esse código em cada modal;
+     aqui ele mora uma vez só. Cada modal passa os seus campos e regras; a
+     regra recebe o próprio elemento (arquivo e caixa de seleção não se leem
+     por .value) e devolve '' se estiver certo ou a mensagem de erro. */
+  function regraNome(el){ return el.value.trim().length >= 2 ? '' : msg('Digite seu nome.', 'Enter your name.'); }
+  function regraEmail(el){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value.trim()) ? '' : msg('Digite um e-mail válido.', 'Enter a valid email address.');
+  }
+  /* sem máscara brasileira: 8 a 15 dígitos cobre de fixo sem DDD ao maior
+     número internacional (E.164), com +, espaço, traço e parênteses livres */
+  function regraTelefone(el){
+    var v = el.value, d = v.replace(/\D/g, '');
+    return (/^[\d\s()+.\-]*$/.test(v) && d.length >= 8 && d.length <= 15) ? '' : msg('Informe um telefone com DDD (ou código do país).', 'Enter a phone number with area code (or country code).');
+  }
 
-  /* O FormSubmit só entrega depois que o dono deste endereço clicar no e-mail
-     de ativação que ele manda no primeiro envio — e a ativação vale por
-     domínio: refazer quando o site for para o endereço definitivo. Até lá o
-     formulário mostra o aviso de falha, com o e-mail para contato direto. */
-  var CONTATO_DESTINO = 'comercial@horizoncomercial.com.br';
-  var modal = document.getElementById('fale-conosco');
-
-  /* Navegador sem <dialog>: nada é interceptado e os botões seguem o href
-     original (a chamada final ou o próprio e-mail). */
-  if (modal && typeof modal.showModal === 'function') (function(){
-    var forma = document.getElementById('fale-forma');
-    var isca = document.getElementById('fale-isca');
-    var empresa = document.getElementById('fale-empresa');
-    var campos = {
-      nome:     document.getElementById('fale-nome'),
-      email:    document.getElementById('fale-email'),
-      telefone: document.getElementById('fale-telefone'),
-      mensagem: document.getElementById('fale-mensagem')
-    };
+  function criarModal(cfg){
+    var dialogo = cfg.dialogo;
+    var campos = cfg.campos;
     var nomes = Object.keys(campos);
     var quemAbriu = null;
 
-    var regras = {
-      nome:     function(v){ return v.trim().length >= 2 ? '' : 'Digite seu nome.'; },
-      email:    function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? '' : 'Digite um e-mail válido.'; },
-      /* 8 a 15 dígitos cobre fixo brasileiro sem DDD até o maior número
-         internacional (E.164) */
-      telefone: function(v){
-        var d = v.replace(/\D/g, '');
-        return (/^[\d\s()+.\-]*$/.test(v) && d.length >= 8 && d.length <= 15) ? '' : 'Informe um telefone com DDD (ou código do país).';
-      },
-      mensagem: function(v){ return v.trim().length >= 5 ? '' : 'Conte um pouco sobre sua oportunidade.'; }
-    };
-
-    function mostrarErro(nome, texto){
-      document.getElementById('erro-fale-' + nome).textContent = texto;
-      if (texto) campos[nome].setAttribute('aria-invalid', 'true');
-      else campos[nome].removeAttribute('aria-invalid');
+    function mostrarErro(chave, texto){
+      document.getElementById('erro-' + cfg.prefixo + chave).textContent = texto;
+      if (texto) campos[chave].setAttribute('aria-invalid', 'true');
+      else campos[chave].removeAttribute('aria-invalid');
       return !texto;
     }
-    function validar(nome){ return mostrarErro(nome, regras[nome](campos[nome].value)); }
+    function validar(chave){ return mostrarErro(chave, cfg.regras[chave](campos[chave])); }
+    function validarTudo(){
+      /* .map antes do .every: valida todos os campos, não para no primeiro */
+      var ok = nomes.map(validar).every(Boolean);
+      if (!ok){
+        campos[nomes.filter(function(c){ return campos[c].getAttribute('aria-invalid') === 'true'; })[0]].focus();
+      }
+      return ok;
+    }
 
-    /* ao sair do campo só avisa se já há algo escrito: passar pelo formulário
-       com Tab não deve pintar tudo de vermelho antes da hora */
-    nomes.forEach(function(nome){
-      campos[nome].addEventListener('blur', function(){ if (campos[nome].value.trim()) validar(nome); });
-      campos[nome].addEventListener('input', function(){
-        if (campos[nome].getAttribute('aria-invalid') === 'true') validar(nome);
-      });
+    nomes.forEach(function(chave){
+      var el = campos[chave];
+      var deEscolha = el.type === 'file' || el.type === 'checkbox' || el.tagName === 'SELECT';
+      if (deEscolha){
+        el.addEventListener('change', function(){ validar(chave); });
+      } else {
+        /* ao sair do campo só avisa se já há algo escrito: passar pelo
+           formulário com Tab não deve pintar tudo de vermelho antes da hora */
+        el.addEventListener('blur', function(){ if (el.value.trim()) validar(chave); });
+        el.addEventListener('input', function(){ if (el.getAttribute('aria-invalid') === 'true') validar(chave); });
+      }
+    });
+    aoTrocarIdioma.push(function(){
+      nomes.forEach(function(chave){ if (campos[chave].getAttribute('aria-invalid') === 'true') validar(chave); });
     });
 
-    function abrir(origem){
+    var aberto = false;
+    function abrir(origem, estado){
       quemAbriu = origem || null;
       if (menuAberto()) abrirMenu(false);
-      modal.dataset.estado = 'formulario';
-      modal.dataset.falhou = 'nao';
-      modal.showModal();
+      dialogo.dataset.estado = estado || 'formulario';
+      dialogo.dataset.falhou = 'nao';
+      dialogo.showModal();
+      aberto = true;
       travarPagina(true);
-      campos.nome.focus();
+      if (!estado) campos[nomes[0]].focus();
     }
     /* enquanto envia, fechar deixaria o resultado do envio sem ninguém para ver */
-    function fechar(){ if (modal.dataset.estado !== 'enviando') modal.close(); }
+    function fechar(){ if (dialogo.dataset.estado !== 'enviando') dialogo.close(); }
 
-    modal.addEventListener('cancel', function(e){
-      if (modal.dataset.estado === 'enviando') e.preventDefault();
+    dialogo.addEventListener('cancel', function(e){
+      if (dialogo.dataset.estado === 'enviando') e.preventDefault();
     });
-    modal.addEventListener('close', function(){
+
+    /* Um só lugar de limpeza: vale para o X, para o Esc e para o clique fora.
+       O rascunho fica — quem fechou sem enviar volta e encontra o que escreveu.
+       Não dá para confiar só no evento "close": no Edge/Chrome ele deixou de
+       disparar numa sequência de teste (abrir, validar, Esc, fechar) e na
+       prévia do app em segundo plano, e sem ele a página ficaria travada sem
+       rolar. O atributo open, esse, sempre some — o observador pega a saída
+       por ele e o evento fica de reforço; "aberto" garante uma limpeza só. */
+    function aoFechar(){
+      if (!aberto || dialogo.open) return;
+      aberto = false;
       travarPagina(false);
-      nomes.forEach(function(nome){ mostrarErro(nome, ''); });
-      modal.dataset.estado = 'formulario';
-      modal.dataset.falhou = 'nao';
+      nomes.forEach(function(chave){ mostrarErro(chave, ''); });
+      dialogo.dataset.estado = 'formulario';
+      dialogo.dataset.falhou = 'nao';
+      /* preventScroll: travarPagina acabou de devolver a posição de leitura e
+         focar o botão de origem a puxaria de volta para onde ele está */
       if (quemAbriu){ quemAbriu.focus({ preventScroll:true }); quemAbriu = null; }
-    });
+    }
+    dialogo.addEventListener('close', aoFechar);
+    new MutationObserver(aoFechar).observe(dialogo, { attributes:true, attributeFilter:['open'] });
 
     /* clique fora fecha — mas só se o clique também começou fora: selecionar
        texto num campo e soltar o mouse sobre o fundo escuro não pode fechar */
     var comecouFora = false;
-    modal.addEventListener('pointerdown', function(e){ comecouFora = (e.target === modal); });
-    modal.addEventListener('click', function(e){
-      if (e.target === modal && comecouFora) fechar();
+    dialogo.addEventListener('pointerdown', function(e){ comecouFora = (e.target === dialogo); });
+    dialogo.addEventListener('click', function(e){
+      if (e.target === dialogo && comecouFora) fechar();
       comecouFora = false;
     });
 
-    document.querySelectorAll('[data-fechar-contato]').forEach(function(b){ b.addEventListener('click', fechar); });
-    document.querySelectorAll('[data-contato]').forEach(function(b){
+    document.querySelectorAll(cfg.fecharCom).forEach(function(b){ b.addEventListener('click', fechar); });
+    document.querySelectorAll(cfg.abrirCom).forEach(function(b){
       b.addEventListener('click', function(e){ e.preventDefault(); abrir(b); });
     });
 
-    forma.addEventListener('submit', function(e){
-      e.preventDefault();
-      var valido = nomes.map(validar).every(Boolean);
-      if (!valido){
-        campos[nomes.filter(function(n){ return campos[n].getAttribute('aria-invalid') === 'true'; })[0]].focus();
-        return;
+    return { dialogo:dialogo, campos:campos, validarTudo:validarTudo, abrir:abrir };
+  }
+
+  /* Envio por fetch para o FormSubmit (contato e cotação). Ele responde 200
+     mesmo quando recusa (endereço ainda não ativado, isca preenchida): quem
+     decide é o campo success. Numa falha, o formulário volta com o que já
+     estava digitado — perder os dados num erro de rede seria pior que o erro. */
+  function enviarPorFetch(modal, forma, corpo, idFecharSucesso){
+    var dialogo = modal.dialogo;
+    dialogo.dataset.falhou = 'nao';
+    dialogo.dataset.estado = 'enviando';
+    fetch('https://formsubmit.co/ajax/' + DESTINO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(corpo)
+    }).then(function(r){
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function(resposta){
+      if (resposta && String(resposta.success) === 'false'){
+        throw new Error(resposta.message || 'envio recusado');
+      }
+      /* enviado, o rascunho não tem mais serventia: limpa já, e não no
+         fechar — uma falha precisa devolver o texto intacto */
+      forma.reset();
+      dialogo.dataset.estado = 'sucesso';
+      document.getElementById(idFecharSucesso).focus();
+    }).catch(function(){
+      dialogo.dataset.estado = 'formulario';
+      dialogo.dataset.falhou = 'sim';
+      forma.querySelector('.modal-enviar').focus();
+    });
+  }
+
+  var temDialogo = typeof document.createElement('dialog').showModal === 'function';
+
+  /* Navegador sem <dialog>: nada é interceptado e os botões seguem o href
+     original (a chamada final ou o próprio e-mail). */
+  if (temDialogo){
+
+    /* ---------- Falar com a Horizon (contato geral) ---------- */
+    (function(){
+      var forma = document.getElementById('fale-forma');
+      var modal = criarModal({
+        dialogo: document.getElementById('fale-conosco'),
+        prefixo: 'fale-',
+        abrirCom: '[data-contato]',
+        fecharCom: '[data-fechar-contato]',
+        campos: {
+          nome:     document.getElementById('fale-nome'),
+          email:    document.getElementById('fale-email'),
+          telefone: document.getElementById('fale-telefone'),
+          mensagem: document.getElementById('fale-mensagem')
+        },
+        regras: {
+          nome: regraNome, email: regraEmail, telefone: regraTelefone,
+          mensagem: function(el){ return el.value.trim().length >= 5 ? '' : msg('Escreva sua mensagem.', 'Write your message.'); }
+        }
+      });
+
+      forma.addEventListener('submit', function(e){
+        e.preventDefault();
+        if (!modal.validarTudo()) return;
+        var c = modal.campos;
+        var empresa = document.getElementById('fale-empresa').value.trim();
+        /* a ordem das chaves é a ordem das linhas na tabela do e-mail;
+           _replyto faz o "responder" ir direto para quem escreveu */
+        var corpo = {
+          _subject: 'Novo contato pelo site — ' + c.nome.value.trim(),
+          _template: 'table',
+          _captcha: 'false',
+          _replyto: c.email.value.trim(),
+          _honey: document.getElementById('fale-isca').value,
+          Nome: c.nome.value.trim(),
+          'E-mail': c.email.value.trim(),
+          Telefone: c.telefone.value.trim()
+        };
+        if (empresa) corpo.Empresa = empresa;
+        corpo.Mensagem = c.mensagem.value.trim();
+        corpo.Idioma = idioma === 'en' ? 'Inglês' : 'Português';
+        corpo.Origem = window.location.href;
+        enviarPorFetch(modal, forma, corpo, 'fale-sucesso-fechar');
+      });
+    })();
+
+    /* ---------- Solicite uma cotação ---------- */
+    (function(){
+      /* dados opcionais da mercadoria: [id do campo, rótulo no e-mail].
+         Nenhum entra na validação; só os preenchidos viram linha na mensagem. */
+      var DETALHES = [
+        ['cotacao-descricao',     'Descrição da mercadoria'],
+        ['cotacao-valor',         'Valor da mercadoria'],
+        ['cotacao-ncm',           'NCM'],
+        ['cotacao-incoterm',      'Incoterm'],
+        ['cotacao-pais',          'País de origem'],
+        ['cotacao-porto-origem',  'Porto de origem'],
+        ['cotacao-porto-destino', 'Porto de destino'],
+        ['cotacao-tipo-carga',    'Carga geral ou especial'],
+        ['cotacao-temperatura',   'Controle de temperatura'],
+        ['cotacao-quantidade',    'Quantidade'],
+        ['cotacao-peso',          'Peso bruto'],
+        ['cotacao-volume',        'Volume (CBM)'],
+        ['cotacao-modal',         'Modal de transporte'],
+        ['cotacao-enderecos',     'Endereços para coleta/entrega']
+      ];
+      var forma = document.getElementById('cotacao-forma');
+      var modal = criarModal({
+        dialogo: document.getElementById('cotacao'),
+        prefixo: 'cotacao-',
+        abrirCom: '[data-cotacao]',
+        fecharCom: '[data-fechar-cotacao]',
+        campos: {
+          nome:     document.getElementById('cotacao-nome'),
+          telefone: document.getElementById('cotacao-telefone'),
+          email:    document.getElementById('cotacao-email'),
+          area:     document.getElementById('cotacao-area')
+        },
+        regras: {
+          nome: regraNome, telefone: regraTelefone, email: regraEmail,
+          area: function(el){ return el.value ? '' : msg('Selecione a área de atuação da empresa.', "Select your company's industry."); }
+        }
+      });
+
+      forma.addEventListener('submit', function(e){
+        e.preventDefault();
+        if (!modal.validarTudo()) return;
+        var c = modal.campos;
+        var corpo = {
+          _subject: 'Nova solicitação de cotação — ' + c.nome.value.trim(),
+          _template: 'table',
+          _captcha: 'false',
+          _replyto: c.email.value.trim(),
+          _honey: document.getElementById('cotacao-isca').value,
+          Nome: c.nome.value.trim(),
+          Telefone: c.telefone.value.trim(),
+          'E-mail': c.email.value.trim(),
+          'Área de atuação': c.area.value
+        };
+        /* campo vazio não vira linha no e-mail: quem lê vê só o que foi informado */
+        DETALHES.forEach(function(par){
+          var valor = document.getElementById(par[0]).value.trim();
+          if (valor) corpo[par[1]] = valor;
+        });
+        corpo.Idioma = idioma === 'en' ? 'Inglês' : 'Português';
+        corpo.Origem = window.location.href;
+        enviarPorFetch(modal, forma, corpo, 'cotacao-sucesso-fechar');
+      });
+    })();
+
+    /* ---------- Trabalhe conosco (currículo) ----------
+       Diferente dos outros dois, este NÃO usa fetch. Na HARGUS a rota AJAX do
+       FormSubmit respondia success e descartava o anexo (confirmado num envio
+       de teste em 15/09/2026): anexo, na documentação deles, é só por POST de
+       formulário tradicional com enctype="multipart/form-data". Então a
+       página sai para o formsubmit.co e volta pelo _next, que reabre este
+       modal já na tela de sucesso. */
+    (function(){
+      var TAMANHO_MAX = 5 * 1024 * 1024; /* o FormSubmit aceita até 10MB somando os anexos; 5MB deixa folga */
+      /* o accept="" do <input> é só sugestão do seletor de arquivos: o
+         navegador deixa escolher "todos os arquivos". Esta lista é a que de
+         fato barra — ainda validação de cliente, então quem abrir o anexo na
+         caixa de entrada continua precisando desconfiar do que recebe. */
+      var EXTENSOES = ['.pdf', '.doc', '.docx'];
+
+      var forma = document.getElementById('trabalhe-forma');
+      forma.action = 'https://formsubmit.co/' + DESTINO;
+      var dialogo = document.getElementById('trabalhe');
+
+      var modal = criarModal({
+        dialogo: dialogo,
+        prefixo: 'trabalhe-',
+        abrirCom: '[data-trabalhe]',
+        fecharCom: '[data-fechar-trabalhe]',
+        campos: {
+          nome:           document.getElementById('trabalhe-nome'),
+          email:          document.getElementById('trabalhe-email'),
+          telefone:       document.getElementById('trabalhe-telefone'),
+          cargo:          document.getElementById('trabalhe-cargo'),
+          cidade:         document.getElementById('trabalhe-cidade'),
+          estado:         document.getElementById('trabalhe-estado'),
+          curriculo:      document.getElementById('trabalhe-curriculo'),
+          consentimento:  document.getElementById('trabalhe-consentimento')
+        },
+        regras: {
+          nome: regraNome, email: regraEmail, telefone: regraTelefone,
+          cargo:  function(el){ return el.value.trim().length >= 2 ? '' : msg('Informe o cargo desejado.', 'Enter the desired position.'); },
+          cidade: function(el){ return el.value.trim().length >= 2 ? '' : msg('Informe sua cidade.', 'Enter your city.'); },
+          estado: function(el){ return /^[A-Za-z]{2}$/.test(el.value.trim()) ? '' : msg('Use a sigla do estado, ex.: PR.', 'Use the 2-letter state code, e.g.: PR.'); },
+          curriculo: function(el){
+            var f = el.files[0];
+            if (!f) return msg('Anexe seu currículo.', 'Attach your resume.');
+            var nome = f.name.toLowerCase();
+            var aceito = EXTENSOES.some(function(ext){ return nome.slice(-ext.length) === ext; });
+            if (!aceito) return msg('Envie um arquivo PDF, DOC ou DOCX.', 'Upload a PDF, DOC, or DOCX file.');
+            /* 0 byte chega como anexo vazio e ninguém percebe até abrir o e-mail */
+            if (!f.size) return msg('O arquivo está vazio.', 'The file is empty.');
+            if (f.size > TAMANHO_MAX) return msg('O arquivo deve ter até 5MB.', 'The file must be up to 5MB.');
+            return '';
+          },
+          consentimento: function(el){ return el.checked ? '' : msg('É necessário concordar para enviar.', 'You must agree before submitting.'); }
+        }
+      });
+
+      forma.addEventListener('submit', function(e){
+        /* só aqui o envio é cancelado: com tudo válido, o POST nativo precisa
+           seguir — um preventDefault no topo derrubava o envio inteiro (foi o
+           defeito do anexo na HARGUS) */
+        if (!modal.validarTudo()){ e.preventDefault(); return; }
+        var c = modal.campos;
+        /* assunto: Currículo Enviado - <cargo> - <nome> (os dois são obrigatórios) */
+        forma.elements['_subject'].value = 'Currículo Enviado - ' + c.cargo.value.trim() + ' - ' + c.nome.value.trim();
+        forma.elements['_next'].value = location.origin + location.pathname + '?candidatura=enviada';
+        forma.elements['Origem'].value = location.href;
+        dialogo.dataset.falhou = 'nao';
+        dialogo.dataset.estado = 'enviando';
+      });
+
+      /* Volta do FormSubmit: o _next traz ?candidatura=enviada. O modal abre já
+         na tela de sucesso e a URL é limpa, para um recarregar não repetir o aviso. */
+      if (new URLSearchParams(location.search).get('candidatura') === 'enviada'){
+        history.replaceState(null, '', location.pathname + location.hash);
+        modal.abrir(null, 'sucesso');
+        document.getElementById('trabalhe-sucesso-fechar').focus();
       }
 
-      var dados = {
-        nome: campos.nome.value.trim(),
-        email: campos.email.value.trim(),
-        telefone: campos.telefone.value.trim(),
-        empresa: empresa.value.trim(),
-        mensagem: campos.mensagem.value.trim()
-      };
-      modal.dataset.falhou = 'nao';
-      modal.dataset.estado = 'enviando';
-
-      /* a ordem das chaves é a ordem das linhas na tabela do e-mail */
-      var corpo = {
-        _subject: 'Novo contato pelo site — ' + dados.nome,
-        _template: 'table',
-        _captcha: 'false',
-        _replyto: dados.email,
-        _honey: isca.value,
-        Nome: dados.nome,
-        'E-mail': dados.email,
-        Telefone: dados.telefone
-      };
-      if (dados.empresa) corpo.Empresa = dados.empresa;
-      corpo.Mensagem = dados.mensagem;
-      corpo.Origem = window.location.href;
-
-      fetch('https://formsubmit.co/ajax/' + CONTATO_DESTINO, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(corpo)
-      }).then(function(r){
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      }).then(function(resposta){
-        if (resposta && String(resposta.success) === 'false'){
-          throw new Error(resposta.message || 'envio recusado');
-        }
-        /* enviado, o rascunho não tem mais serventia: limpa já, e não no
-           fechar — uma falha precisa devolver o texto intacto */
-        forma.reset();
-        modal.dataset.estado = 'sucesso';
-        document.getElementById('fale-sucesso-fechar').focus();
-      }).catch(function(){
-        modal.dataset.estado = 'formulario';
-        modal.dataset.falhou = 'sim';
-        forma.querySelector('.modal-enviar').focus();
+      /* "Voltar" a partir do formsubmit.co pode restaurar esta página do cache
+         com o modal parado em "enviando"; nesse caso ele volta ao formulário */
+      window.addEventListener('pageshow', function(e){
+        if (e.persisted && dialogo.dataset.estado === 'enviando') dialogo.dataset.estado = 'formulario';
       });
-    });
-  })();
+    })();
+  }
 })();
 </script>
 </body>
