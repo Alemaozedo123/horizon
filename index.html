@@ -1,0 +1,1440 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ============ POLÍTICA DE CONTEÚDO ============
+     Mesma lógica do site da HARGUS: o GitHub Pages não deixa configurar
+     cabeçalhos HTTP, então a CSP vai por <meta>. A página só conversa com o
+     formsubmit.co (formulário de contato, enviado por fetch) e com o Google
+     Fonts; não carrega script, imagem nem plugin de terceiro. form-action
+     'none' porque o formulário nunca é enviado de forma nativa: qualquer envio
+     fora do fetch é barrado em vez de despejar nome e e-mail na URL.
+     'unsafe-inline' é obrigatório porque todo o CSS e o JS são inline, e nada
+     do que o visitante digita vira HTML (os textos entram por textContent). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://formsubmit.co; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>HORIZON Comercial Importadora — Conectando oportunidades globais ao mercado brasileiro</title>
+<meta name="description" content="Comercial importadora em Curitiba/PR. Inteligência comercial, tributária e regulatória, logística internacional e distribuição para levar produtos e marcas globais ao mercado brasileiro.">
+<meta name="theme-color" content="#00193F">
+<link rel="icon" href="favicon.png" type="image/png" sizes="64x64">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&display=swap" rel="stylesheet">
+<style>
+
+/* ============ TOKENS ============ */
+:root{
+  /* paleta oficial (manual de marca — "Paleta de cores Horizon.jpg") */
+  --azul:        #00193F; /* Azul Horizon: seções escuras, rodapé, títulos, botões */
+  --dourado:     #D6B83A; /* Dourado Horizon: destaques, ícones e CTAs */
+  --branco:      #FFFFFF;
+  --cinza-claro: #EAF0F6; /* fundo das seções claras e do cabeçalho */
+
+  /* NÃO-OFICIAIS — não constam no manual, derivadas dele para legibilidade.
+     Validar com o cliente. O dourado oficial tem só 2:1 de contraste com o
+     branco: some em ícone fino e em letra pequena sobre fundo claro. */
+  --dourado-escuro: #A88F2A; /* ícones e numerais sobre branco (passa de 3:1) */
+  --dourado-texto:  #7F6A1E; /* eyebrow sobre o cinza-claro (passa de 4,5:1) */
+  --texto:          #4A5568; /* corpo sobre fundo claro */
+  --texto-claro:    rgba(226,233,243,.8); /* corpo sobre o azul */
+  --linha:          #D9E0EA;
+
+  --fonte-titulo: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --fonte-corpo:  'Poppins', -apple-system, 'Segoe UI', sans-serif;
+
+  --container: 1280px;
+  --nav-h: 80px;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+
+body{
+  margin:0;
+  /* os blocos que entram de lado (.reveal--dir) nascem fora do lugar e, no
+     celular, virariam rolagem lateral; clip corta sem criar caixa de rolagem */
+  overflow-x:hidden;
+  overflow-x:clip;
+  font-family:var(--fonte-corpo);
+  font-size:16px;
+  color:var(--texto);
+  background:var(--cinza-claro);
+  -webkit-font-smoothing:antialiased;
+}
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+button{ font-family:inherit; cursor:pointer; }
+h1,h2,h3{ margin:0; }
+p{ margin:0 0 1em; line-height:1.75; }
+ul, ol{ margin:0; padding:0; list-style:none; }
+figure{ margin:0; }
+
+.container{ width:100%; max-width:var(--container); margin:0 auto; padding:0 32px; }
+
+:focus-visible{ outline:3px solid var(--dourado); outline-offset:3px; border-radius:2px; }
+
+.skip-link{
+  position:fixed; top:-60px; left:12px; z-index:1000;
+  background:var(--branco); color:var(--azul);
+  padding:12px 18px; border-radius:4px; font-weight:600;
+  transition:top .2s ease;
+}
+.skip-link:focus{ top:12px; }
+
+/* ícones: um sprite só, no começo do <body>. Fica fora do fluxo, mas não em
+   display:none — assim o Firefox continua pintando os degradês definidos nele */
+.sprite{ position:absolute; width:0; height:0; overflow:hidden; }
+.icone{
+  width:24px; height:24px; flex:none;
+  fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;
+}
+
+/* página congelada com o menu mobile ou o modal abertos — o <script> guarda
+   a posição em body.style.top e a devolve ao fechar */
+body.travado{ position:fixed; left:0; right:0; width:100%; overflow:hidden; }
+
+/* a nav é fixa: sem isto o salto para a âncora para com o topo da seção
+   escondido atrás dela */
+main section[id]{ scroll-margin-top:var(--nav-h); }
+
+/* ============ REVELAÇÃO AO ROLAR ============
+   Mesmo sistema do site da HARGUS: .reveal entra com fade e leve deslocamento
+   quando cruza a tela (IntersectionObserver, ver <script>); --atraso escalona
+   os cartões de uma mesma fileira. */
+.reveal{
+  --atraso:0s;
+  opacity:0;
+  transform:translateY(28px);
+  transition:opacity .8s cubic-bezier(.16,.8,.24,1) var(--atraso),
+             transform .8s cubic-bezier(.16,.8,.24,1) var(--atraso);
+}
+.reveal.visivel{ opacity:1; transform:none; }
+.reveal--esq{ transform:translateX(-36px); }
+.reveal--dir{ transform:translateX(36px); }
+@media (prefers-reduced-motion: reduce){
+  .reveal, .reveal--esq, .reveal--dir{ opacity:1; transform:none; transition:none; }
+}
+
+/* ============ TIPOGRAFIA COMUM ============ */
+.eyebrow{
+  font-size:12px; font-weight:600; line-height:1.4; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--dourado-texto); margin:0 0 16px;
+}
+.eyebrow--claro{ color:var(--dourado); }
+
+.titulo{
+  font-family:var(--fonte-titulo); font-weight:400;
+  font-size:clamp(2rem, 3.4vw, 2.9rem); line-height:1.12; letter-spacing:-.01em;
+  color:var(--azul);
+}
+.titulo--claro{ color:var(--branco); }
+
+/* cabeçalho das seções: título à esquerda e texto de apoio à direita, como
+   em todas as seções do layout. align-items:end alinha o fim do texto com a
+   última linha do título. */
+.secao-topo{
+  display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
+  gap:28px 64px; align-items:end; margin-bottom:60px;
+}
+.secao-topo > p{ margin:0; font-size:15px; max-width:46ch; }
+.secao-escura .secao-topo > p{ color:var(--texto-claro); }
+
+/* ============ BOTÕES ============ */
+.botao{
+  display:inline-flex; align-items:center; justify-content:center; gap:12px;
+  padding:15px 26px; border-radius:6px; border:1px solid transparent;
+  font-size:14px; font-weight:600; line-height:1.2; white-space:nowrap;
+  transition:transform .2s ease, background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+.botao .icone{ width:18px; height:18px; stroke-width:1.8; transition:transform .2s ease; }
+.botao:hover{ transform:translateY(-2px); }
+.botao:hover .icone{ transform:translateX(3px); }
+
+.botao--dourado{ background:var(--dourado); color:var(--azul); }
+.botao--dourado:hover{ background:#DFC45A; }
+.botao--contorno{ background:transparent; color:var(--branco); border-color:rgba(255,255,255,.6); }
+.botao--contorno:hover{ background:rgba(255,255,255,.1); border-color:var(--branco); }
+.botao--escuro{ background:var(--azul); color:var(--branco); }
+.botao--escuro:hover{ background:#0A2A5C; }
+
+@media (prefers-reduced-motion: reduce){
+  .botao, .botao .icone{ transition:none; }
+  .botao:hover, .botao:hover .icone{ transform:none; }
+}
+
+/* ============ MARCA ============
+   Logo oficial recortado do manual de marca (versão secundária, sem a frase
+   "Connecting the world to your business" — ilegível no tamanho do
+   cabeçalho). PNG transparente com 710 px de largura: sobra resolução para
+   tela retina. No rodapé escuro, palavra branca e arco dourado, como no
+   layout aprovado. Se o cliente mandar o logo em SVG, é só trocar o src. */
+.marca{ display:block; flex:none; }
+.marca img{ width:190px; height:auto; }
+.marca--rodape img{ width:220px; }
+
+/* ============ CABEÇALHO ============ */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:500;
+  height:var(--nav-h); display:flex; align-items:center;
+  background:rgba(234,240,246,.94);
+  -webkit-backdrop-filter:saturate(1.5) blur(10px);
+  backdrop-filter:saturate(1.5) blur(10px);
+  transition:box-shadow .3s ease;
+}
+/* no topo o cabeçalho encosta no azul do hero e dispensa sombra; rolando,
+   ela o separa do conteúdo claro que passa por baixo */
+.nav.nav--rolada{ box-shadow:0 6px 28px rgba(0,25,63,.1); }
+.nav .container{ display:flex; align-items:center; justify-content:space-between; gap:28px; }
+
+.nav-menu{ display:flex; align-items:center; gap:clamp(20px, 2.6vw, 42px); }
+.nav-menu a{
+  position:relative; display:block; padding:10px 0;
+  font-size:14px; font-weight:500; color:#2A3550;
+  transition:color .2s ease;
+}
+/* peso fixo no item ativo: trocar para negrito ao rolar faria o menu inteiro
+   tremer de largura a cada seção */
+.nav-menu a::after{
+  content:""; position:absolute; left:0; right:0; bottom:2px; height:3px; border-radius:2px;
+  background:var(--dourado); transform:scaleX(0); transform-origin:left;
+  transition:transform .25s ease;
+}
+.nav-menu a:hover, .nav-menu a.ativo{ color:var(--azul); }
+.nav-menu a:hover::after, .nav-menu a.ativo::after{ transform:scaleX(1); }
+
+.nav-controles{ display:flex; align-items:center; gap:10px; flex:none; }
+.nav-cta{ padding:13px 22px; font-size:13.5px; }
+
+.nav-hamburguer{
+  display:none; position:relative; flex:none;
+  width:44px; height:44px; border:none; background:transparent;
+}
+.nav-hamburguer span, .nav-hamburguer::before, .nav-hamburguer::after{
+  content:""; position:absolute; left:10px; right:10px; height:2px; border-radius:1px;
+  background:var(--azul);
+  transition:transform .25s ease, opacity .25s ease;
+}
+.nav-hamburguer::before{ top:15px; }
+.nav-hamburguer span{ top:21px; }
+.nav-hamburguer::after{ top:27px; }
+.nav-hamburguer[aria-expanded="true"]::before{ top:21px; transform:rotate(45deg); }
+.nav-hamburguer[aria-expanded="true"] span{ opacity:0; }
+.nav-hamburguer[aria-expanded="true"]::after{ top:21px; transform:rotate(-45deg); }
+
+/* painel do menu mobile — irmão do <header>, não filho: o backdrop-filter da
+   nav vira bloco de contenção para position:fixed e prenderia o painel
+   dentro dos 80px do cabeçalho */
+.menu-mobile{
+  position:fixed; top:var(--nav-h); left:0; right:0; bottom:0; z-index:490;
+  display:flex; flex-direction:column; overflow-y:auto;
+  padding:12px 24px 40px; background:var(--cinza-claro);
+  opacity:0; visibility:hidden; transform:translateY(-10px);
+  transition:opacity .25s ease, transform .25s ease, visibility 0s linear .25s;
+}
+.menu-mobile.aberto{
+  opacity:1; visibility:visible; transform:none;
+  transition:opacity .25s ease, transform .25s ease;
+}
+.menu-mobile a:not(.botao){
+  padding:16px 4px; border-bottom:1px solid var(--linha);
+  font-size:17px; font-weight:500; color:var(--azul);
+}
+.menu-mobile .botao{ margin-top:28px; }
+
+/* ============ HERO ============ */
+.hero{
+  position:relative; overflow:hidden;
+  padding:calc(var(--nav-h) + 68px) 0 64px;
+  background:var(--azul); color:var(--branco);
+}
+/* a foto ocupa a direita e se dissolve no azul à esquerda: o texto nunca
+   fica sobre a parte clara da imagem */
+.hero-foto{ position:absolute; top:0; right:0; bottom:0; width:60%; }
+.hero-foto img{ width:100%; height:100%; object-fit:cover; object-position:35% 50%; }
+.hero-foto::after{
+  content:""; position:absolute; inset:0;
+  background:
+    linear-gradient(90deg, var(--azul) 0%, rgba(0,25,63,.72) 16%, rgba(0,25,63,.14) 42%, rgba(0,25,63,0) 62%),
+    linear-gradient(0deg, rgba(0,25,63,.6) 0%, rgba(0,25,63,0) 28%);
+}
+.hero .container{ position:relative; z-index:1; }
+/* a largura é a da fileira de destaques, que no layout avança sobre o globo;
+   título e parágrafo têm limite próprio logo abaixo */
+.hero-conteudo{ max-width:800px; }
+.hero h1{
+  font-family:var(--fonte-titulo); font-weight:400;
+  font-size:clamp(2.4rem, 4.4vw, 3.4rem); line-height:1.08; letter-spacing:-.015em;
+  margin:0 0 24px;
+}
+.hero h1 .destaque{ color:var(--dourado); }
+.hero-texto{ font-size:16.5px; color:rgba(226,233,243,.88); max-width:50ch; margin-bottom:36px; }
+.hero-botoes{ display:flex; flex-wrap:wrap; gap:16px; margin-bottom:56px; }
+.hero-destaques{ display:flex; flex-wrap:wrap; gap:22px 40px; }
+.hero-destaques li{ display:flex; align-items:center; gap:14px; }
+.hero-destaques .icone{ width:36px; height:36px; color:var(--dourado); stroke-width:1.3; }
+.hero-destaques p{ margin:0; font-size:13.5px; line-height:1.45; }
+.hero-destaques strong{ display:block; font-weight:600; color:var(--branco); }
+.hero-destaques span{ display:block; color:rgba(226,233,243,.72); }
+
+/* ============ A HORIZON ============ */
+.sobre{ padding:120px 0 136px; }
+.sobre .container{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
+  gap:72px; align-items:center;
+}
+.sobre .titulo{ margin-bottom:28px; }
+.sobre-texto p:not(.eyebrow){ max-width:50ch; }
+.sobre-texto .botao{ margin-top:16px; }
+
+.sobre-foto{ position:relative; }
+.sobre-foto img{
+  width:100%; aspect-ratio:3/2; object-fit:cover; object-position:62% 50%;
+  border-radius:8px; box-shadow:0 30px 60px rgba(0,25,63,.16);
+}
+/* o cartão sai pela base e pela direita da foto, como no layout */
+.sobre-cartao{
+  position:absolute; right:-28px; bottom:-44px; width:min(400px, 78%);
+  display:flex; gap:18px; align-items:flex-start;
+  padding:24px 26px; border-radius:8px;
+  background:var(--branco); box-shadow:0 20px 48px rgba(0,25,63,.16);
+}
+.sobre-cartao .icone{ width:46px; height:46px; color:var(--azul); stroke-width:1.25; }
+.sobre-cartao h3{
+  font-size:12.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--azul); margin:2px 0 8px;
+}
+.sobre-cartao p{ font-size:13.5px; line-height:1.65; margin:0; }
+
+/* ============ SEÇÕES ESCURAS ============
+   Quem somos, modelos e diferenciais dividem o azul. O globo esmaecido
+   que o layout põe ao fundo vira luz e pontilhado em CSS: nada a baixar e
+   nítido em qualquer tela. --pontos-x/--pontos-y movem a mancha de pontos. */
+.secao-escura{ position:relative; overflow:hidden; background:var(--azul); color:var(--branco); }
+.secao-escura > .container{ position:relative; z-index:1; }
+
+.pontilhado::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(150,185,235,.22) 1px, transparent 1.5px);
+  background-size:10px 10px;
+  -webkit-mask-image:radial-gradient(ellipse 36% 64% at var(--pontos-x, 62%) var(--pontos-y, 35%), #000 0%, transparent 72%);
+          mask-image:radial-gradient(ellipse 36% 64% at var(--pontos-x, 62%) var(--pontos-y, 35%), #000 0%, transparent 72%);
+}
+.pontilhado::after{
+  content:""; position:absolute; pointer-events:none;
+  width:900px; height:900px; border-radius:50%;
+  left:calc(var(--pontos-x, 62%) - 450px); top:calc(var(--pontos-y, 35%) - 450px);
+  background:radial-gradient(circle, rgba(46,98,170,.28) 0%, rgba(0,25,63,0) 62%);
+}
+
+/* ============ QUEM SOMOS: missão, visão e valores ============ */
+.quem-somos{ padding:104px 0 112px; }
+.pilares{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); }
+.pilar{ position:relative; padding:0 48px; }
+.pilar:first-child{ padding-left:0; }
+.pilar:last-child{ padding-right:0; }
+/* o filete dourado começa na altura do título, não do ícone, como no layout */
+.pilar + .pilar::before{
+  content:""; position:absolute; left:0; top:84px; bottom:0; width:1px;
+  background:rgba(214,184,58,.5);
+}
+.pilar > .icone{ width:54px; height:54px; color:var(--dourado); stroke-width:1.2; margin-bottom:26px; }
+.pilar h3{ font-size:19px; font-weight:600; margin-bottom:14px; }
+.pilar p{ font-size:14.5px; color:var(--texto-claro); margin:0; max-width:36ch; }
+.valores{ display:grid; gap:9px; }
+.valores li{ display:flex; align-items:center; gap:12px; font-size:14.5px; color:var(--texto-claro); }
+.valores .icone{ width:17px; height:17px; color:var(--dourado); stroke-width:2; }
+
+/* ============ SOLUÇÕES ============ */
+.solucoes{ padding:104px 0 120px; }
+.solucoes-grade{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:16px; }
+.solucao{
+  display:flex; flex-direction:column; overflow:hidden; border-radius:8px;
+  background:linear-gradient(180deg, #FFFFFF 0%, #F6F8FB 100%);
+  box-shadow:0 14px 34px rgba(0,25,63,.07);
+}
+.solucao img{ width:100%; aspect-ratio:16/10; object-fit:cover; }
+.solucao-corpo{ padding:24px 20px 28px; }
+.solucao-corpo .icone{ width:34px; height:34px; color:var(--dourado-escuro); stroke-width:1.4; margin-bottom:18px; }
+/* duas linhas reservadas: os títulos de uma linha só não desalinham o texto
+   dos cartões vizinhos */
+.solucao h3{ font-size:15.5px; font-weight:600; line-height:1.35; min-height:2.7em; color:var(--azul); margin-bottom:12px; }
+.solucao p{ font-size:13.5px; line-height:1.65; margin:0; }
+
+/* ============ MODELOS DE NEGÓCIO ============ */
+.modelos{ padding:100px 0 112px; --pontos-x:30%; --pontos-y:20%; }
+.modelos-grade{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:18px; }
+/* cor própria: o cartão é claro, mas mora numa seção escura que passa
+   branco para todo texto de dentro */
+.modelo{
+  padding:32px 28px 34px; border-radius:8px; color:var(--texto);
+  background:linear-gradient(180deg, var(--branco) 0%, var(--cinza-claro) 100%);
+  box-shadow:0 18px 40px rgba(0,0,0,.18);
+}
+.modelo-numero{ display:block; font-size:28px; font-weight:600; line-height:1; color:var(--dourado-escuro); margin-bottom:16px; }
+.modelo h3{ font-size:16.5px; font-weight:600; line-height:1.35; color:var(--azul); margin-bottom:14px; }
+.modelo p{ font-size:14px; line-height:1.7; margin:0; }
+
+/* ============ COMO ATUAMOS ============ */
+.como{ padding:104px 0 112px; }
+.etapas{ position:relative; display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:32px; }
+/* o trilho liga os cinco círculos e termina numa seta, como no layout */
+.etapas::before{
+  content:""; position:absolute; top:28px; left:28px; right:14px; height:1px;
+  background:#C5CEDB;
+}
+.etapas::after{
+  content:""; position:absolute; top:22px; right:3px; width:12px; height:12px;
+  border-top:1.5px solid #9AA7BA; border-right:1.5px solid #9AA7BA;
+  transform:rotate(45deg);
+}
+/* fundo da seção no círculo: é ele que "corta" o trilho por trás do número */
+.etapa-numero{
+  position:relative; z-index:1;
+  display:flex; align-items:center; justify-content:center;
+  width:56px; height:56px; border-radius:50%;
+  border:2.5px solid var(--dourado); background:var(--cinza-claro);
+  font-size:14px; font-weight:600; color:var(--azul);
+  margin-bottom:26px;
+}
+.etapa h3{ font-size:16.5px; font-weight:600; color:var(--azul); margin-bottom:10px; }
+.etapa p{ font-size:14px; line-height:1.65; margin:0; max-width:26ch; }
+
+/* ============ DIFERENCIAIS ============ */
+.diferenciais{ padding:100px 0 96px; }
+.diferenciais-foto{ position:absolute; top:0; right:0; bottom:0; width:64%; }
+.diferenciais-foto img{ width:100%; height:100%; object-fit:cover; object-position:60% 40%; opacity:.6; }
+.diferenciais-foto::after{
+  content:""; position:absolute; inset:0;
+  background:
+    linear-gradient(90deg, var(--azul) 0%, rgba(0,25,63,.5) 38%, rgba(0,25,63,.25) 100%),
+    linear-gradient(0deg, var(--azul) 8%, rgba(0,25,63,0) 70%);
+}
+.diferenciais .titulo{ margin-bottom:64px; }
+.diferenciais-lista{ display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:32px 28px; }
+.diferencial{ display:flex; align-items:flex-start; gap:16px; }
+.diferencial .icone{ width:40px; height:40px; color:var(--dourado); stroke-width:1.3; }
+.diferencial p{ margin:0; }
+.diferencial strong{ display:block; font-size:15.5px; font-weight:600; line-height:1.35; color:var(--branco); margin-bottom:4px; }
+.diferencial span{ display:block; font-size:13px; line-height:1.55; color:rgba(226,233,243,.72); }
+
+/* ============ CHAMADA FINAL (#contato) ============ */
+.cta{ position:relative; overflow:hidden; padding:104px 0 140px; }
+/* o mapa-múndi claro do layout vira um campo de pontos, mais leve que imagem */
+.cta::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(0,25,63,.11) 1px, transparent 1.5px);
+  background-size:10px 10px;
+  -webkit-mask-image:radial-gradient(ellipse 34% 62% at 74% 44%, #000 0%, transparent 70%);
+          mask-image:radial-gradient(ellipse 34% 62% at 74% 44%, #000 0%, transparent 70%);
+}
+/* coluna do título mais larga e letra um pouco menor que a dos outros
+   títulos: é o que cabe "Existe uma oportunidade no Brasil?" numa linha só,
+   como no layout */
+.cta .container{
+  position:relative; z-index:1;
+  display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
+  gap:36px 72px; align-items:center;
+}
+.cta .titulo{ font-size:clamp(1.8rem, 2.6vw, 2.3rem); }
+.cta-lado p{ font-size:15px; max-width:52ch; margin-bottom:28px; }
+.cta-curva{ position:absolute; left:0; bottom:16px; width:100%; height:110px; pointer-events:none; }
+
+/* ============ RODAPÉ ============ */
+.rodape{
+  position:relative; overflow:hidden;
+  padding:76px 0 28px; background:var(--azul); color:rgba(226,233,243,.78);
+  --pontos-x:92%; --pontos-y:78%;
+}
+.rodape > .container{ position:relative; z-index:1; }
+.rodape-grade{ display:grid; grid-template-columns:1.25fr 1.2fr .8fr 1.35fr; gap:40px; }
+.rodape .marca{ margin-bottom:28px; }
+.rodape-sobre p{ font-size:14px; line-height:1.75; max-width:30ch; margin:0; }
+.rodape-titulo{ font-size:14.5px; font-weight:600; color:var(--branco); margin:0 0 18px; }
+.rodape ul{ display:grid; gap:11px; }
+.rodape ul a{ font-size:14px; transition:color .2s ease; }
+.rodape ul a:hover{ color:var(--dourado); }
+.rodape-contato li{ display:flex; align-items:center; gap:14px; font-size:14px; }
+/* o e-mail é a palavra mais longa da página: sem isto ele empurra a
+   coluna para fora da tela nos celulares mais estreitos */
+.rodape-contato a{ overflow-wrap:anywhere; }
+.rodape-contato .icone{ width:20px; height:20px; color:var(--branco); }
+.rodape-baixo{
+  margin-top:56px; padding-top:22px; border-top:1px solid rgba(255,255,255,.1);
+  font-size:12.5px; color:rgba(226,233,243,.5); text-align:center;
+}
+.rodape-baixo p{ margin:0; }
+
+/* ============ MODAL "FALAR COM A HORIZON" ============
+   <dialog> nativo, como nos modais da HARGUS: foco preso, Esc fecha e o resto
+   da página fica inerte sem JS extra. Navegador sem <dialog> segue o href dos
+   botões e cai na chamada final, onde está o e-mail. */
+dialog:not([open]){ display:none; }
+.modal{
+  width:min(600px, calc(100vw - 28px));
+  max-height:calc(100vh - 28px);
+  max-height:calc(100dvh - 28px);
+  padding:0; border:none; border-radius:10px;
+  background:var(--branco); color:var(--texto);
+  box-shadow:0 30px 80px rgba(0,10,25,.4);
+  overflow:hidden;
+}
+.modal[open]{ display:flex; flex-direction:column; animation:modal-entra .28s cubic-bezier(.16,.8,.24,1); }
+.modal::backdrop{ background:rgba(0,12,28,.66); }
+.modal[open]::backdrop{ animation:modal-veu .28s ease; }
+@keyframes modal-entra{ from{ opacity:0; transform:translateY(14px) scale(.98); } }
+@keyframes modal-veu{ from{ opacity:0; } }
+@media (prefers-reduced-motion: reduce){
+  .modal[open], .modal[open]::backdrop{ animation:none; }
+}
+
+.modal-topo{ flex:none; position:relative; padding:26px 66px 26px 30px; background:var(--azul); color:var(--branco); }
+.modal-topo .eyebrow{ margin-bottom:8px; }
+.modal-topo h2{ font-family:var(--fonte-titulo); font-weight:400; font-size:1.6rem; line-height:1.2; }
+.modal-fechar{
+  position:absolute; top:18px; right:18px;
+  width:38px; height:38px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid rgba(255,255,255,.3); background:transparent; color:var(--branco);
+  transition:background-color .2s ease, border-color .2s ease;
+}
+.modal-fechar:hover{ background:rgba(255,255,255,.14); border-color:var(--branco); }
+.modal-fechar .icone{ width:16px; height:16px; stroke-width:2; }
+
+/* as três telas moram no mesmo <dialog> e trocam por data-estado — assim o
+   que o visitante escreveu sobrevive a uma falha de envio */
+.modal-forma, .modal-enviando, .modal-sucesso{ display:none; padding:26px 30px 30px; overflow-y:auto; }
+.modal[data-estado="formulario"] .modal-forma{ display:block; }
+.modal[data-estado="enviando"] .modal-enviando{ display:flex; }
+.modal[data-estado="sucesso"] .modal-sucesso{ display:block; }
+.modal-intro{ font-size:14px; line-height:1.65; margin:0 0 20px; }
+
+.campo{ margin-bottom:16px; }
+.campo-linha{ display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+.campo label{
+  display:block; margin-bottom:7px;
+  font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--azul);
+}
+.campo label span{ font-weight:400; letter-spacing:0; text-transform:none; color:var(--texto); }
+.campo input, .campo textarea{
+  width:100%; padding:12px 14px; border:1px solid #D5DCE6; border-radius:5px;
+  font-family:inherit; font-size:15px; color:var(--azul); background:var(--branco);
+  transition:border-color .2s ease, box-shadow .2s ease;
+}
+.campo textarea{ min-height:112px; resize:vertical; line-height:1.6; }
+.campo input::placeholder, .campo textarea::placeholder{ color:#A3ADBB; }
+.campo input:focus, .campo textarea:focus{
+  outline:none; border-color:var(--dourado-escuro); box-shadow:0 0 0 3px rgba(214,184,58,.3);
+}
+.campo [aria-invalid="true"]{ border-color:#B3261E; }
+.campo [aria-invalid="true"]:focus{ box-shadow:0 0 0 3px rgba(179,38,30,.16); }
+.campo-erro{ display:block; margin-top:6px; font-size:12.5px; color:#B3261E; }
+
+/* a isca do FormSubmit: preenchida só por robô, some da tela e da leitura de tela */
+.modal-isca{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+
+.modal-falha{
+  display:none; gap:10px; align-items:flex-start;
+  margin-bottom:16px; padding:12px 14px; border:1px solid #F3C6C2; border-radius:5px;
+  background:#FDECEA; font-size:13.5px; line-height:1.55; color:#8C1D18;
+}
+.modal[data-falhou="sim"] .modal-falha{ display:flex; }
+.modal-falha a{ color:#8C1D18; font-weight:600; text-decoration:underline; }
+.modal-falha .icone{ width:18px; height:18px; margin-top:1px; stroke-width:2; }
+
+.modal-enviar{ width:100%; margin-top:6px; }
+.modal-aviso{ margin:14px 0 0; font-size:11.5px; line-height:1.6; text-align:center; color:#7D8796; }
+
+.modal-enviando{
+  flex-direction:column; align-items:center; justify-content:center;
+  gap:16px; min-height:240px; text-align:center;
+}
+.modal-roda{
+  width:36px; height:36px; border-radius:50%;
+  border:3px solid rgba(0,25,63,.12); border-top-color:var(--dourado-escuro);
+  animation:modal-gira .8s linear infinite;
+}
+@keyframes modal-gira{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce){ .modal-roda{ animation-duration:2.4s; } }
+
+.modal-sucesso{ text-align:center; }
+.modal-selo{
+  display:flex; align-items:center; justify-content:center;
+  width:58px; height:58px; margin:8px auto 18px; border-radius:50%;
+  background:rgba(214,184,58,.2); color:var(--dourado-escuro);
+}
+.modal-selo .icone{ width:26px; height:26px; stroke-width:2; }
+.modal-sucesso h3{ font-family:var(--fonte-titulo); font-weight:400; font-size:1.5rem; color:var(--azul); margin-bottom:10px; }
+.modal-sucesso p{ font-size:14px; max-width:38ch; margin:0 auto 22px; }
+
+/* ============ RESPONSIVO ============ */
+@media (max-width:1180px){
+  .solucoes-grade{ grid-template-columns:repeat(3, minmax(0,1fr)); gap:20px; }
+  .diferenciais-lista{ grid-template-columns:repeat(3, minmax(0,1fr)); }
+  .pilar{ padding:0 32px; }
+}
+
+/* seis itens + botão deixam de caber ao lado da marca: o menu vira painel */
+@media (max-width:1080px){
+  .nav-menu{ display:none; }
+  .nav-hamburguer{ display:block; }
+}
+@media (min-width:1081px){
+  .menu-mobile{ display:none; }
+}
+
+@media (max-width:960px){
+  :root{ --nav-h:72px; }
+
+  .secao-topo{ grid-template-columns:1fr; align-items:start; margin-bottom:44px; }
+
+  /* sem metade livre para a foto, ela vai para trás do texto, escurecida */
+  .hero{ padding:calc(var(--nav-h) + 60px) 0 60px; }
+  .hero-foto{ width:100%; }
+  .hero-foto img{ object-position:72% 50%; }
+  .hero-foto::after{
+    background:linear-gradient(180deg, rgba(0,25,63,.7) 0%, rgba(0,25,63,.84) 55%, rgba(0,25,63,.95) 100%);
+  }
+
+  .sobre{ padding:96px 0 120px; }
+  .sobre .container{ grid-template-columns:1fr; gap:56px; }
+  .sobre-cartao{ right:16px; }
+
+  .pilares{ grid-template-columns:1fr; gap:40px; }
+  .pilar, .pilar:first-child, .pilar:last-child{ padding:0; }
+  .pilar + .pilar{ padding-top:40px; }
+  /* empilhados, o filete entre os pilares deita */
+  .pilar + .pilar::before{ top:0; right:0; bottom:auto; width:auto; height:1px; }
+
+  .modelos-grade{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+
+  /* a linha do tempo vira vertical: número à esquerda, texto à direita */
+  .etapas{ grid-template-columns:1fr; gap:30px; }
+  .etapas::before{ top:28px; bottom:28px; left:28px; right:auto; width:1px; height:auto; }
+  .etapas::after{ display:none; }
+  .etapa{ display:grid; grid-template-columns:56px minmax(0,1fr); column-gap:22px; align-items:start; }
+  .etapa-numero{ grid-row:1 / span 2; margin:0; }
+  .etapa h3{ margin:6px 0 6px; }
+  .etapa p{ max-width:none; }
+
+  .diferenciais-foto{ width:100%; }
+  .diferenciais-foto::after{ background:linear-gradient(0deg, var(--azul) 25%, rgba(0,25,63,.72) 100%); }
+
+  .cta .container{ grid-template-columns:1fr; }
+  .rodape-grade{ grid-template-columns:1fr 1fr; }
+}
+
+@media (max-width:640px){
+  .container{ padding:0 20px; }
+  .nav-cta{ display:none; }
+  .nav .marca img{ width:160px; }
+
+  .hero-botoes .botao{ flex:1 1 100%; }
+  .hero-destaques{ flex-direction:column; gap:18px; }
+
+  .sobre, .quem-somos, .solucoes, .modelos, .como, .diferenciais{ padding:76px 0 84px; }
+  .sobre{ padding-bottom:84px; }
+  /* no celular o cartão não cabe flutuando: desce para baixo da foto,
+     ainda encavalado na borda dela */
+  .sobre-cartao{ position:relative; right:auto; bottom:auto; width:auto; margin:-40px 14px 0; }
+
+  .solucoes-grade{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; }
+  .solucao-corpo{ padding:18px 16px 22px; }
+  .modelos-grade{ grid-template-columns:1fr; }
+  .diferenciais-lista{ grid-template-columns:1fr; gap:24px; }
+  .cta{ padding:76px 0 128px; }
+  .rodape-grade{ grid-template-columns:1fr; gap:36px; }
+
+  .modal-topo{ padding:22px 62px 22px 22px; }
+  .modal-forma, .modal-enviando, .modal-sucesso{ padding:22px; }
+  .campo-linha{ grid-template-columns:1fr; }
+  /* abaixo de 16px o iOS dá zoom na página ao focar o campo */
+  .campo input, .campo textarea{ font-size:16px; }
+}
+
+@media (max-width:420px){
+  .solucoes-grade{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<!-- ============ SPRITE DE ÍCONES ============
+     Todos os ícones do site num lugar só, chamados por <use href="#i-...">.
+     Traço em currentColor: a cor vem do CSS de quem usa. -->
+<svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- a curva dourada da chamada final nasce cinza à esquerda, como no layout -->
+    <linearGradient id="grad-curva" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#B9C3D2" stop-opacity=".45"/>
+      <stop offset=".35" stop-color="#D6B83A"/>
+      <stop offset="1" stop-color="#D6B83A"/>
+    </linearGradient>
+  </defs>
+  <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-globo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M4.8 7.5h14.4M4.8 16.5h14.4M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9S9.4 5.6 12 3z"/></symbol>
+  <symbol id="i-grafico" viewBox="0 0 24 24"><path d="M3.5 20.5h17"/><rect x="5" y="14.5" width="3" height="6" rx=".5"/><rect x="10.5" y="11.5" width="3" height="9" rx=".5"/><rect x="16" y="8.5" width="3" height="12" rx=".5"/><path d="M4.5 10.5l5-4 3.5 2 6.5-5"/><path d="M16.5 3.5h3v3"/></symbol>
+  <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.6c0 4.6-3.2 8.3-7.5 9.9-4.3-1.6-7.5-5.3-7.5-9.9V6z"/><path d="M8.6 12.1l2.4 2.4 4.6-4.8"/></symbol>
+  <symbol id="i-aperto" viewBox="0 0 24 24"><path d="M1.5 8.5l2.8-1.2 3.1 7.4-2.8 1.2z"/><path d="M22.5 8.5l-2.8-1.2-3.1 7.4 2.8 1.2z"/><path d="M16.9 8.6l-3.4-1.5a2 2 0 0 0-1.9.2L8.3 9.6a1.3 1.3 0 0 0 1.3 2.2l2.9-1.4 4.3 4a1.1 1.1 0 0 1-1.5 1.6l-2.1-1.9"/><path d="M15.3 16a1.1 1.1 0 0 1-1.6 1.4l-1.9-1.7"/><path d="M13.7 17.4a1.1 1.1 0 0 1-1.6 1.3l-1.5-1.3"/><path d="M12.1 18.7a1.1 1.1 0 0 1-1.5 1.1l-3.7-3.9"/><path d="M7.1 8.4l1.9-.8"/></symbol>
+  <symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="11" cy="13" r="8.5"/><circle cx="11" cy="13" r="5"/><circle cx="11" cy="13" r="1.5"/><path d="M11 13l8.8-8.8"/><path d="M17.2 3.2v3.6h3.6"/></symbol>
+  <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3.3"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-diamante" viewBox="0 0 24 24"><path d="M6.5 4h11l4 5.5L12 21 2.5 9.5z"/><path d="M2.5 9.5h19M6.5 4l3 5.5L12 4l2.5 5.5L17.5 4M9.5 9.5L12 21l2.5-11.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></symbol>
+  <symbol id="i-rede" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.3"/><circle cx="5" cy="18.5" r="2.3"/><circle cx="19" cy="18.5" r="2.3"/><path d="M10.9 7l-4.8 9.4M13.1 7l4.8 9.4M7.3 18.5h9.4"/></symbol>
+  <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.2V12l3.2 2"/></symbol>
+  <symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7"/><path d="M15.6 15.6L21 21"/><path d="M7 12.5l2.2-2.3 2 1.6 2.8-3.3"/></symbol>
+  <symbol id="i-documento" viewBox="0 0 24 24"><path d="M14 3H6.8A1.8 1.8 0 0 0 5 4.8v14.4A1.8 1.8 0 0 0 6.8 21h10.4a1.8 1.8 0 0 0 1.8-1.8V8z"/><path d="M14 3v5h5"/><path d="M9 17.5l6-6"/><circle cx="9.6" cy="12.1" r="1.1"/><circle cx="14.4" cy="16.9" r="1.1"/></symbol>
+  <symbol id="i-navio" viewBox="0 0 24 24"><path d="M2.5 14.5h19l-2.2 4.5a1.5 1.5 0 0 1-1.3.8H6a1.5 1.5 0 0 1-1.3-.8z"/><path d="M5.5 14.5v-4H10v4M10 14.5v-4h4.5v4M14.5 14.5V7h4v7.5M16.5 7V4.5"/></symbol>
+  <symbol id="i-caixas" viewBox="0 0 24 24"><rect x="3.5" y="12.5" width="8" height="8" rx=".8"/><rect x="12.5" y="12.5" width="8" height="8" rx=".8"/><rect x="8" y="3.5" width="8" height="8" rx=".8"/><path d="M7.5 12.5V15M16.5 12.5V15M12 3.5V6"/></symbol>
+  <symbol id="i-email" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.8 6.5L12 13l8.2-6.5"/></symbol>
+  <symbol id="i-telefone" viewBox="0 0 24 24"><path d="M6.6 3.5h2.6l1.6 4.4-2.1 1.5a11.5 11.5 0 0 0 5.9 5.9l1.5-2.1 4.4 1.6v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></symbol>
+  <symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21.5s7-6.4 7-11.8a7 7 0 1 0-14 0c0 5.4 7 11.8 7 11.8z"/><circle cx="12" cy="9.7" r="2.5"/></symbol>
+  <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-alerta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.8V13M12 16.4v.1"/></symbol>
+</svg>
+
+<!-- ============ CABEÇALHO ============ -->
+<header class="nav" id="nav">
+  <div class="container">
+    <a href="#inicio" class="marca">
+      <img src="img/logo-horizon.png" alt="HORIZON Comercial Importadora — início" width="710" height="119">
+    </a>
+
+    <nav aria-label="Navegação principal">
+      <ul class="nav-menu">
+        <li><a href="#inicio" class="ativo">Início</a></li>
+        <li><a href="#a-horizon">A Horizon</a></li>
+        <li><a href="#solucoes">Soluções</a></li>
+        <li><a href="#como-atuamos">Como atuamos</a></li>
+        <li><a href="#diferenciais">Diferenciais</a></li>
+        <li><a href="#contato">Contato</a></li>
+      </ul>
+    </nav>
+
+    <div class="nav-controles">
+      <a href="#contato" class="botao botao--dourado nav-cta" data-contato>
+        Falar com a Horizon
+        <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+      </a>
+      <button type="button" class="nav-hamburguer" id="hamburguer" aria-expanded="false" aria-controls="menu-mobile" aria-label="Abrir menu">
+        <span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="menu-mobile" id="menu-mobile" aria-label="Navegação móvel">
+  <a href="#inicio">Início</a>
+  <a href="#a-horizon">A Horizon</a>
+  <a href="#solucoes">Soluções</a>
+  <a href="#como-atuamos">Como atuamos</a>
+  <a href="#diferenciais">Diferenciais</a>
+  <a href="#contato">Contato</a>
+  <a href="#contato" class="botao botao--dourado" data-contato>
+    Falar com a Horizon
+    <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+  </a>
+</nav>
+
+<main id="conteudo">
+
+  <!-- ============ HERO ============
+       As fotos em img/ são PROVISÓRIAS: recortadas do próprio layout, que tem
+       569 px de largura, então aparecem borradas. Trocar pelos arquivos
+       originais em alta resolução mantendo os MESMOS nomes — o HTML não muda. -->
+  <section class="hero" id="inicio" data-secao="#inicio">
+    <figure class="hero-foto" aria-hidden="true">
+      <img src="img/hero.jpg" alt="" width="903" height="570" fetchpriority="high">
+    </figure>
+    <div class="container">
+      <div class="hero-conteudo">
+        <p class="eyebrow eyebrow--claro">Comercial importadora</p>
+        <h1>Conectando<br>oportunidades globais<br><span class="destaque">ao mercado brasileiro.</span></h1>
+        <p class="hero-texto">Transformamos produtos, marcas e oportunidades globais em negócios sustentáveis no Brasil.</p>
+        <div class="hero-botoes">
+          <a href="#contato" class="botao botao--dourado" data-contato>
+            Falar com a Horizon
+            <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+          </a>
+          <a href="#solucoes" class="botao botao--contorno">Conheça nossas soluções</a>
+        </div>
+        <ul class="hero-destaques">
+          <li>
+            <svg class="icone" aria-hidden="true"><use href="#i-globo"/></svg>
+            <p><strong>Visão global</strong><span>com foco no Brasil</span></p>
+          </li>
+          <li>
+            <svg class="icone" aria-hidden="true"><use href="#i-grafico"/></svg>
+            <p><strong>Inteligência para</strong><span>negócios internacionais</span></p>
+          </li>
+          <li>
+            <svg class="icone" aria-hidden="true"><use href="#i-escudo"/></svg>
+            <p><strong>Da oportunidade</strong><span>ao mercado</span></p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ A HORIZON ============ -->
+  <section class="sobre" id="a-horizon" data-secao="#a-horizon">
+    <div class="container">
+      <div class="sobre-texto reveal reveal--esq">
+        <p class="eyebrow">A Horizon</p>
+        <h2 class="titulo">Mais do que importar.<br>Construímos negócios.</h2>
+        <p>Estruturamos negócios internacionais e a entrada de produtos no Brasil, com visão comercial, inteligência tributária e regulatória e uma rede de parceiros estratégicos.</p>
+        <a href="#quem-somos" class="botao botao--escuro">
+          Conheça a Horizon
+          <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+        </a>
+      </div>
+
+      <figure class="sobre-foto reveal reveal--dir">
+        <img src="img/escritorio.jpg" alt="Executivos conversando em um escritório envidraçado, com a cidade ao entardecer ao fundo" width="849" height="438" loading="lazy">
+        <div class="sobre-cartao">
+          <svg class="icone" aria-hidden="true"><use href="#i-aperto"/></svg>
+          <div>
+            <h3>Comercial importadora</h3>
+            <p>Operações de importação com foco no desenvolvimento comercial e na geração de valor.</p>
+          </div>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ QUEM SOMOS ============
+       O layout traz o selo desta seção em inglês ("Who we are"), único fora do
+       português no site inteiro — aqui ele segue os demais. -->
+  <section class="quem-somos secao-escura pontilhado" id="quem-somos" data-secao="#a-horizon">
+    <div class="container">
+      <div class="secao-topo reveal">
+        <div>
+          <p class="eyebrow eyebrow--claro">Quem somos</p>
+          <h2 class="titulo titulo--claro">Nossa missão, visão e valores.</h2>
+        </div>
+        <p>Relações de longo prazo, construídas com ética, responsabilidade e sustentabilidade.</p>
+      </div>
+
+      <div class="pilares">
+        <article class="pilar reveal">
+          <svg class="icone" aria-hidden="true"><use href="#i-alvo"/></svg>
+          <h3>Missão</h3>
+          <p>Oferecer a importadores e exportadores serviços confiáveis e éticos, com conformidade regulatória e sustentabilidade.</p>
+        </article>
+        <article class="pilar reveal" style="--atraso:.1s">
+          <svg class="icone" aria-hidden="true"><use href="#i-olho"/></svg>
+          <h3>Visão</h3>
+          <p>Dar aos clientes segurança tributária e orientação do desembaraço aduaneiro à chegada dos produtos ao mercado.</p>
+        </article>
+        <article class="pilar reveal" style="--atraso:.2s">
+          <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
+          <h3>Valores</h3>
+          <ul class="valores">
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Ética e integridade</li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Foco no cliente</li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Conformidade regulatória</li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Agilidade e eficiência</li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Visão de longo prazo</li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>Desenvolvimento sustentável</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SOLUÇÕES ============ -->
+  <section class="solucoes" id="solucoes" data-secao="#solucoes">
+    <div class="container">
+      <div class="secao-topo reveal">
+        <div>
+          <p class="eyebrow">Nossas soluções</p>
+          <h2 class="titulo">Soluções para transformar oportunidades em negócios.</h2>
+        </div>
+        <p>Do entendimento do mercado à distribuição no Brasil.</p>
+      </div>
+
+      <div class="solucoes-grade">
+        <article class="solucao reveal">
+          <img src="img/solucao-comercial.jpg" alt="" width="332" height="192" loading="lazy">
+          <div class="solucao-corpo">
+            <svg class="icone" aria-hidden="true"><use href="#i-lupa"/></svg>
+            <h3>Inteligência Comercial</h3>
+            <p>Mercado, produto, concorrência e oportunidades.</p>
+          </div>
+        </article>
+        <article class="solucao reveal" style="--atraso:.06s">
+          <img src="img/solucao-tributaria.jpg" alt="" width="336" height="192" loading="lazy">
+          <div class="solucao-corpo">
+            <svg class="icone" aria-hidden="true"><use href="#i-documento"/></svg>
+            <h3>Inteligência Tributária</h3>
+            <p>Classificação, regimes e incentivos para ganhar competitividade.</p>
+          </div>
+        </article>
+        <article class="solucao reveal" style="--atraso:.12s">
+          <img src="img/solucao-regulatoria.jpg" alt="" width="332" height="192" loading="lazy">
+          <div class="solucao-corpo">
+            <svg class="icone" aria-hidden="true"><use href="#i-escudo"/></svg>
+            <h3>Consultoria Regulatória</h3>
+            <p>Licenças, registros e certificações na ANVISA, MAPA, INMETRO e Receita Federal.</p>
+          </div>
+        </article>
+        <article class="solucao reveal" style="--atraso:.18s">
+          <img src="img/solucao-logistica.jpg" alt="" width="332" height="192" loading="lazy">
+          <div class="solucao-corpo">
+            <svg class="icone" aria-hidden="true"><use href="#i-navio"/></svg>
+            <h3>Logística Internacional</h3>
+            <p>Transporte internacional integrado a fornecedores e armadores.</p>
+          </div>
+        </article>
+        <article class="solucao reveal" style="--atraso:.24s">
+          <img src="img/solucao-estoques.jpg" alt="" width="336" height="192" loading="lazy">
+          <div class="solucao-corpo">
+            <svg class="icone" aria-hidden="true"><use href="#i-caixas"/></svg>
+            <h3>Gestão de Estoques e Distribuição</h3>
+            <p>Armazenagem, preparação de carga e distribuição para varejo e distribuidores.</p>
+          </div>
+        </article>
+        <article class="solucao reveal" style="--atraso:.3s">
+          <img src="img/solucao-desenvolvimento.jpg" alt="" width="332" height="192" loading="lazy">
+          <div class="solucao-corpo">
+            <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
+            <h3>Desenvolvimento Comercial</h3>
+            <p>Distribuição, posicionamento e desenvolvimento de canais.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODELOS DE NEGÓCIO ============ -->
+  <section class="modelos secao-escura pontilhado" id="modelos" data-secao="#solucoes">
+    <div class="container">
+      <div class="secao-topo reveal">
+        <div>
+          <p class="eyebrow eyebrow--claro">Modelos de negócio</p>
+          <h2 class="titulo titulo--claro">Diferentes estruturas.<br>Um objetivo: viabilizar o negócio.</h2>
+        </div>
+        <p>O modelo certo para cada produto, empresa e objetivo.</p>
+      </div>
+
+      <div class="modelos-grade">
+        <article class="modelo reveal">
+          <span class="modelo-numero">01</span>
+          <h3>Importação<br>por Conta e Ordem</h3>
+          <p>Para empresas que compram com recursos próprios, com a Horizon estruturando e executando a operação.</p>
+        </article>
+        <article class="modelo reveal" style="--atraso:.08s">
+          <span class="modelo-numero">02</span>
+          <h3>Importação<br>por Encomenda</h3>
+          <p>A Horizon participa da importação e da comercialização, com responsabilidades definidas em contrato.</p>
+        </article>
+        <article class="modelo reveal" style="--atraso:.16s">
+          <span class="modelo-numero">03</span>
+          <h3>Desenvolvimento<br>Comercial</h3>
+          <p>Produtos internacionais com potencial no mercado brasileiro.</p>
+        </article>
+        <article class="modelo reveal" style="--atraso:.24s">
+          <span class="modelo-numero">04</span>
+          <h3>Projetos<br>Personalizados</h3>
+          <p>Soluções sob medida para operações fora dos modelos tradicionais.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMO ATUAMOS ============ -->
+  <section class="como" id="como-atuamos" data-secao="#como-atuamos">
+    <div class="container">
+      <div class="secao-topo reveal">
+        <div>
+          <p class="eyebrow">Como atuamos</p>
+          <h2 class="titulo">Da oportunidade ao mercado.</h2>
+        </div>
+        <p>Do potencial de um produto a uma operação sustentável no Brasil.</p>
+      </div>
+
+      <ol class="etapas">
+        <li class="etapa reveal">
+          <span class="etapa-numero">01</span>
+          <h3>Entendemos</h3>
+          <p>Produto, empresa, mercado e objetivo do negócio.</p>
+        </li>
+        <li class="etapa reveal" style="--atraso:.08s">
+          <span class="etapa-numero">02</span>
+          <h3>Analisamos</h3>
+          <p>Viabilidade comercial, tributária, regulatória e operacional.</p>
+        </li>
+        <li class="etapa reveal" style="--atraso:.16s">
+          <span class="etapa-numero">03</span>
+          <h3>Estruturamos</h3>
+          <p>O modelo mais adequado para a operação.</p>
+        </li>
+        <li class="etapa reveal" style="--atraso:.24s">
+          <span class="etapa-numero">04</span>
+          <h3>Executamos</h3>
+          <p>Coordenamos cada etapa da operação.</p>
+        </li>
+        <li class="etapa reveal" style="--atraso:.32s">
+          <span class="etapa-numero">05</span>
+          <h3>Desenvolvemos</h3>
+          <p>Uma relação comercial recorrente e escalável.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ DIFERENCIAIS ============ -->
+  <section class="diferenciais secao-escura" id="diferenciais" data-secao="#diferenciais">
+    <figure class="diferenciais-foto" aria-hidden="true">
+      <img src="img/diferenciais.jpg" alt="" width="927" height="222" loading="lazy">
+    </figure>
+    <div class="container">
+      <div class="reveal">
+        <p class="eyebrow eyebrow--claro">Nossos diferenciais</p>
+        <h2 class="titulo titulo--claro">Experiência para reduzir<br>a complexidade.</h2>
+      </div>
+
+      <ul class="diferenciais-lista">
+        <li class="diferencial reveal">
+          <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
+          <p><strong>+30 anos</strong><span>de experiência em comércio internacional</span></p>
+        </li>
+        <li class="diferencial reveal" style="--atraso:.06s">
+          <svg class="icone" aria-hidden="true"><use href="#i-rede"/></svg>
+          <p><strong>Visão integrada</strong><span>comercial, tributária, regulatória, operacional e logística</span></p>
+        </li>
+        <li class="diferencial reveal" style="--atraso:.12s">
+          <svg class="icone" aria-hidden="true"><use href="#i-relogio"/></svg>
+          <p><strong>Agilidade</strong><span>para tomar decisões e adaptar soluções</span></p>
+        </li>
+        <li class="diferencial reveal" style="--atraso:.18s">
+          <svg class="icone" aria-hidden="true"><use href="#i-escudo"/></svg>
+          <p><strong>Segurança</strong><span>com foco em conformidade e previsibilidade</span></p>
+        </li>
+        <li class="diferencial reveal" style="--atraso:.24s">
+          <svg class="icone" aria-hidden="true"><use href="#i-grafico"/></svg>
+          <p><strong>Visão de longo prazo</strong><span>para relações comerciais recorrentes</span></p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ CHAMADA FINAL ============ -->
+  <section class="cta" id="contato" data-secao="#contato">
+    <div class="container">
+      <h2 class="titulo reveal reveal--esq">Existe uma oportunidade no Brasil?<br>Vamos estruturá-la.</h2>
+      <div class="cta-lado reveal reveal--dir">
+        <p>Conte-nos sobre seu produto ou projeto e mostramos os caminhos para levá-lo ao mercado brasileiro.</p>
+        <a href="mailto:comercial@horizoncomercial.com.br" class="botao botao--dourado" data-contato>
+          Falar com a Horizon
+          <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+        </a>
+      </div>
+    </div>
+    <svg class="cta-curva" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 92C260 28 560 22 840 70S1270 118 1440 12" fill="none" stroke="url(#grad-curva)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    </svg>
+  </section>
+
+</main>
+
+<!-- ============ RODAPÉ ============ -->
+<footer class="rodape pontilhado">
+  <div class="container">
+    <div class="rodape-grade">
+      <div class="rodape-sobre">
+        <a href="#inicio" class="marca marca--rodape">
+          <img src="img/logo-horizon-branco.png" alt="HORIZON Comercial Importadora — voltar ao início" width="710" height="119" loading="lazy">
+        </a>
+        <p>Comercial Importadora<br>Conectando oportunidades globais ao mercado brasileiro.</p>
+      </div>
+
+      <nav aria-label="Soluções">
+        <h2 class="rodape-titulo">Soluções</h2>
+        <ul>
+          <li><a href="#solucoes">Inteligência Comercial</a></li>
+          <li><a href="#solucoes">Inteligência Tributária</a></li>
+          <li><a href="#solucoes">Consultoria Regulatória</a></li>
+          <li><a href="#solucoes">Logística Internacional</a></li>
+          <li><a href="#solucoes">Gestão de Estoques e Distribuição</a></li>
+          <li><a href="#solucoes">Desenvolvimento Comercial</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-label="Institucional">
+        <h2 class="rodape-titulo">Institucional</h2>
+        <ul>
+          <li><a href="#a-horizon">A Horizon</a></li>
+          <li><a href="#como-atuamos">Como atuamos</a></li>
+          <li><a href="#diferenciais">Diferenciais</a></li>
+          <li><a href="#contato">Contato</a></li>
+        </ul>
+      </nav>
+
+      <div>
+        <h2 class="rodape-titulo">Contato</h2>
+        <ul class="rodape-contato">
+          <li>
+            <svg class="icone" aria-hidden="true"><use href="#i-email"/></svg>
+            <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>
+          </li>
+          <li>
+            <svg class="icone" aria-hidden="true"><use href="#i-telefone"/></svg>
+            <a href="tel:+5541992067373">+55 41 99206-7373</a>
+          </li>
+          <li>
+            <svg class="icone" aria-hidden="true"><use href="#i-local"/></svg>
+            <span>Curitiba - PR | Brasil</span>
+          </li>
+          <li>
+            <svg class="icone" aria-hidden="true"><use href="#i-globo"/></svg>
+            <span>Operações Internacionais</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rodape-baixo">
+      <p>© <span id="ano-atual">2026</span> HORIZON Comercial Importadora. Todos os direitos reservados.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ MODAL "FALAR COM A HORIZON" ============
+     Aberto por qualquer elemento com [data-contato]; fecha por
+     [data-fechar-contato], Esc ou clique fora. Três telas por data-estado. -->
+<dialog class="modal" id="fale-conosco" data-estado="formulario" aria-labelledby="fale-titulo">
+  <div class="modal-topo">
+    <p class="eyebrow eyebrow--claro">Falar com a Horizon</p>
+    <h2 id="fale-titulo">Conte-nos sobre sua oportunidade</h2>
+    <button type="button" class="modal-fechar" data-fechar-contato aria-label="Fechar">
+      <svg class="icone" aria-hidden="true"><use href="#i-fechar"/></svg>
+    </button>
+  </div>
+
+  <form class="modal-forma" id="fale-forma" method="post" novalidate>
+    <p class="modal-intro">Deixe seus dados e conte um pouco sobre o produto ou projeto. Retornamos em breve.</p>
+
+    <div class="modal-falha" role="alert">
+      <svg class="icone" aria-hidden="true"><use href="#i-alerta"/></svg>
+      <span>Não conseguimos enviar agora. Tente de novo em instantes ou escreva para
+        <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>.</span>
+    </div>
+
+    <div class="campo">
+      <label for="fale-nome">Nome completo</label>
+      <input id="fale-nome" name="nome" type="text" autocomplete="name" maxlength="120"
+             placeholder="Como podemos te chamar?" aria-describedby="erro-fale-nome" required>
+      <span class="campo-erro" id="erro-fale-nome"></span>
+    </div>
+
+    <div class="campo">
+      <label for="fale-empresa">Empresa <span>(opcional)</span></label>
+      <input id="fale-empresa" name="empresa" type="text" autocomplete="organization" maxlength="120"
+             placeholder="Nome da empresa">
+    </div>
+
+    <div class="campo-linha">
+      <div class="campo">
+        <label for="fale-email">E-mail</label>
+        <input id="fale-email" name="email" type="email" autocomplete="email" maxlength="160"
+               placeholder="voce@empresa.com" aria-describedby="erro-fale-email" required>
+        <span class="campo-erro" id="erro-fale-email"></span>
+      </div>
+      <!-- sem máscara brasileira de propósito: quem escreve para uma importadora
+           muitas vezes é o fornecedor lá fora, com telefone de outro país -->
+      <div class="campo">
+        <label for="fale-telefone">Telefone</label>
+        <input id="fale-telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24"
+               placeholder="+55 41 99999-9999" aria-describedby="erro-fale-telefone" required>
+        <span class="campo-erro" id="erro-fale-telefone"></span>
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="fale-mensagem">Sua oportunidade</label>
+      <textarea id="fale-mensagem" name="mensagem" rows="4" maxlength="3000"
+                placeholder="Produto, origem, volume, objetivo no Brasil…" aria-describedby="erro-fale-mensagem" required></textarea>
+      <span class="campo-erro" id="erro-fale-mensagem"></span>
+    </div>
+
+    <!-- isca de spam do FormSubmit: humano nunca vê, robô preenche e o envio é descartado -->
+    <div class="modal-isca" aria-hidden="true">
+      <label for="fale-isca">Não preencha este campo</label>
+      <input id="fale-isca" name="_honey" type="text" tabindex="-1" autocomplete="off">
+    </div>
+
+    <button type="submit" class="botao botao--dourado modal-enviar">
+      Enviar mensagem
+      <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+    </button>
+    <p class="modal-aviso">Usamos seus dados apenas para responder ao seu contato.</p>
+  </form>
+
+  <div class="modal-enviando" aria-live="polite">
+    <div class="modal-roda" aria-hidden="true"></div>
+    <p>Enviando sua mensagem…</p>
+  </div>
+
+  <div class="modal-sucesso" aria-live="polite">
+    <div class="modal-selo" aria-hidden="true">
+      <svg class="icone"><use href="#i-check"/></svg>
+    </div>
+    <h3>Mensagem enviada</h3>
+    <p>Recebemos seu contato. Nossa equipe vai analisar sua oportunidade e retornar em breve.</p>
+    <button type="button" class="botao botao--escuro modal-enviar" id="fale-sucesso-fechar" data-fechar-contato>Fechar</button>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  'use strict';
+
+  var reduzMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.getElementById('ano-atual').textContent = new Date().getFullYear();
+
+  /* ============ CABEÇALHO: sombra ao rolar + menu mobile ============ */
+  var nav = document.getElementById('nav');
+  var hamburguer = document.getElementById('hamburguer');
+  var menuMobile = document.getElementById('menu-mobile');
+
+  function marcarRolagem(){ nav.classList.toggle('nav--rolada', window.scrollY > 8); }
+  window.addEventListener('scroll', marcarRolagem, { passive:true });
+  marcarRolagem();
+
+  /* Sem isto o dedo rola o site por baixo do painel (ou do modal) e, ao
+     fechar, a página reaparece em outro ponto. position:fixed no <body> é o
+     que segura de verdade no iOS — o topo negativo preserva onde a leitura
+     estava. Mesmo mecanismo do site da HARGUS. */
+  var scrollTravado = 0;
+  function travarPagina(travar){
+    if (travar){
+      /* já travada (o modal abrindo logo depois do menu): reler scrollY aqui
+         daria 0, porque o body está fixo — e a página voltaria ao topo */
+      if (document.body.classList.contains('travado')) return;
+      scrollTravado = window.scrollY;
+      document.body.style.top = (-scrollTravado) + 'px';
+      document.body.classList.add('travado');
+    } else if (document.body.classList.contains('travado')){
+      document.body.classList.remove('travado');
+      document.body.style.top = '';
+      /* devolver o scroll com scroll-behavior:smooth ligado faria a página
+         voar de volta; desligado por um instante, ela só reaparece onde estava */
+      var raiz = document.documentElement;
+      raiz.style.scrollBehavior = 'auto';
+      window.scrollTo(0, scrollTravado);
+      raiz.style.scrollBehavior = '';
+    }
+  }
+
+  function menuAberto(){ return menuMobile.classList.contains('aberto'); }
+  function abrirMenu(aberto){
+    hamburguer.setAttribute('aria-expanded', String(aberto));
+    hamburguer.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu');
+    menuMobile.classList.toggle('aberto', aberto);
+    travarPagina(aberto);
+  }
+  hamburguer.addEventListener('click', function(){ abrirMenu(!menuAberto()); });
+  menuMobile.querySelectorAll('a:not([data-contato])').forEach(function(a){
+    a.addEventListener('click', function(){ abrirMenu(false); });
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && menuAberto()) abrirMenu(false);
+  });
+  /* girar o tablet ou alargar a janela com o painel aberto esconderia o
+     painel (ele não existe no desktop) e deixaria a página travada */
+  var telaLarga = window.matchMedia('(min-width: 1081px)');
+  if (telaLarga.addEventListener){
+    telaLarga.addEventListener('change', function(e){ if (e.matches && menuAberto()) abrirMenu(false); });
+  }
+
+  /* ============ MENU: item da seção que está na tela ============
+     Cada seção diz em data-secao qual item do menu ela acende (missão acende
+     "A Horizon", modelos acende "Soluções"). A faixa observada é uma linha
+     fina a 40% da altura da tela: só uma seção a cruza por vez. */
+  var linksMenu = document.querySelectorAll('.nav-menu a');
+  if ('IntersectionObserver' in window){
+    var vigia = new IntersectionObserver(function(entradas){
+      entradas.forEach(function(entrada){
+        if (!entrada.isIntersecting) return;
+        var alvo = entrada.target.getAttribute('data-secao');
+        linksMenu.forEach(function(a){ a.classList.toggle('ativo', a.getAttribute('href') === alvo); });
+      });
+    }, { rootMargin:'-40% 0px -59% 0px' });
+    document.querySelectorAll('[data-secao]').forEach(function(s){ vigia.observe(s); });
+  }
+
+  /* ============ REVELAÇÃO AO ROLAR ============ */
+  var revelaveis = document.querySelectorAll('.reveal');
+  if (reduzMovimento || !('IntersectionObserver' in window)){
+    revelaveis.forEach(function(el){ el.classList.add('visivel'); });
+  } else {
+    var observador = new IntersectionObserver(function(entradas){
+      entradas.forEach(function(entrada){
+        if (entrada.isIntersecting){
+          entrada.target.classList.add('visivel');
+          observador.unobserve(entrada.target);
+        }
+      });
+    }, { threshold:.15, rootMargin:'0px 0px -8% 0px' });
+    revelaveis.forEach(function(el){ observador.observe(el); });
+  }
+
+  /* ============ FALAR COM A HORIZON: modal de contato ============
+     Todo [data-contato] abre o mesmo <dialog>. O envio vai pelo FormSubmit (o
+     site é estático, não há servidor próprio para receber POST) e chega como
+     e-mail, com o "responder" já apontando para quem escreveu. */
+
+  /* O FormSubmit só entrega depois que o dono deste endereço clicar no e-mail
+     de ativação que ele manda no primeiro envio — e a ativação vale por
+     domínio: refazer quando o site for para o endereço definitivo. Até lá o
+     formulário mostra o aviso de falha, com o e-mail para contato direto. */
+  var CONTATO_DESTINO = 'comercial@horizoncomercial.com.br';
+  var modal = document.getElementById('fale-conosco');
+
+  /* Navegador sem <dialog>: nada é interceptado e os botões seguem o href
+     original (a chamada final ou o próprio e-mail). */
+  if (modal && typeof modal.showModal === 'function') (function(){
+    var forma = document.getElementById('fale-forma');
+    var isca = document.getElementById('fale-isca');
+    var empresa = document.getElementById('fale-empresa');
+    var campos = {
+      nome:     document.getElementById('fale-nome'),
+      email:    document.getElementById('fale-email'),
+      telefone: document.getElementById('fale-telefone'),
+      mensagem: document.getElementById('fale-mensagem')
+    };
+    var nomes = Object.keys(campos);
+    var quemAbriu = null;
+
+    var regras = {
+      nome:     function(v){ return v.trim().length >= 2 ? '' : 'Digite seu nome.'; },
+      email:    function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? '' : 'Digite um e-mail válido.'; },
+      /* 8 a 15 dígitos cobre fixo brasileiro sem DDD até o maior número
+         internacional (E.164) */
+      telefone: function(v){
+        var d = v.replace(/\D/g, '');
+        return (/^[\d\s()+.\-]*$/.test(v) && d.length >= 8 && d.length <= 15) ? '' : 'Informe um telefone com DDD (ou código do país).';
+      },
+      mensagem: function(v){ return v.trim().length >= 5 ? '' : 'Conte um pouco sobre sua oportunidade.'; }
+    };
+
+    function mostrarErro(nome, texto){
+      document.getElementById('erro-fale-' + nome).textContent = texto;
+      if (texto) campos[nome].setAttribute('aria-invalid', 'true');
+      else campos[nome].removeAttribute('aria-invalid');
+      return !texto;
+    }
+    function validar(nome){ return mostrarErro(nome, regras[nome](campos[nome].value)); }
+
+    /* ao sair do campo só avisa se já há algo escrito: passar pelo formulário
+       com Tab não deve pintar tudo de vermelho antes da hora */
+    nomes.forEach(function(nome){
+      campos[nome].addEventListener('blur', function(){ if (campos[nome].value.trim()) validar(nome); });
+      campos[nome].addEventListener('input', function(){
+        if (campos[nome].getAttribute('aria-invalid') === 'true') validar(nome);
+      });
+    });
+
+    function abrir(origem){
+      quemAbriu = origem || null;
+      if (menuAberto()) abrirMenu(false);
+      modal.dataset.estado = 'formulario';
+      modal.dataset.falhou = 'nao';
+      modal.showModal();
+      travarPagina(true);
+      campos.nome.focus();
+    }
+    /* enquanto envia, fechar deixaria o resultado do envio sem ninguém para ver */
+    function fechar(){ if (modal.dataset.estado !== 'enviando') modal.close(); }
+
+    modal.addEventListener('cancel', function(e){
+      if (modal.dataset.estado === 'enviando') e.preventDefault();
+    });
+    modal.addEventListener('close', function(){
+      travarPagina(false);
+      nomes.forEach(function(nome){ mostrarErro(nome, ''); });
+      modal.dataset.estado = 'formulario';
+      modal.dataset.falhou = 'nao';
+      if (quemAbriu){ quemAbriu.focus({ preventScroll:true }); quemAbriu = null; }
+    });
+
+    /* clique fora fecha — mas só se o clique também começou fora: selecionar
+       texto num campo e soltar o mouse sobre o fundo escuro não pode fechar */
+    var comecouFora = false;
+    modal.addEventListener('pointerdown', function(e){ comecouFora = (e.target === modal); });
+    modal.addEventListener('click', function(e){
+      if (e.target === modal && comecouFora) fechar();
+      comecouFora = false;
+    });
+
+    document.querySelectorAll('[data-fechar-contato]').forEach(function(b){ b.addEventListener('click', fechar); });
+    document.querySelectorAll('[data-contato]').forEach(function(b){
+      b.addEventListener('click', function(e){ e.preventDefault(); abrir(b); });
+    });
+
+    forma.addEventListener('submit', function(e){
+      e.preventDefault();
+      var valido = nomes.map(validar).every(Boolean);
+      if (!valido){
+        campos[nomes.filter(function(n){ return campos[n].getAttribute('aria-invalid') === 'true'; })[0]].focus();
+        return;
+      }
+
+      var dados = {
+        nome: campos.nome.value.trim(),
+        email: campos.email.value.trim(),
+        telefone: campos.telefone.value.trim(),
+        empresa: empresa.value.trim(),
+        mensagem: campos.mensagem.value.trim()
+      };
+      modal.dataset.falhou = 'nao';
+      modal.dataset.estado = 'enviando';
+
+      /* a ordem das chaves é a ordem das linhas na tabela do e-mail */
+      var corpo = {
+        _subject: 'Novo contato pelo site — ' + dados.nome,
+        _template: 'table',
+        _captcha: 'false',
+        _replyto: dados.email,
+        _honey: isca.value,
+        Nome: dados.nome,
+        'E-mail': dados.email,
+        Telefone: dados.telefone
+      };
+      if (dados.empresa) corpo.Empresa = dados.empresa;
+      corpo.Mensagem = dados.mensagem;
+      corpo.Origem = window.location.href;
+
+      fetch('https://formsubmit.co/ajax/' + CONTATO_DESTINO, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(corpo)
+      }).then(function(r){
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function(resposta){
+        if (resposta && String(resposta.success) === 'false'){
+          throw new Error(resposta.message || 'envio recusado');
+        }
+        /* enviado, o rascunho não tem mais serventia: limpa já, e não no
+           fechar — uma falha precisa devolver o texto intacto */
+        forma.reset();
+        modal.dataset.estado = 'sucesso';
+        document.getElementById('fale-sucesso-fechar').focus();
+      }).catch(function(){
+        modal.dataset.estado = 'formulario';
+        modal.dataset.falhou = 'sim';
+        forma.querySelector('.modal-enviar').focus();
+      });
+    });
+  })();
+})();
+</script>
+</body>
+</html>
