@@ -1,0 +1,49 @@
+{
+  "_sobre": "Pedido das fotos do site da Horizon para gerar_imagens.py. Os nomes são os mesmos arquivos de horizon/img/. Prompts em inglês: os modelos respondem melhor. Paleta da marca: azul #00193F e dourado #D6B83A.",
+  "saida": "../_imagens-geradas",
+  "modelo_padrao": "higgsfield-ai/soul/v2/standard",
+  "parametros_padrao": {
+    "resolution": "1080p",
+    "aspect_ratio": "3:2",
+    "batch_size": 2
+  },
+  "imagens": [
+    {
+      "nome": "hero",
+      "prompt": "Photorealistic cinematic wide image. Left third: deep navy blue night sky, dark and empty, leaving room for text. Center: planet Earth seen from orbit at night with South America facing the camera, glowing golden city lights and thin luminous gold arcs connecting the continents like a global trade network. Right side: a large modern container port at sunset seen from above, gantry cranes and stacked shipping containers, warm golden sky reflecting on the water. Color palette of deep navy blue and warm gold. High detail, premium corporate look. No text, no logos, no watermark."
+    },
+    {
+      "nome": "escritorio",
+      "prompt": "Photorealistic photo: three business executives in dark suits having a conversation next to floor-to-ceiling windows in a modern high-rise office at sunset, city skyline in the background, warm golden backlight, figures partly silhouetted, elegant corporate atmosphere, shallow depth of field. No text, no logos, no watermark."
+    },
+    {
+      "nome": "solucao-comercial",
+      "prompt": "Photorealistic close-up: hands of a business analyst holding a pen over printed market analysis charts and blue bar graphs on a desk, soft natural daylight, shallow depth of field. No readable text, no logos, no watermark."
+    },
+    {
+      "nome": "solucao-tributaria",
+      "prompt": "Photorealistic close-up: stacked tax forms and invoices on a wooden desk with a fountain pen and a calculator, warm side light, shallow depth of field, professional accounting mood. No readable text, no logos, no watermark."
+    },
+    {
+      "nome": "solucao-regulatoria",
+      "prompt": "Photorealistic close-up: a hand signing an official certificate with an embossed gold seal next to it, approval and regulatory compliance concept, clean desk, soft daylight, shallow depth of field. No readable text, no logos, no watermark."
+    },
+    {
+      "nome": "solucao-logistica",
+      "prompt": "Photorealistic photo: a large container ship loaded with colorful shipping containers sailing on a calm blue sea at golden hour, low three-quarter angle, clear sky. No text, no logos, no watermark."
+    },
+    {
+      "nome": "solucao-estoques",
+      "prompt": "Photorealistic photo: interior of a modern distribution warehouse with tall metal racks full of cardboard boxes on pallets, warm industrial lighting, clean central aisle with depth. No readable text, no logos, no watermark."
+    },
+    {
+      "nome": "solucao-desenvolvimento",
+      "prompt": "Photorealistic close-up: a firm handshake between two business people in dark suits, blurred modern office background with warm bokeh lights, trust and partnership. No text, no logos, no watermark."
+    },
+    {
+      "nome": "diferenciais",
+      "parametros": { "aspect_ratio": "16:9" },
+      "prompt": "Photorealistic cinematic wide photo: container port at blue hour, silhouettes of gantry cranes and a docked cargo ship, deep navy blue tones with a few small warm lights, low contrast and dark overall because it will sit behind white text. No text, no logos, no watermark."
+    }
+  ]
+}
