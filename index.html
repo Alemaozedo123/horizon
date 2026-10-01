@@ -299,6 +299,11 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
     linear-gradient(90deg, var(--azul) 0%, rgba(0,25,63,.72) 16%, rgba(0,25,63,.14) 42%, rgba(0,25,63,0) 62%),
     linear-gradient(0deg, rgba(0,25,63,.6) 0%, rgba(0,25,63,0) 28%);
 }
+/* hero sem foto: o mesmo pontilhado das seções escuras, deslocado para a
+   direita onde ficava o globo, e dois arcos dourados no desenho do logo */
+.hero.pontilhado{ --pontos-x:76%; --pontos-y:46%; }
+/* 46% de largura: os arcos nascem à direita do texto e dos botões, sem riscá-los */
+.hero-curva{ position:absolute; right:0; bottom:0; width:46%; height:100%; pointer-events:none; }
 .hero .container{ position:relative; z-index:1; }
 /* a largura é a da fileira de destaques, que no layout avança sobre o globo;
    título e parágrafo têm limite próprio logo abaixo */
@@ -333,6 +338,23 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   width:100%; aspect-ratio:3/2; object-fit:cover; object-position:62% 50%;
   border-radius:8px; box-shadow:0 30px 60px rgba(0,25,63,.16);
 }
+/* painel da marca no lugar da foto do escritório, enquanto as novas não
+   chegam: o gradiente institucional do manual, pontilhado e curva dourada.
+   Mesma proporção e mesmo canto da foto, para o cartão continuar encaixando. */
+.sobre-painel{
+  position:relative; overflow:hidden; aspect-ratio:3/2; border-radius:8px;
+  background:linear-gradient(120deg, var(--azul) 0%, #0B2F63 62%, #1F4E8C 100%);
+  box-shadow:0 30px 60px rgba(0,25,63,.16);
+}
+.sobre-painel::before{
+  content:""; position:absolute; inset:0;
+  background-image:radial-gradient(rgba(150,185,235,.26) 1px, transparent 1.5px);
+  background-size:10px 10px;
+  -webkit-mask-image:radial-gradient(ellipse 60% 70% at 70% 30%, #000 0%, transparent 75%);
+          mask-image:radial-gradient(ellipse 60% 70% at 70% 30%, #000 0%, transparent 75%);
+}
+.sobre-painel svg{ position:absolute; inset:0; width:100%; height:100%; }
+
 /* o cartão sai pela base e pela direita da foto, como no layout */
 .sobre-cartao{
   position:absolute; right:-28px; bottom:-44px; width:min(400px, 78%);
@@ -395,6 +417,9 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   box-shadow:0 14px 34px rgba(0,25,63,.07);
 }
 .solucao img{ width:100%; aspect-ratio:16/10; object-fit:cover; }
+/* cartão sem foto ganha um filete dourado no topo, para não virar uma caixa
+   branca lisa; some sozinho quando a <img> voltar */
+.solucao:not(:has(img)){ border-top:3px solid var(--dourado); }
 .solucao-corpo{ padding:24px 20px 28px; }
 .solucao-corpo .icone{ width:34px; height:34px; color:var(--dourado-escuro); stroke-width:1.4; margin-bottom:18px; }
 /* duas linhas reservadas: os títulos de uma linha só não desalinham o texto
@@ -442,7 +467,7 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .etapa p{ font-size:14px; line-height:1.65; margin:0; max-width:26ch; }
 
 /* ============ DIFERENCIAIS ============ */
-.diferenciais{ padding:100px 0 96px; }
+.diferenciais{ padding:100px 0 96px; --pontos-x:78%; --pontos-y:42%; }
 .diferenciais-foto{ position:absolute; top:0; right:0; bottom:0; width:64%; }
 .diferenciais-foto img{ width:100%; height:100%; object-fit:cover; object-position:60% 40%; opacity:.6; }
 .diferenciais-foto::after{
@@ -689,6 +714,8 @@ dialog:not([open]){ display:none; }
 
   /* sem metade livre para a foto, ela vai para trás do texto, escurecida */
   .hero{ padding:calc(var(--nav-h) + 60px) 0 60px; }
+  /* aqui os arcos passariam por trás das frases */
+  .hero-curva{ display:none; }
   .hero-foto{ width:100%; }
   .hero-foto img{ object-position:72% 50%; }
   .hero-foto::after{
@@ -777,6 +804,12 @@ dialog:not([open]){ display:none; }
       <stop offset="0" stop-color="#B9C3D2" stop-opacity=".45"/>
       <stop offset=".35" stop-color="#D6B83A"/>
       <stop offset="1" stop-color="#D6B83A"/>
+    </linearGradient>
+    <!-- arcos do hero: nascem do nada à esquerda para não riscar o texto -->
+    <linearGradient id="grad-arco-hero" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#D6B83A" stop-opacity="0"/>
+      <stop offset=".45" stop-color="#D6B83A" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#D6B83A" stop-opacity=".55"/>
     </linearGradient>
   </defs>
   <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
@@ -899,13 +932,22 @@ dialog:not([open]){ display:none; }
 <main id="conteudo">
 
   <!-- ============ HERO ============
-       As fotos em img/ são PROVISÓRIAS: recortadas do próprio layout, que tem
-       569 px de largura, então aparecem borradas. Trocar pelos arquivos
-       originais em alta resolução mantendo os MESMOS nomes — o HTML não muda. -->
-  <section class="hero" id="inicio" data-secao="#inicio">
+       SITE SEM FOTOS POR ENQUANTO. As provisórias (recortes borrados do
+       layout) saíram até as novas, em alta, ficarem prontas — elas são geradas
+       por _ferramentas/gerar_imagens.py e entram em img/ com os nomes que
+       aparecem nos comentários de cada seção. No lugar das fotos ficou a
+       própria marca: azul, pontilhado e a curva dourada do manual.
+       Para voltar com a foto do hero: repor o bloco abaixo, tirar a classe
+       "pontilhado" da seção e apagar o <svg class="hero-curva">.
     <figure class="hero-foto" aria-hidden="true">
       <img src="img/hero.jpg" alt="" width="903" height="570" fetchpriority="high">
     </figure>
+  -->
+  <section class="hero pontilhado" id="inicio" data-secao="#inicio">
+    <svg class="hero-curva" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 700C250 400 610 230 1000 170" fill="none" stroke="url(#grad-arco-hero)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+      <path d="M210 700C440 480 720 350 1000 300" fill="none" stroke="url(#grad-arco-hero)" stroke-width="1" vector-effect="non-scaling-stroke" opacity=".45"/>
+    </svg>
     <div class="container">
       <div class="hero-conteudo">
         <h1 data-en-html='Connecting<br>global opportunities<br><span class="destaque">to the Brazilian market.</span>'>Conectando<br>oportunidades globais<br><span class="destaque">ao mercado brasileiro.</span></h1>
@@ -949,7 +991,16 @@ dialog:not([open]){ display:none; }
       </div>
 
       <figure class="sobre-foto reveal reveal--dir">
+        <!-- sem foto por enquanto (ver o comentário do hero). Para voltar,
+             trocar o .sobre-painel por:
         <img src="img/escritorio.jpg" alt="Executivos conversando em um escritório envidraçado, com a cidade ao entardecer ao fundo" data-en-alt="Executives talking in a glass-walled office, with the city at sunset in the background" width="849" height="438" loading="lazy">
+        -->
+        <div class="sobre-painel" aria-hidden="true">
+          <svg viewBox="0 0 600 400" preserveAspectRatio="none">
+            <path d="M0 340C170 250 370 205 600 80" fill="none" stroke="#D6B83A" stroke-width="2" vector-effect="non-scaling-stroke"/>
+            <path d="M0 395C200 320 400 285 600 190" fill="none" stroke="#D6B83A" stroke-width="1" vector-effect="non-scaling-stroke" opacity=".4"/>
+          </svg>
+        </div>
         <div class="sobre-cartao">
           <svg class="icone" aria-hidden="true"><use href="#i-aperto"/></svg>
           <div>
@@ -1012,9 +1063,12 @@ dialog:not([open]){ display:none; }
         <p data-en="From market insight to distribution in Brazil.">Do entendimento do mercado à distribuição no Brasil.</p>
       </div>
 
+      <!-- sem fotos por enquanto (ver o comentário do hero). Cada cartão abria
+           com a sua, antes do .solucao-corpo e nesta ordem — comercial,
+           tributaria, regulatoria, logistica, estoques, desenvolvimento:
+           <img src="img/solucao-NOME.jpg" alt="" width="332" height="192" loading="lazy"> -->
       <div class="solucoes-grade">
         <article class="solucao reveal">
-          <img src="img/solucao-comercial.jpg" alt="" width="332" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-lupa"/></svg>
             <h3 data-en="Commercial Intelligence">Inteligência Comercial</h3>
@@ -1022,7 +1076,6 @@ dialog:not([open]){ display:none; }
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.06s">
-          <img src="img/solucao-tributaria.jpg" alt="" width="336" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-documento"/></svg>
             <h3 data-en="Tax Intelligence">Inteligência Tributária</h3>
@@ -1030,7 +1083,6 @@ dialog:not([open]){ display:none; }
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.12s">
-          <img src="img/solucao-regulatoria.jpg" alt="" width="332" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-escudo"/></svg>
             <h3 data-en="Regulatory Consulting">Consultoria Regulatória</h3>
@@ -1038,7 +1090,6 @@ dialog:not([open]){ display:none; }
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.18s">
-          <img src="img/solucao-logistica.jpg" alt="" width="332" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-navio"/></svg>
             <h3 data-en="International Logistics">Logística Internacional</h3>
@@ -1046,7 +1097,6 @@ dialog:not([open]){ display:none; }
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.24s">
-          <img src="img/solucao-estoques.jpg" alt="" width="336" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-caixas"/></svg>
             <h3 data-en="Inventory and Distribution">Gestão de Estoques e Distribuição</h3>
@@ -1054,7 +1104,6 @@ dialog:not([open]){ display:none; }
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.3s">
-          <img src="img/solucao-desenvolvimento.jpg" alt="" width="332" height="192" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
             <h3 data-en="Business Development">Desenvolvimento Comercial</h3>
@@ -1143,10 +1192,13 @@ dialog:not([open]){ display:none; }
   </section>
 
   <!-- ============ DIFERENCIAIS ============ -->
-  <section class="diferenciais secao-escura" id="diferenciais" data-secao="#diferenciais">
+  <!-- sem foto de fundo por enquanto (ver o comentário do hero). Para voltar,
+       tirar a classe "pontilhado" e repor, logo abaixo da abertura da seção:
     <figure class="diferenciais-foto" aria-hidden="true">
       <img src="img/diferenciais.jpg" alt="" width="927" height="222" loading="lazy">
     </figure>
+  -->
+  <section class="diferenciais secao-escura pontilhado" id="diferenciais" data-secao="#diferenciais">
     <div class="container">
       <div class="reveal">
         <p class="eyebrow eyebrow--claro" data-en="Why Horizon">Nossos diferenciais</p>
