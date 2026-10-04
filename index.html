@@ -295,44 +295,21 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
    fica sobre a parte clara da imagem */
 .hero-foto{ position:absolute; top:0; right:0; bottom:0; width:60%; }
 .hero-foto img, .hero-foto video{ width:100%; height:100%; object-fit:cover; object-position:35% 50%; }
-/* o vídeo deita sobre o poster e só aparece quando já está rodando: a troca da
-   foto parada para o globo girando acontece sem salto nem quadro preto. O
-   ::after (o véu azul) vem depois no HTML, então continua por cima dos dois. */
-.hero-foto video{ position:absolute; inset:0; opacity:0; transition:opacity 1s ease; }
+/* O vídeo deita sobre o poster e nunca toca sozinho: quem o faz avançar é a
+   rolagem (ver o <script>). Parado no primeiro quadro ele é idêntico ao poster,
+   então a troca de um pelo outro não aparece — por isso basta revelá-lo assim
+   que der para buscar quadro. O ::after (o véu azul) vem depois no HTML e
+   continua por cima dos dois. */
+.hero-foto video{
+  position:absolute; inset:0; opacity:0; transition:opacity .6s ease;
+  will-change:contents;   /* o que muda a cada quadro é o conteúdo, não o layout */
+}
 .hero-foto video.pronto{ opacity:1; }
 @media (prefers-reduced-motion: reduce){
   /* sem movimento: o <script> nem chega a pedir o arquivo, mas se algum
      navegador ignorar a consulta, o vídeo fica escondido e o poster permanece */
   .hero-foto video{ display:none; }
 }
-
-/* ---- cortina que disfarça o corte do loop ----
-   Em 5 segundos o globo gira o bastante para o último quadro não encostar no
-   primeiro: voltando ao início, o continente salta de volta. Mesma solução do
-   site da HARGUS: uma onda da cor do fundo sobe por cima do vídeo, ele reinicia
-   escondido atrás dela, e a onda desce com o giro já em andamento. Quem assiste
-   vê uma onda passando, nunca o salto.
-   Em repouso o recorte tem altura zero, encostado na base: a cortina existe mas
-   não cobre pixel nenhum. Ativa, o mesmo recorte sobe até o topo. */
-.hero-cortina{
-  position:absolute; inset:0; z-index:2; pointer-events:none;
-  background:var(--azul);
-  clip-path:polygon(
-    0% 100%, 13.9% 100%, 26.9% 100%, 39.7% 100%, 52.8% 100%,
-    65.6% 100%, 77.4% 100%, 88.7% 100%, 100% 100%, 100% 100%, 0% 100%
-  );
-  transition:clip-path 1.5s ease-in-out;
-  will-change:clip-path;
-}
-/* a borda de cima é ondulada, no desenho dos arcos da marca — é ela que se vê
-   subindo e descendo; os dois últimos pontos fecham o retângulo embaixo */
-.hero-cortina.ativa{
-  clip-path:polygon(
-    0% 0%, 13.9% 3%, 26.9% 1.5%, 39.7% 0%, 52.8% 2.2%,
-    65.6% 4%, 77.4% 2.6%, 88.7% 1.2%, 100% 3%, 100% 100%, 0% 100%
-  );
-}
-@media (prefers-reduced-motion: reduce){ .hero-cortina{ display:none; } }
 .hero-foto::after{
   content:""; position:absolute; inset:0;
   background:
@@ -977,10 +954,9 @@ dialog:not([open]){ display:none; }
   <section class="hero" id="inicio" data-secao="#inicio">
     <figure class="hero-foto" aria-hidden="true">
       <img src="img/hero.jpg" alt="" width="1800" height="1202" fetchpriority="high">
-      <!-- sem o atributo loop: quem reinicia é o <script>, escondido atrás da
-           cortina, para o salto do giro não aparecer -->
-      <video id="hero-video" muted playsinline preload="none" poster="img/hero.jpg"></video>
-      <div class="hero-cortina" id="hero-cortina"></div>
+      <!-- sem loop e sem autoplay: o vídeo fica parado no primeiro quadro e
+           quem o faz girar é a rolagem da página, no <script> lá embaixo -->
+      <video id="hero-video" muted playsinline preload="auto" poster="img/hero.jpg"></video>
     </figure>
     <div class="container">
       <div class="hero-conteudo">
@@ -1777,79 +1753,77 @@ dialog:not([open]){ display:none; }
 
   document.getElementById('ano-atual').textContent = new Date().getFullYear();
 
-  /* ============ ABERTURA: o globo girando ============
-     O <video> nasce sem src: quem decide o arquivo é esta função, pela largura
-     da tela, para o celular não baixar o vídeo do computador. Com movimento
-     reduzido nada é pedido e o poster (img/hero.jpg) fica — é o mesmo primeiro
-     quadro do vídeo, então ninguém vê diferença até ele começar a girar.
-     O vídeo só é revelado quando dá para tocar do início ao fim: numa conexão
-     ruim ou se o arquivo faltar, a abertura continua sendo a foto, parada. */
+  /* ============ ABERTURA: o globo que gira com a rolagem ============
+     O vídeo não toca: ele fica parado no primeiro quadro e é a rolagem que o
+     faz avançar, quadro a quadro, como um boneco de papel. Quem abre o site vê
+     uma imagem estática; quem desce vê o mundo girar na medida do movimento, e
+     quem sobe vê girar de volta.
+     Por isso os dois arquivos são codificados com TODOS os quadros sendo
+     quadro-chave (ffmpeg -g 1, ver o LEIA-ME de _ferramentas): num vídeo comum
+     o navegador só consegue saltar para um quadro-chave a cada 2 ou 3 segundos
+     e o giro ficaria aos trancos. Em troca o arquivo engorda, daí a taxa de 12
+     quadros por segundo e a largura menor — para rolagem é de sobra.
+     O <video> nasce sem src: quem escolhe o arquivo é esta função, pela largura
+     da tela, para o celular não baixar o do computador. Com movimento reduzido
+     nada é pedido e fica o poster (img/hero.jpg), que é o primeiro quadro do
+     vídeo — ninguém vê a troca de um pelo outro. */
   (function globoDaAbertura(){
     var video = document.getElementById('hero-video');
-    if (!video || reduzMovimento) return;
+    var secao = document.getElementById('inicio');
+    if (!video || !secao || reduzMovimento) return;
 
-    /* tocar pode ser recusado por motivo passageiro — a aba está em segundo
-       plano, o load ainda estava em curso (AbortError), a economia de bateria
-       entrou. Nada disso é motivo para esconder o vídeo: o primeiro quadro dele
-       é o próprio poster, então parado ele continua certo na tela, e basta
-       tentar de novo quando a aba voltar. Esconder só em erro de carregamento. */
-    function tentarTocar(){ var p = video.play(); if (p) p.catch(function(){}); }
+    var alvo = 0;        /* segundo do vídeo que a rolagem está pedindo */
+    var atual = 0;       /* segundo onde o vídeo realmente está */
+    var pedido = false;  /* já há um quadro agendado? */
 
-    video.addEventListener('canplaythrough', function(){
-      if (video.classList.contains('pronto')) return;   /* dispara de novo a cada rebuffer */
-      video.classList.add('pronto');
-      tentarTocar();
-
-      /* o vigia nasce só aqui, com o vídeo já pronto: criado antes, o primeiro
-         disparo chegava depois do play e pausava o que acabara de começar */
-      if ('IntersectionObserver' in window){
-        new IntersectionObserver(function(entradas){
-          if (entradas[0].isIntersecting) tentarTocar();
-          else video.pause();
-        }, { threshold: .05 }).observe(video);
-      }
-    });
-
-    /* ---- a cortina do loop ----
-       A onda começa a subir quando falta exatamente o tempo da subida para o
-       vídeo acabar: ele só some de vista já coberto, nunca congelado no último
-       quadro. Coberto, volta ao início e recomeça a tocar; a onda só desce
-       depois disso, com o globo já girando de novo. */
-    var cortina = document.getElementById('hero-cortina');
-    if (cortina){
-      var SUBIDA = 1500;    /* ms — igual à transition do CSS */
-      var COBERTO = 700;    /* ms que a onda fica por cima antes de descer */
-      var emCiclo = false;
-
-      function passarCortina(){
-        if (emCiclo) return;
-        emCiclo = true;
-        cortina.classList.add('ativa');
-        setTimeout(function(){
-          video.currentTime = 0;        /* reinicia escondido */
-          tentarTocar();
-          emCiclo = false;              /* libera a detecção do próximo ciclo */
-        }, SUBIDA);
-        setTimeout(function(){
-          cortina.classList.remove('ativa');
-        }, SUBIDA + COBERTO);
-      }
-
-      video.addEventListener('timeupdate', function(){
-        if (!video.duration || emCiclo) return;
-        if ((video.duration - video.currentTime) * 1000 <= SUBIDA) passarCortina();
-      });
-      /* rede de segurança: se nenhum timeupdate cair perto o bastante do fim */
-      video.addEventListener('ended', passarCortina);
+    /* Quanto da abertura já passou: 0 com a página no topo, 1 quando a seção
+       terminou de sair por cima. É esse 0→1 que vira o tempo do vídeo, então o
+       globo gira na medida exata da rolagem e para quando a pessoa para. */
+    function progresso(){
+      var caixa = secao.getBoundingClientRect();
+      var curso = caixa.height;                 /* o quanto é preciso rolar para a seção sair */
+      if (curso <= 0) return 0;
+      var andado = -caixa.top;                  /* topo da seção acima da borda da tela */
+      return Math.min(1, Math.max(0, andado / curso));
     }
+
+    /* O vídeo não salta para o alvo: caminha uma fração da distância a cada
+       quadro. Em rolagem de roda, que chega em degraus, é isso que transforma
+       os saltos num giro contínuo — e, parado, a diferença zera sozinha. */
+    function animar(){
+      pedido = false;
+      var dur = video.duration;
+      if (!dur) return;
+      alvo = progresso() * (dur - 0.05);        /* a margem evita encostar no fim e disparar 'ended' */
+      var passo = (alvo - atual) * 0.18;
+      if (Math.abs(alvo - atual) < 0.004){
+        atual = alvo;
+      } else {
+        atual += passo;
+        agendar();                              /* ainda há distância: continua suavizando */
+      }
+      /* seek é a única coisa que move este vídeo; ele nunca toca */
+      if (video.readyState >= 2) video.currentTime = atual;
+    }
+
+    function agendar(){
+      if (pedido) return;
+      pedido = true;
+      requestAnimationFrame(animar);
+    }
+
+    video.addEventListener('loadeddata', function(){
+      if (video.classList.contains('pronto')) return;
+      video.pause();                            /* garante que nada toca sozinho */
+      video.classList.add('pronto');
+      agendar();                                /* já posiciona conforme a rolagem atual */
+    });
 
     /* arquivo faltando ou formato recusado: o poster assume e nada quebra */
     video.addEventListener('error', function(){ video.classList.remove('pronto'); });
 
-    /* voltou para a aba: retoma de onde parou */
-    document.addEventListener('visibilitychange', function(){
-      if (!document.hidden && video.classList.contains('pronto')) tentarTocar();
-    });
+    window.addEventListener('scroll', agendar, { passive: true });
+    window.addEventListener('resize', agendar, { passive: true });
 
     video.src = window.matchMedia('(max-width: 820px)').matches
       ? 'img/hero-globo-mobile.mp4'

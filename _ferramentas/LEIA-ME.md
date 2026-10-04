@@ -42,6 +42,49 @@ Mesmos comandos, trocando `node gerar_imagens.js` por `python gerar_imagens.py`.
 Precisa do Python 3 instalado (python.org) e da variável de ambiente `HF_KEY` —
 a versão em Python não lê o `chave.local.txt`.
 
+## Vídeo
+
+`gerar_video.js` parte de uma imagem **já gerada**: o campo `origem` do
+`videos-horizon.json` cita o nome dela e o programa reusa a URL que a própria
+Higgsfield devolveu, sem precisar hospedar nada.
+
+```
+node gerar_video.js videos-horizon.json --orcar    # custo estimado, sem gastar
+node gerar_video.js videos-horizon.json            # gera
+```
+
+Modelo: `kling-video/v3.0/4k/image-to-video`, a US$ 0,071 por segundo (5s ≈ US$ 0,35).
+O master em 4K cai em `_videos-gerados/`, fora do Git.
+
+**Descreva o movimento de forma explícita.** Pedir "gira no seu eixo" produziu
+um giro em direção errada; o que funcionou foi dizer que gira horizontalmente no
+eixo vertical, da esquerda para a direita, com o continente deslizando de lado e
+os polos parados — e listar no `negative_prompt` o que não se quer (giro
+vertical, cambalhota, câmera orbitando).
+
+### Preparar o vídeo da abertura para a rolagem
+
+O globo do site não toca: ele avança conforme a pessoa rola. Para o navegador
+conseguir saltar para qualquer quadro sem travar, os arquivos de `img/` são
+codificados com **todos os quadros sendo quadro-chave** (`-g 1`). Isso engorda o
+arquivo, e é por isso que a taxa cai para 12 quadros por segundo e a largura
+diminui — numa animação comandada pela rolagem não faz falta.
+
+```
+ffmpeg -i _videos-gerados/hero-globo.mp4 -vf "fps=12,scale=1280:-2" \
+  -c:v libx264 -g 1 -crf 28 -preset slow -pix_fmt yuv420p -movflags +faststart -an \
+  img/hero-globo.mp4
+
+ffmpeg -i _videos-gerados/hero-globo.mp4 -vf "fps=12,scale=720:-2" \
+  -c:v libx264 -g 1 -crf 30 -preset slow -pix_fmt yuv420p -movflags +faststart -an \
+  img/hero-globo-mobile.mp4
+
+ffmpeg -ss 0 -i _videos-gerados/hero-globo.mp4 -frames:v 1 -vf "scale=1800:-2" -q:v 6 img/hero.jpg
+```
+
+O `hero.jpg` precisa ser o **primeiro quadro do vídeo**: é ele que aparece antes
+de o vídeo carregar, e sendo o mesmo quadro ninguém vê a troca.
+
 ## Depois de gerar
 
 As candidatas saem em `_imagens-geradas/` (fora do Git), duas de cada e
