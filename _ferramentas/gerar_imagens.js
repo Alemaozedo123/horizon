@@ -167,8 +167,8 @@ async function main() {
     console.log(`Seriam enviados ${imagens.length} pedido(s), sem gastar nada agora:\n`);
     for (const img of imagens) {
       const p = { ...parametrosPadrao, ...(img.parametros || {}) };
-      variacoes += p.batch_size || 1;
-      console.log(`  ${img.nome.padEnd(24)} ${img.modelo || modeloPadrao}  ${p.aspect_ratio}  ${p.resolution}  x${p.batch_size || 1}`);
+      variacoes += p.num_images || 1;
+      console.log(`  ${img.nome.padEnd(24)} ${img.modelo || modeloPadrao}  ${p.aspect_ratio}  ${p.resolution}  x${p.num_images || 1}`);
     }
     console.log(`\nTotal: ${variacoes} imagem(ns) geradas. Saída: ${saida}`);
     return;
