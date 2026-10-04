@@ -9,9 +9,11 @@
      formsubmit.co — por fetch (contato e cotação) e por envio de formulário
      (currículo, que precisa do POST tradicional para o anexo chegar) — e com
      o Google Fonts; não carrega script, imagem nem plugin de terceiro.
+     media-src 'self' é o que deixa o vídeo da abertura tocar: sem ele o
+     default-src 'none' bloqueia o arquivo e a abertura fica só no poster.
      'unsafe-inline' é obrigatório porque todo o CSS e o JS são inline, e nada
      do que o visitante digita vira HTML (os textos entram por textContent). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://formsubmit.co; form-action https://formsubmit.co; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src https://formsubmit.co; form-action https://formsubmit.co; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title data-en="HORIZON Import Trading — Connecting global opportunities to the Brazilian market">HORIZON Comercial Importadora — Conectando oportunidades globais ao mercado brasileiro</title>
 <meta name="description" data-en-content="Import trading company in Curitiba, Brazil. Commercial, tax and regulatory intelligence, international logistics and distribution to bring global products and brands to the Brazilian market." content="Comercial importadora em Curitiba/PR. Inteligência comercial, tributária e regulatória, logística internacional e distribuição para levar produtos e marcas globais ao mercado brasileiro.">
@@ -292,7 +294,45 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 /* a foto ocupa a direita e se dissolve no azul à esquerda: o texto nunca
    fica sobre a parte clara da imagem */
 .hero-foto{ position:absolute; top:0; right:0; bottom:0; width:60%; }
-.hero-foto img{ width:100%; height:100%; object-fit:cover; object-position:35% 50%; }
+.hero-foto img, .hero-foto video{ width:100%; height:100%; object-fit:cover; object-position:35% 50%; }
+/* o vídeo deita sobre o poster e só aparece quando já está rodando: a troca da
+   foto parada para o globo girando acontece sem salto nem quadro preto. O
+   ::after (o véu azul) vem depois no HTML, então continua por cima dos dois. */
+.hero-foto video{ position:absolute; inset:0; opacity:0; transition:opacity 1s ease; }
+.hero-foto video.pronto{ opacity:1; }
+@media (prefers-reduced-motion: reduce){
+  /* sem movimento: o <script> nem chega a pedir o arquivo, mas se algum
+     navegador ignorar a consulta, o vídeo fica escondido e o poster permanece */
+  .hero-foto video{ display:none; }
+}
+
+/* ---- cortina que disfarça o corte do loop ----
+   Em 5 segundos o globo gira o bastante para o último quadro não encostar no
+   primeiro: voltando ao início, o continente salta de volta. Mesma solução do
+   site da HARGUS: uma onda da cor do fundo sobe por cima do vídeo, ele reinicia
+   escondido atrás dela, e a onda desce com o giro já em andamento. Quem assiste
+   vê uma onda passando, nunca o salto.
+   Em repouso o recorte tem altura zero, encostado na base: a cortina existe mas
+   não cobre pixel nenhum. Ativa, o mesmo recorte sobe até o topo. */
+.hero-cortina{
+  position:absolute; inset:0; z-index:2; pointer-events:none;
+  background:var(--azul);
+  clip-path:polygon(
+    0% 100%, 13.9% 100%, 26.9% 100%, 39.7% 100%, 52.8% 100%,
+    65.6% 100%, 77.4% 100%, 88.7% 100%, 100% 100%, 100% 100%, 0% 100%
+  );
+  transition:clip-path 1.5s ease-in-out;
+  will-change:clip-path;
+}
+/* a borda de cima é ondulada, no desenho dos arcos da marca — é ela que se vê
+   subindo e descendo; os dois últimos pontos fecham o retângulo embaixo */
+.hero-cortina.ativa{
+  clip-path:polygon(
+    0% 0%, 13.9% 3%, 26.9% 1.5%, 39.7% 0%, 52.8% 2.2%,
+    65.6% 4%, 77.4% 2.6%, 88.7% 1.2%, 100% 3%, 100% 100%, 0% 100%
+  );
+}
+@media (prefers-reduced-motion: reduce){ .hero-cortina{ display:none; } }
 .hero-foto::after{
   content:""; position:absolute; inset:0;
   background:
@@ -300,10 +340,11 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
     linear-gradient(0deg, rgba(0,25,63,.6) 0%, rgba(0,25,63,0) 28%);
 }
 /* hero sem foto: o mesmo pontilhado das seções escuras, deslocado para a
-   direita onde ficava o globo, e dois arcos dourados no desenho do logo */
+   direita onde ficava o globo, e dois arcos dourados no desenho do logo.
+   Serviu enquanto a abertura não tinha imagem; hoje quem ocupa esse lugar é o
+   globo girando, mas a regra fica porque basta devolver a classe "pontilhado"
+   à seção para ter de volta a abertura sem mídia nenhuma. */
 .hero.pontilhado{ --pontos-x:76%; --pontos-y:46%; }
-/* 46% de largura: os arcos nascem à direita do texto e dos botões, sem riscá-los */
-.hero-curva{ position:absolute; right:0; bottom:0; width:46%; height:100%; pointer-events:none; }
 .hero .container{ position:relative; z-index:1; }
 /* a largura é a da fileira de destaques, que no layout avança sobre o globo;
    título e parágrafo têm limite próprio logo abaixo */
@@ -714,10 +755,10 @@ dialog:not([open]){ display:none; }
 
   /* sem metade livre para a foto, ela vai para trás do texto, escurecida */
   .hero{ padding:calc(var(--nav-h) + 60px) 0 60px; }
-  /* aqui os arcos passariam por trás das frases */
-  .hero-curva{ display:none; }
   .hero-foto{ width:100%; }
-  .hero-foto img{ object-position:72% 50%; }
+  /* o globo encosta na direita: no celular a mídia ocupa a tela toda e o texto
+     vai por cima, então o continente precisa sair de baixo das frases */
+  .hero-foto img, .hero-foto video{ object-position:72% 50%; }
   .hero-foto::after{
     background:linear-gradient(180deg, rgba(0,25,63,.7) 0%, rgba(0,25,63,.84) 55%, rgba(0,25,63,.95) 100%);
   }
@@ -804,12 +845,6 @@ dialog:not([open]){ display:none; }
       <stop offset="0" stop-color="#B9C3D2" stop-opacity=".45"/>
       <stop offset=".35" stop-color="#D6B83A"/>
       <stop offset="1" stop-color="#D6B83A"/>
-    </linearGradient>
-    <!-- arcos do hero: nascem do nada à esquerda para não riscar o texto -->
-    <linearGradient id="grad-arco-hero" x1="0" x2="1" y1="0" y2="0">
-      <stop offset="0" stop-color="#D6B83A" stop-opacity="0"/>
-      <stop offset=".45" stop-color="#D6B83A" stop-opacity=".9"/>
-      <stop offset="1" stop-color="#D6B83A" stop-opacity=".55"/>
     </linearGradient>
   </defs>
   <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
@@ -932,22 +967,21 @@ dialog:not([open]){ display:none; }
 <main id="conteudo">
 
   <!-- ============ HERO ============
-       SITE SEM FOTOS POR ENQUANTO. As provisórias (recortes borrados do
-       layout) saíram até as novas, em alta, ficarem prontas — elas são geradas
-       por _ferramentas/gerar_imagens.py e entram em img/ com os nomes que
-       aparecem nos comentários de cada seção. No lugar das fotos ficou a
-       própria marca: azul, pontilhado e a curva dourada do manual.
-       Para voltar com a foto do hero: repor o bloco abaixo, tirar a classe
-       "pontilhado" da seção e apagar o <svg class="hero-curva">.
+       A abertura é o globo da marca girando. A foto (img/hero.jpg) é o poster:
+       é ela que aparece de imediato e é ela que fica se o vídeo não puder tocar
+       — navegador antigo, conexão ruim ou quem pediu menos movimento. O <video>
+       em si nasce sem src e é o <script> lá embaixo que escolhe o arquivo:
+       hero-globo.mp4 no computador, hero-globo-mobile.mp4 na tela estreita.
+       Os dois saem do master em 4K guardado em _videos-gerados/, gerado pelo
+       _ferramentas/gerar_video.js a partir da própria img/hero.jpg. -->
+  <section class="hero" id="inicio" data-secao="#inicio">
     <figure class="hero-foto" aria-hidden="true">
-      <img src="img/hero.jpg" alt="" width="903" height="570" fetchpriority="high">
+      <img src="img/hero.jpg" alt="" width="1800" height="1202" fetchpriority="high">
+      <!-- sem o atributo loop: quem reinicia é o <script>, escondido atrás da
+           cortina, para o salto do giro não aparecer -->
+      <video id="hero-video" muted playsinline preload="none" poster="img/hero.jpg"></video>
+      <div class="hero-cortina" id="hero-cortina"></div>
     </figure>
-  -->
-  <section class="hero pontilhado" id="inicio" data-secao="#inicio">
-    <svg class="hero-curva" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 700C250 400 610 230 1000 170" fill="none" stroke="url(#grad-arco-hero)" stroke-width="2" vector-effect="non-scaling-stroke"/>
-      <path d="M210 700C440 480 720 350 1000 300" fill="none" stroke="url(#grad-arco-hero)" stroke-width="1" vector-effect="non-scaling-stroke" opacity=".45"/>
-    </svg>
     <div class="container">
       <div class="hero-conteudo">
         <h1 data-en-html='Connecting<br>global opportunities<br><span class="destaque">to the Brazilian market.</span>'>Conectando<br>oportunidades globais<br><span class="destaque">ao mercado brasileiro.</span></h1>
@@ -1742,6 +1776,86 @@ dialog:not([open]){ display:none; }
   var reduzMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   document.getElementById('ano-atual').textContent = new Date().getFullYear();
+
+  /* ============ ABERTURA: o globo girando ============
+     O <video> nasce sem src: quem decide o arquivo é esta função, pela largura
+     da tela, para o celular não baixar o vídeo do computador. Com movimento
+     reduzido nada é pedido e o poster (img/hero.jpg) fica — é o mesmo primeiro
+     quadro do vídeo, então ninguém vê diferença até ele começar a girar.
+     O vídeo só é revelado quando dá para tocar do início ao fim: numa conexão
+     ruim ou se o arquivo faltar, a abertura continua sendo a foto, parada. */
+  (function globoDaAbertura(){
+    var video = document.getElementById('hero-video');
+    if (!video || reduzMovimento) return;
+
+    /* tocar pode ser recusado por motivo passageiro — a aba está em segundo
+       plano, o load ainda estava em curso (AbortError), a economia de bateria
+       entrou. Nada disso é motivo para esconder o vídeo: o primeiro quadro dele
+       é o próprio poster, então parado ele continua certo na tela, e basta
+       tentar de novo quando a aba voltar. Esconder só em erro de carregamento. */
+    function tentarTocar(){ var p = video.play(); if (p) p.catch(function(){}); }
+
+    video.addEventListener('canplaythrough', function(){
+      if (video.classList.contains('pronto')) return;   /* dispara de novo a cada rebuffer */
+      video.classList.add('pronto');
+      tentarTocar();
+
+      /* o vigia nasce só aqui, com o vídeo já pronto: criado antes, o primeiro
+         disparo chegava depois do play e pausava o que acabara de começar */
+      if ('IntersectionObserver' in window){
+        new IntersectionObserver(function(entradas){
+          if (entradas[0].isIntersecting) tentarTocar();
+          else video.pause();
+        }, { threshold: .05 }).observe(video);
+      }
+    });
+
+    /* ---- a cortina do loop ----
+       A onda começa a subir quando falta exatamente o tempo da subida para o
+       vídeo acabar: ele só some de vista já coberto, nunca congelado no último
+       quadro. Coberto, volta ao início e recomeça a tocar; a onda só desce
+       depois disso, com o globo já girando de novo. */
+    var cortina = document.getElementById('hero-cortina');
+    if (cortina){
+      var SUBIDA = 1500;    /* ms — igual à transition do CSS */
+      var COBERTO = 700;    /* ms que a onda fica por cima antes de descer */
+      var emCiclo = false;
+
+      function passarCortina(){
+        if (emCiclo) return;
+        emCiclo = true;
+        cortina.classList.add('ativa');
+        setTimeout(function(){
+          video.currentTime = 0;        /* reinicia escondido */
+          tentarTocar();
+          emCiclo = false;              /* libera a detecção do próximo ciclo */
+        }, SUBIDA);
+        setTimeout(function(){
+          cortina.classList.remove('ativa');
+        }, SUBIDA + COBERTO);
+      }
+
+      video.addEventListener('timeupdate', function(){
+        if (!video.duration || emCiclo) return;
+        if ((video.duration - video.currentTime) * 1000 <= SUBIDA) passarCortina();
+      });
+      /* rede de segurança: se nenhum timeupdate cair perto o bastante do fim */
+      video.addEventListener('ended', passarCortina);
+    }
+
+    /* arquivo faltando ou formato recusado: o poster assume e nada quebra */
+    video.addEventListener('error', function(){ video.classList.remove('pronto'); });
+
+    /* voltou para a aba: retoma de onde parou */
+    document.addEventListener('visibilitychange', function(){
+      if (!document.hidden && video.classList.contains('pronto')) tentarTocar();
+    });
+
+    video.src = window.matchMedia('(max-width: 820px)').matches
+      ? 'img/hero-globo-mobile.mp4'
+      : 'img/hero-globo.mp4';
+    video.load();
+  })();
 
   /* Para onde chegam contato, cotação e currículo. O FormSubmit só entrega
      depois que o dono deste endereço clicar no e-mail de ativação que ele

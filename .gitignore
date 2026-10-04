@@ -10,3 +10,6 @@ _imagens-geradas/
 
 # chave da Higgsfield — fica só neste computador, nunca no GitHub
 _ferramentas/chave.local.txt
+
+# master dos videos em 4K: pesado e so a versao otimizada em img/ vai para o site
+_videos-gerados/
