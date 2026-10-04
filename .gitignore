@@ -7,3 +7,6 @@ desktop.ini
 
 # candidatas geradas por _ferramentas/gerar_imagens.py — só a escolhida vai para img/
 _imagens-geradas/
+
+# chave da Higgsfield — fica só neste computador, nunca no GitHub
+_ferramentas/chave.local.txt
