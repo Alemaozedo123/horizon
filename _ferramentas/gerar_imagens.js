@@ -37,13 +37,30 @@ const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* ---------- chave ---------- */
 
+/* o modelo que vem no arquivo antes de alguém colar a chave de verdade */
+const MODELO_NAO_PREENCHIDO = /COLARCHAVE/i;
+
 function doArquivoLocal() {
   const arq = path.join(__dirname, 'chave.local.txt');
   if (!fs.existsSync(arq)) return '';
   for (const linha of fs.readFileSync(arq, 'utf8').split(/\r?\n/)) {
     const v = linha.trim();
-    /* a primeira linha com o formato id:segredo — o texto de instrução é ignorado */
-    if (v && !v.startsWith('#') && v.includes(':') && !/\s/.test(v)) return v;
+    if (!v || v.startsWith('#')) continue;
+    if (MODELO_NAO_PREENCHIDO.test(v)) {
+      console.error(
+        'A chave ainda não foi colada.\n\n' +
+        'Abra este arquivo:\n  ' + arq + '\n\n' +
+        'e troque COLARCHAVE_ID e COLARCHAVE_SEGREDO pelos dois valores que a\n' +
+        'Higgsfield mostra ao criar a chave (API Key ID e API Key Secret),\n' +
+        'juntos por dois-pontos e sem espaços. Exemplo do formato:\n' +
+        '  a1b2c3d4e5f6:9f8e7d6c5b4a3210');
+      process.exit(1);
+    }
+    /* "Key id:segredo" colado inteiro do cabeçalho da documentação também serve,
+       com ou sem aspas em volta — as aspas saem primeiro, senão o "Key" inicial
+       deixa de ser inicial e sobra um espaço no meio */
+    const limpa = v.replace(/^["']|["']$/g, '').replace(/^Key\s+/i, '').trim();
+    if (limpa.includes(':') && !/\s/.test(limpa)) return limpa;
   }
   return '';
 }
@@ -108,8 +125,11 @@ async function testar(chave) {
   const id = require('crypto').randomUUID();
   const { codigo } = await chamar('GET', `${API}/requests/${id}/status`, chave);
   if (codigo === 401 || codigo === 403) {
+    /* só marca o código de saída: process.exit() aqui derruba o Node no meio da
+       conexão que o fetch ainda está fechando, e o erro feio esconde a mensagem */
     console.error(`Chave recusada pela API (HTTP ${codigo}). Confira o id e o segredo.`);
-    process.exit(1);
+    process.exitCode = 1;
+    return;
   }
   console.log(`Chave aceita pela API (HTTP ${codigo} para um pedido inexistente, como esperado).`);
 }
@@ -212,4 +232,4 @@ async function main() {
   console.log(`\n${prontas} arquivo(s) em ${saida}`);
 }
 
-main().catch((e) => { console.error(e.message || e); process.exit(1); });
+main().catch((e) => { console.error(e.message || e); process.exitCode = 1; });

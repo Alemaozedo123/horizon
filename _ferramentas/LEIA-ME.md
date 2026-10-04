@@ -5,11 +5,24 @@ Custo por uso, sem plano — cerca de US$ 0,06 para as 9 fotos com 2 versões de
 
 ## A chave
 
-Cole a chave (formato `id:segredo`, criada em https://open.higgsfield.ai) na
-primeira linha de **`chave.local.txt`**, nesta pasta. Esse arquivo está no
-`.gitignore`: fica só neste computador e nunca sobe para o GitHub.
+O painel da Higgsfield (https://open.higgsfield.ai) entrega **dois** valores ao
+criar uma chave: o **API Key ID** e o **API Key Secret**. Os programas querem os
+dois juntos numa linha só, com dois-pontos entre eles e sem espaços — é o mesmo
+formato que a API espera no cabeçalho `Authorization: Key id:segredo`:
 
-Quem preferir pode usar a variável de ambiente `HF_KEY` com o mesmo valor —
+```
+a1b2c3d4e5f6:9f8e7d6c5b4a3210
+```
+
+Essa linha vai na primeira linha de **`chave.local.txt`**, nesta pasta. O arquivo
+está no `.gitignore`: fica só neste computador e nunca sobe para o GitHub. Ele
+começa com o texto `COLARCHAVE_ID:COLARCHAVE_SEGREDO` — enquanto estiver assim, o
+programa avisa que a chave ainda não foi colada, em vez de tentar usá-la.
+
+O segredo costuma aparecer uma única vez, na tela de criação. Se ela já foi
+fechada, é mais rápido criar outra chave do que procurar o valor.
+
+Quem preferir pode usar a variável de ambiente `HF_KEY` com o mesmo conteúdo —
 os dois programas procuram nela primeiro.
 
 ## Gerar (Node, já instalado neste computador)
