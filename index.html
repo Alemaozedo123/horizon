@@ -285,11 +285,36 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .menu-mobile-idioma .idioma-btn:hover{ color:var(--azul); }
 .menu-mobile-idioma .idioma-btn.ativo{ background:var(--azul); color:var(--branco); }
 
-/* ============ HERO ============ */
+/* ============ HERO ============
+   A seção virou trilho: ela é mais alta que a tela e essa altura a mais é o
+   curso de rolagem durante o qual o globo gira. O que se vê é o .hero-palco,
+   grudado no topo até o trilho terminar — a página desce, o palco fica, e o
+   mundo gira. Terminado o trilho, o palco solta e a seção seguinte sobe por
+   cima, como numa rolagem comum.
+   O overflow:hidden saiu daqui de propósito: um ancestral com overflow
+   recortado desliga o position:sticky do filho. Ele agora mora no palco, que
+   é quem precisa recortar o vídeo. (No <body> o que há é overflow-x:clip, que
+   não cria caixa de rolagem e por isso não atrapalha.) */
 .hero{
-  position:relative; overflow:hidden;
-  padding:calc(var(--topo-h) + var(--nav-h) + 68px) 0 64px;
+  position:relative;
   background:var(--azul); color:var(--branco);
+  /* 100vh de palco + 95vh de curso. Mexer aqui é mexer na duração do giro:
+     mais alto, mais rolagem para completar a volta. */
+  height:195vh;
+}
+.hero-palco{
+  position:sticky; top:0;
+  height:100vh; min-height:560px;
+  overflow:hidden;
+  display:flex; align-items:center;
+  padding:calc(var(--topo-h) + var(--nav-h) + 68px) 0 64px;
+  box-sizing:border-box;
+}
+.hero-palco > .container{ width:100%; }
+@media (prefers-reduced-motion: reduce){
+  /* sem o giro não há o que esperar: a abertura volta a ser uma tela só */
+  .hero{ height:auto; }
+  .hero-palco{ position:static; height:auto; min-height:0; }
 }
 /* a foto ocupa a direita e se dissolve no azul à esquerda: o texto nunca
    fica sobre a parte clara da imagem */
@@ -730,8 +755,13 @@ dialog:not([open]){ display:none; }
 
   .secao-topo{ grid-template-columns:1fr; align-items:start; margin-bottom:44px; }
 
+  /* o respiro é do palco, não do trilho: aplicado no trilho ele empurraria o
+     palco para baixo e deixaria uma faixa vazia acima do globo */
+  .hero-palco{ padding:calc(var(--nav-h) + 60px) 0 60px; }
+  /* curso mais curto: na tela do celular uma rolagem longa demais cansa antes
+     de a pessoa chegar ao conteúdo */
+  .hero{ height:170vh; }
   /* sem metade livre para a foto, ela vai para trás do texto, escurecida */
-  .hero{ padding:calc(var(--nav-h) + 60px) 0 60px; }
   .hero-foto{ width:100%; }
   /* o globo encosta na direita: no celular a mídia ocupa a tela toda e o texto
      vai por cima, então o continente precisa sair de baixo das frases */
@@ -951,7 +981,11 @@ dialog:not([open]){ display:none; }
        hero-globo.mp4 no computador, hero-globo-mobile.mp4 na tela estreita.
        Os dois saem do master em 4K guardado em _videos-gerados/, gerado pelo
        _ferramentas/gerar_video.js a partir da própria img/hero.jpg. -->
+  <!-- A seção é só o trilho: a altura a mais dela é o quanto se pode rolar com
+       o globo girando. Quem fica na tela é o .hero-palco, grudado no topo até o
+       trilho acabar. -->
   <section class="hero" id="inicio" data-secao="#inicio">
+   <div class="hero-palco">
     <figure class="hero-foto" aria-hidden="true">
       <img src="img/hero.jpg" alt="" width="1800" height="1202" fetchpriority="high">
       <!-- sem loop e sem autoplay: o vídeo fica parado no primeiro quadro e
@@ -985,6 +1019,7 @@ dialog:not([open]){ display:none; }
         </ul>
       </div>
     </div>
+   </div>
   </section>
 
   <!-- ============ A HORIZON ============ -->
@@ -1776,14 +1811,18 @@ dialog:not([open]){ display:none; }
     var atual = 0;       /* segundo onde o vídeo realmente está */
     var pedido = false;  /* já há um quadro agendado? */
 
-    /* Quanto da abertura já passou: 0 com a página no topo, 1 quando a seção
-       terminou de sair por cima. É esse 0→1 que vira o tempo do vídeo, então o
-       globo gira na medida exata da rolagem e para quando a pessoa para. */
+    /* Quanto do trilho já passou: 0 com a página no topo, 1 no instante em que
+       o palco se solta e a seção seguinte começa a subir. É esse 0→1 que vira o
+       tempo do vídeo, então o globo gira na medida exata da rolagem e para
+       quando a pessoa para.
+       O curso é a altura do trilho MENOS a da tela: é esse o trecho em que o
+       palco fica grudado. Usar a altura cheia faria a volta terminar tarde,
+       já com o palco saindo de vista. */
     function progresso(){
       var caixa = secao.getBoundingClientRect();
-      var curso = caixa.height;                 /* o quanto é preciso rolar para a seção sair */
-      if (curso <= 0) return 0;
-      var andado = -caixa.top;                  /* topo da seção acima da borda da tela */
+      var curso = caixa.height - window.innerHeight;
+      if (curso <= 0) return 0;                 /* trilho menor que a tela: nada a percorrer */
+      var andado = -caixa.top;                  /* topo do trilho acima da borda da tela */
       return Math.min(1, Math.max(0, andado / curso));
     }
 
