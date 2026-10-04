@@ -1,9 +1,9 @@
 {
-  "_sobre": "Pedido dos vídeos do site da Horizon para gerar_video.js. Cada vídeo parte de uma imagem já gerada: o campo 'origem' cita o nome dela em _imagens-geradas/resultado.json, e a URL que a própria Higgsfield devolveu é usada como image_url — não é preciso hospedar nada. Preço conferido no painel em 2026-10-04: Kling 3.0 a US$ 0,071 por segundo.",
+  "_sobre": "Pedido dos vídeos do site da Horizon para gerar_video.js. Cada vídeo parte de uma imagem já gerada: o campo 'origem' cita o nome dela em _imagens-geradas/resultado.json, e a URL que a própria Higgsfield devolveu é usada como image_url — não é preciso hospedar nada. Preço conferido na pagina do modelo em 2026-10-04: Kling 3.0 4k a US$ 0,357 por segundo (5s = US$ 1,79). O valor de 0,071 que estava aqui antes era do Kling 3.0 comum, nao da versao 4k — a diferenca e de 5x.",
   "saida": "../_videos-gerados",
   "pasta_imagens": "../_imagens-geradas",
   "modelo_padrao": "kling-video/v3.0/4k/image-to-video",
-  "custo_por_segundo": 0.071,
+  "custo_por_segundo": 0.357,
   "parametros_padrao": {
     "duration": 5
   },

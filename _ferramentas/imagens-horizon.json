@@ -1,51 +1,45 @@
 {
-  "_sobre": "Pedido das fotos do site da Horizon para gerar_imagens.js. Os nomes sao os mesmos arquivos de horizon/img/. Prompts em ingles: os modelos respondem melhor. Paleta da marca: azul #00193F e dourado #D6B83A. Conferido na API em 2026-10-04: o Soul 2 aceita resolution 720p ou 1080p (nao existe 4K em imagem; o teto da plataforma e 2k, no Recraft e no Qwen). num_images vai de 1 a 4.",
+  "_sobre": "Pedido das ilustrações do site da Horizon para gerar_imagens.js. Os nomes são os mesmos arquivos de horizon/img/. Prompts em inglês: os modelos respondem melhor. A abertura (hero) não está mais aqui — ela virou o globo em vídeo, pedido por videos-horizon.json. Direção visual escolhida pelo cliente em 2026-10-04: serigrafia, não fotorrealismo. A receita de estilo é IDÊNTICA em todas as imagens e fecha cada prompt — mexer nela em uma só quebra a unidade do conjunto. Paleta da marca: azul #00193F e dourado #D6B83A. ATENÇÃO: o Recraft aceita parâmetros que não conhece em vez de recusar, então não dá para sondá-lo com valor inválido sem gerar e cobrar.",
   "saida": "../_imagens-geradas",
-  "modelo_padrao": "higgsfield-ai/soul/v2/standard",
+  "modelo_padrao": "recraft/v4.1/pro/text-to-image",
   "parametros_padrao": {
-    "resolution": "1080p",
+    "resolution": "2k",
     "aspect_ratio": "3:2",
-    "num_images": 2
+    "num_images": 1
   },
   "imagens": [
     {
-      "nome": "hero",
-      "prompt": "Photorealistic cinematic space view of planet Earth at night, seen from orbit, South America facing the camera, centered slightly to the right of frame. Glowing warm golden city lights across the continents and thin luminous gold arcs curving above the surface connecting cities like a global trade network. The left third of the frame is deep navy blue empty space, dark and clean, leaving room for text. Subtle golden atmospheric rim light along the edge of the planet, scattered faint stars. Deep navy blue and warm gold palette, premium corporate look, high detail. No text, no logos, no watermark."
-    },
-    {
       "nome": "escritorio",
-      "prompt": "Photorealistic photo: three business executives in dark suits having a conversation next to floor-to-ceiling windows in a modern high-rise office at sunset, city skyline in the background, warm golden backlight, figures partly silhouetted, elegant corporate atmosphere, shallow depth of field. No text, no logos, no watermark."
+      "prompt": "Three business people standing in conversation beside the tall windows of a high-rise office, seen as simplified figures from a distance, with a suggested city skyline outside. Calm, composed, professional. Screen-print style editorial illustration on a deep navy blue background, with subtle paper grain and a slight off-register print feel. Printed in warm gold and off-white inks over the navy, in flat ink layers with soft texture instead of smooth digital gradients. Restrained, elegant, hand-printed poster quality. Generous empty space around the subject, nothing important near the edges. No text, no logos, no watermark, no photorealism."
     },
     {
       "nome": "solucao-comercial",
-      "prompt": "Photorealistic close-up: hands of a business analyst holding a pen over printed market analysis charts and blue bar graphs on a desk, soft natural daylight, shallow depth of field. No readable text, no logos, no watermark."
+      "prompt": "A hand holding a pen over a sheet of market analysis charts on a desk, with simple bar and line graph shapes, seen from above. Screen-print style editorial illustration on a deep navy blue background, with subtle paper grain and a slight off-register print feel. Printed in warm gold and off-white inks over the navy, in flat ink layers with soft texture instead of smooth digital gradients. Restrained, elegant, hand-printed poster quality. Generous empty space around the subject, nothing important near the edges. No text, no readable writing, no logos, no watermark, no photorealism."
     },
     {
       "nome": "solucao-tributaria",
-      "prompt": "Photorealistic close-up: stacked tax forms and invoices on a wooden desk with a fountain pen and a calculator, warm side light, shallow depth of field, professional accounting mood. No readable text, no logos, no watermark."
+      "prompt": "A neat stack of tax forms and invoices on a desk with a fountain pen resting on top and a small calculator beside it, seen at a slight angle. Screen-print style editorial illustration on a deep navy blue background, with subtle paper grain and a slight off-register print feel. Printed in warm gold and off-white inks over the navy, in flat ink layers with soft texture instead of smooth digital gradients. Restrained, elegant, hand-printed poster quality. Generous empty space around the subject, nothing important near the edges. No text, no readable writing, no logos, no watermark, no photorealism."
     },
     {
       "nome": "solucao-regulatoria",
-      "prompt": "Photorealistic close-up: a hand signing an official certificate with an embossed gold seal next to it, approval and regulatory compliance concept, clean desk, soft daylight, shallow depth of field. No readable text, no logos, no watermark."
+      "prompt": "An official certificate lying on a desk with a large embossed wax seal and a ribbon beside it, and a hand signing it with a pen. Approval and regulatory compliance. Screen-print style editorial illustration on a deep navy blue background, with subtle paper grain and a slight off-register print feel. Printed in warm gold and off-white inks over the navy, in flat ink layers with soft texture instead of smooth digital gradients. Restrained, elegant, hand-printed poster quality. Generous empty space around the subject, nothing important near the edges. No text, no readable writing, no logos, no watermark, no photorealism."
     },
     {
       "nome": "solucao-logistica",
-      "prompt": "Photorealistic photo: a large container ship loaded with colorful shipping containers sailing on a calm blue sea at golden hour, low three-quarter angle, clear sky. No text, no logos, no watermark."
+      "prompt": "A container ship loaded with stacked shipping containers, seen from a low three-quarter angle on calm water, with a single horizon line. Screen-print style editorial illustration on a deep navy blue background, with subtle paper grain and a slight off-register print feel. Printed in warm gold and off-white inks over the navy, in flat ink layers with soft texture instead of smooth digital gradients. Restrained, elegant, hand-printed poster quality. Generous empty space around the subject, nothing important near the edges. No text, no logos, no watermark, no photorealism."
     },
     {
       "nome": "solucao-estoques",
-      "prompt": "Photorealistic photo: interior of a modern distribution warehouse with tall metal racks full of cardboard boxes on pallets, warm industrial lighting, clean central aisle with depth. No readable text, no logos, no watermark."
+      "prompt": "The interior of a distribution warehouse with tall racks of stacked boxes on pallets receding along a clear central aisle, strong one-point perspective. Screen-print style editorial illustration on a deep navy blue background, with subtle paper grain and a slight off-register print feel. Printed in warm gold and off-white inks over the navy, in flat ink layers with soft texture instead of smooth digital gradients. Restrained, elegant, hand-printed poster quality. Generous empty space around the subject, nothing important near the edges. No text, no readable writing, no logos, no watermark, no photorealism."
     },
     {
       "nome": "solucao-desenvolvimento",
-      "prompt": "Photorealistic close-up: a firm handshake between two business people in dark suits, blurred modern office background with warm bokeh lights, trust and partnership. No text, no logos, no watermark."
+      "prompt": "Two business people shaking hands, shown from the shoulders down so the handshake is the centre of the composition, suits simplified into clean shapes. Trust and partnership. Screen-print style editorial illustration on a deep navy blue background, with subtle paper grain and a slight off-register print feel. Printed in warm gold and off-white inks over the navy, in flat ink layers with soft texture instead of smooth digital gradients. Restrained, elegant, hand-printed poster quality. Generous empty space around the subject, nothing important near the edges. No text, no logos, no watermark, no photorealism."
     },
     {
       "nome": "diferenciais",
-      "parametros": {
-        "aspect_ratio": "16:9"
-      },
-      "prompt": "Photorealistic cinematic wide photo: container port at blue hour, silhouettes of gantry cranes and a docked cargo ship, deep navy blue tones with a few small warm lights, low contrast and dark overall because it will sit behind white text. No text, no logos, no watermark."
+      "parametros": { "aspect_ratio": "16:9" },
+      "prompt": "A wide container port skyline at night: silhouettes of gantry cranes and a docked cargo ship along a horizon line, spread across the frame. VERY DARK and low contrast overall, because white text will sit on top of it — the gold ink appears only as thin sparse outlines and a few small points of light, and most of the frame stays deep empty navy. Screen-print style editorial illustration on a deep navy blue background, with subtle paper grain and a slight off-register print feel. Printed in sparse warm gold ink over the navy, in flat ink layers with soft texture instead of smooth digital gradients. Restrained, elegant, hand-printed poster quality. No text, no logos, no watermark, no photorealism."
     }
   ]
 }

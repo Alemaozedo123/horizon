@@ -1,0 +1,23 @@
+{
+  "_sobre": "Teste de direção visual: a MESMA cena (o navio da solução de logística) em três estilos de ilustração, para escolher um antes de gerar as 8 imagens do site. Paleta da marca: azul #00193F e dourado #D6B83A. ATENÇÃO: o Recraft aceita parâmetros que não conhece em vez de recusar — não dá para sondá-lo com valor inválido sem gerar (e cobrar).",
+  "saida": "../_imagens-geradas/estilos",
+  "modelo_padrao": "recraft/v4.1/pro/text-to-image",
+  "parametros_padrao": {
+    "resolution": "2k",
+    "num_images": 1
+  },
+  "imagens": [
+    {
+      "nome": "estilo-a-linha",
+      "prompt": "Minimal editorial line-art illustration on a deep navy blue background. A container ship seen from a low three-quarter angle, drawn only with thin, confident golden outlines — no fill, no shading, like an elegant technical blueprint. A few stacked container shapes suggested by simple rectangles. A single thin horizon line and two long curved golden arcs sweeping behind it. Generous empty navy space around the subject. Flat, two colours only: deep navy blue and warm gold. Clean corporate poster look. No text, no logos, no watermark, no gradients, no photorealism."
+    },
+    {
+      "nome": "estilo-b-geometrico",
+      "prompt": "Flat geometric vector illustration on a deep navy blue background. A stylised container ship built from simple bold geometric shapes, in flat planes of warm gold, muted teal and off-white, with no outlines and no gradients. Strong silhouette, simplified shapes, calm minimal composition with generous empty navy space. Modern corporate editorial style, like a premium annual report illustration. No text, no logos, no watermark, no photorealism."
+    },
+    {
+      "nome": "estilo-c-textura",
+      "prompt": "Screen-print style editorial illustration on a deep navy blue background, with subtle paper grain and a slight off-register print feel. A container ship in simplified shapes, printed in warm gold and off-white inks over the navy, with visible flat ink layers and soft texture instead of smooth digital gradients. Restrained, elegant, hand-printed poster quality. Generous empty space. No text, no logos, no watermark, no photorealism."
+    }
+  ]
+}
