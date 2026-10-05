@@ -1,0 +1,12 @@
+{
+  "_sobre": "Foto realista para a secao 'A Horizon', ao lado do botao Baixar apresentacao. Excecao deliberada ao estilo serigrafia do resto do site: aqui a secao apresenta a empresa e uma foto real da equipe ancora a credibilidade. O modelo e o Soul, que e fotorrealista (o Recraft e de ilustracao). Paleta da marca: azul #00193F e dourado #D6B83A.",
+  "saida": "../_imagens-geradas",
+  "modelo_padrao": "higgsfield-ai/soul/v2/standard",
+  "parametros_padrao": { "resolution": "1080p", "aspect_ratio": "3:2", "num_images": 2 },
+  "imagens": [
+    {
+      "nome": "escritorio-foto",
+      "prompt": "Photorealistic corporate photograph: three business professionals in dark suits standing in conversation beside floor-to-ceiling windows of a modern high-rise office at dusk, seen from a respectful distance so faces are not the subject. City skyline with warm lights outside the glass. Deep navy blue tones in the interior with warm golden light spilling from the window, elegant and restrained. Shallow depth of field, natural light, premium corporate editorial photography. No text, no logos, no watermark."
+    }
+  ]
+}
