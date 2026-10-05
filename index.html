@@ -616,27 +616,40 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .cta-botoes{ display:flex; flex-wrap:wrap; gap:14px; }
 .cta-curva{ position:absolute; left:0; bottom:16px; width:100%; height:110px; pointer-events:none; }
 
-/* ============ RODAPÉ ============ */
+/* ============ RODAPÉ ============
+   Mesmo desenho do rodapé da HARGUS (pedido de out/2026): marca e frase,
+   navegação, soluções e endereços em quatro colunas de 1.4/1/1/1, títulos
+   pequenos em caixa alta, listas em 13,5px e ícones miúdos na cor de
+   destaque. Mudam as cores — o azul e o dourado da marca no lugar do preto e
+   do verde — e entra um bloco que lá não existe: o contato (e-mail e
+   telefone), embaixo da frase da marca e separado dos endereços. */
 .rodape{
   position:relative; overflow:hidden;
-  padding:76px 0 28px; background:var(--azul); color:rgba(226,233,243,.78);
+  padding:80px 0 28px; background:var(--azul); color:rgba(226,233,243,.78);
   --pontos-x:92%; --pontos-y:78%;
 }
 .rodape > .container{ position:relative; z-index:1; }
-.rodape-grade{ display:grid; grid-template-columns:1.25fr 1.2fr .8fr 1.35fr; gap:40px; }
-.rodape .marca{ margin-bottom:28px; }
-.rodape-sobre p{ font-size:14px; line-height:1.75; max-width:30ch; margin:0; }
-.rodape-titulo{ font-size:14.5px; font-weight:600; color:var(--branco); margin:0 0 18px; }
-.rodape ul{ display:grid; gap:11px; }
-.rodape ul a{ font-size:14px; transition:color .2s ease; }
+.rodape-grade{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px; margin-bottom:56px; }
+.rodape .marca{ margin-bottom:22px; }
+.rodape-sobre p{ font-size:13.5px; max-width:32ch; margin:0; }
+.rodape-titulo{
+  font-size:12px; font-weight:700; line-height:1.4; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--branco); margin:0 0 20px;
+}
+.rodape-sobre .rodape-titulo{ margin-top:32px; }
+.rodape ul{ display:flex; flex-direction:column; gap:12px; }
+/* a mesma altura de linha nas três listas: a primeira linha de cada coluna
+   fica na mesma altura, com ou sem ícone */
+.rodape li{ font-size:13.5px; line-height:1.5; }
+.rodape ul a{ transition:color .2s ease; }
 .rodape ul a:hover{ color:var(--dourado); }
-.rodape-contato li{ display:flex; align-items:center; gap:14px; font-size:14px; }
-/* o e-mail é a palavra mais longa da página: sem isto ele empurra a
-   coluna para fora da tela nos celulares mais estreitos */
+.rodape-contato li{ display:flex; align-items:flex-start; gap:10px; }
+/* o e-mail é a palavra mais longa da página: se faltar largura ele quebra
+   depois do @ (há um <wbr> ali); isto é o reforço para o resto do texto */
 .rodape-contato a{ overflow-wrap:anywhere; }
-.rodape-contato .icone{ width:20px; height:20px; color:var(--branco); }
+.rodape-contato .icone{ width:16px; height:16px; margin-top:2px; color:var(--dourado); stroke-width:1.7; }
 .rodape-baixo{
-  margin-top:56px; padding-top:22px; border-top:1px solid rgba(255,255,255,.1);
+  padding-top:24px; border-top:1px solid rgba(255,255,255,.12);
   font-size:12.5px; color:rgba(226,233,243,.5); text-align:center;
 }
 .rodape-baixo p{ margin:0; }
@@ -772,6 +785,9 @@ dialog:not([open]){ display:none; }
   .nav-topo{ display:none; }
   .nav-menu{ display:none; }
   .nav-hamburguer{ display:block; }
+  /* o rodapé dobra em duas colunas no mesmo ponto: com quatro, a solução de
+     nome mais longo já não caberia numa linha */
+  .rodape-grade{ grid-template-columns:1fr 1fr; }
 }
 @media (min-width:1221px){
   .menu-mobile{ display:none; }
@@ -830,7 +846,6 @@ dialog:not([open]){ display:none; }
   .parceiro-grade{ grid-template-columns:1fr; }
   .trabalhe .container{ grid-template-columns:1fr; }
   .cta .container{ grid-template-columns:1fr; }
-  .rodape-grade{ grid-template-columns:1fr 1fr; }
 }
 
 @media (max-width:640px){
@@ -858,7 +873,8 @@ dialog:not([open]){ display:none; }
   .trabalhe-cabeca .icone{ width:44px; height:44px; }
   .cta{ padding:76px 0 128px; }
   .cta-botoes .botao{ flex:1 1 100%; }
-  .rodape-grade{ grid-template-columns:1fr; gap:36px; }
+  .rodape{ padding:60px 0 24px; }
+  .rodape-grade{ grid-template-columns:1fr; }
 
   .modal-topo{ padding:22px 62px 22px 22px; }
   .modal-topo h2{ font-size:1.35rem; }
@@ -1362,7 +1378,14 @@ dialog:not([open]){ display:none; }
 
 </main>
 
-<!-- ============ RODAPÉ ============ -->
+<!-- ============ RODAPÉ ============
+     Segue o rodapé da HARGUS coluna por coluna: marca e frase, "Navegação"
+     (os mesmos itens do menu), "Soluções" (lá, "Serviços") e "Endereços", em
+     três linhas, com bairro e CEP. O que há a mais é o bloco "Contato" na
+     primeira coluna: a HARGUS mostra e-mail e telefone na faixa "Fale com um
+     especialista"; aqui, com a faixa de cima escondida no celular, o rodapé é
+     o único lugar da página em que eles aparecem. Contato e endereços ficam
+     em blocos separados, como o cliente pediu. -->
 <footer class="rodape pontilhado">
   <div class="container">
     <div class="rodape-grade">
@@ -1371,9 +1394,34 @@ dialog:not([open]){ display:none; }
           <img src="img/logo-horizon-branco.png" alt="HORIZON Comercial Importadora — voltar ao início" data-en-alt="HORIZON Import Trading — back to top" width="710" height="119" loading="lazy">
         </a>
         <p data-en-html="Import Trading Company<br>Connecting global opportunities to the Brazilian market.">Comercial Importadora<br>Conectando oportunidades globais ao mercado brasileiro.</p>
+
+        <h2 class="rodape-titulo" data-en="Contact">Contato</h2>
+        <ul class="rodape-contato">
+          <li>
+            <svg class="icone" aria-hidden="true"><use href="#i-email"/></svg>
+            <a href="mailto:comercial@horizoncomercial.com.br">comercial@<wbr>horizoncomercial.com.br</a>
+          </li>
+          <li>
+            <svg class="icone" aria-hidden="true"><use href="#i-telefone"/></svg>
+            <a href="tel:+5541992067373">+55 41 99206-7373</a>
+          </li>
+        </ul>
       </div>
 
-      <nav aria-label="Soluções" data-en-aria-label="Solutions">
+      <nav aria-label="Navegação do rodapé" data-en-aria-label="Footer navigation">
+        <h2 class="rodape-titulo" data-en="Navigation">Navegação</h2>
+        <ul>
+          <li><a href="#inicio" data-en="Home">Início</a></li>
+          <li><a href="#a-horizon" data-en="About">A Horizon</a></li>
+          <li><a href="#solucoes" data-en="Solutions">Soluções</a></li>
+          <li><a href="#como-atuamos" data-en="How we work">Como atuamos</a></li>
+          <li><a href="#diferenciais" data-en="Why Horizon">Diferenciais</a></li>
+          <li><a href="#trabalhe-conosco" data-en="Careers">Trabalhe conosco</a></li>
+          <li><a href="#contato" data-en="Contact">Contato</a></li>
+        </ul>
+      </nav>
+
+      <div>
         <h2 class="rodape-titulo" data-en="Solutions">Soluções</h2>
         <ul>
           <li><a href="#solucoes" data-en="Commercial Intelligence">Inteligência Comercial</a></li>
@@ -1383,47 +1431,27 @@ dialog:not([open]){ display:none; }
           <li><a href="#solucoes" data-en="Inventory and Distribution">Gestão de Estoques e Distribuição</a></li>
           <li><a href="#solucoes" data-en="Business Development">Desenvolvimento Comercial</a></li>
         </ul>
-      </nav>
-
-      <nav aria-label="Institucional" data-en-aria-label="Company">
-        <h2 class="rodape-titulo" data-en="Company">Institucional</h2>
-        <ul>
-          <li><a href="#a-horizon" data-en="About">A Horizon</a></li>
-          <li><a href="#como-atuamos" data-en="How we work">Como atuamos</a></li>
-          <li><a href="#diferenciais" data-en="Why Horizon">Diferenciais</a></li>
-          <li><a href="#trabalhe-conosco" data-en="Careers">Trabalhe conosco</a></li>
-          <li><a href="#contato" data-en="Contact">Contato</a></li>
-        </ul>
-      </nav>
+      </div>
 
       <div>
-        <h2 class="rodape-titulo" data-en="Contact">Contato</h2>
+        <h2 class="rodape-titulo" data-en="Addresses">Endereços</h2>
         <ul class="rodape-contato">
-          <li>
-            <svg class="icone" aria-hidden="true"><use href="#i-email"/></svg>
-            <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>
-          </li>
-          <li>
-            <svg class="icone" aria-hidden="true"><use href="#i-telefone"/></svg>
-            <a href="tel:+5541992067373">+55 41 99206-7373</a>
-          </li>
-          <!-- as duas unidades, na ordem que o cliente passou; são os mesmos
-               endereços da HARGUS, daí a busca do Maps levar bairro e CEP,
-               que não aparecem no texto -->
+          <!-- as duas unidades, na ordem que o cliente passou. São os mesmos
+               endereços da HARGUS: bairro e CEP vêm do rodapé de lá -->
           <li>
             <svg class="icone" aria-hidden="true"><use href="#i-local"/></svg>
-            <a href="https://www.google.com/maps/search/?api=1&query=R.%20Domingos%20Rampelotti%2C%203601%20-%20S%C3%A3o%20Roque%2C%20Itaja%C3%AD%20-%20SC%2C%2088317-600" target="_blank" rel="noopener noreferrer">R. Domingos Rampelotti, 3601 - Itajaí/SC</a>
+            <a href="https://www.google.com/maps/search/?api=1&query=R.%20Domingos%20Rampelotti%2C%203601%20-%20S%C3%A3o%20Roque%2C%20Itaja%C3%AD%20-%20SC%2C%2088317-600" target="_blank" rel="noopener noreferrer">R. Domingos Rampelotti, 3601<br>São Roque - Itajaí/SC<br>CEP 88317-600</a>
           </li>
           <li>
             <svg class="icone" aria-hidden="true"><use href="#i-local"/></svg>
-            <a href="https://www.google.com/maps/search/?api=1&query=Av.%20Jo%C3%A3o%20Gualberto%2C%201342%20-%20Juvev%C3%AA%2C%20Curitiba%20-%20PR%2C%2080030-000" target="_blank" rel="noopener noreferrer">Av. João Gualberto, 1342 - Curitiba/PR</a>
+            <a href="https://www.google.com/maps/search/?api=1&query=Av.%20Jo%C3%A3o%20Gualberto%2C%201342%20-%20Juvev%C3%AA%2C%20Curitiba%20-%20PR%2C%2080030-000" target="_blank" rel="noopener noreferrer">Av. João Gualberto, 1342<br>Juvevê - Curitiba/PR<br>CEP 80030-000</a>
           </li>
         </ul>
       </div>
     </div>
 
     <div class="rodape-baixo">
-      <p>© <span id="ano-atual">2026</span> HORIZON <span data-en="Import Trading">Comercial Importadora</span>. <span data-en="All rights reserved.">Todos os direitos reservados.</span></p>
+      <p>© <span id="ano-atual">2026</span> HORIZON <span data-en="IMPORT TRADING">COMERCIAL IMPORTADORA</span>. <span data-en="All rights reserved.">Todos os direitos reservados.</span></p>
     </div>
   </div>
 </footer>
