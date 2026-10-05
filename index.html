@@ -511,24 +511,35 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .solucao p{ font-size:13.5px; line-height:1.65; margin:0; }
 
 /* ============ MODELOS DE NEGÓCIO ============
-   Trilha, percorrida de cima para baixo. Uma linha dourada desce ligando os
-   quatro marcos, e o conteúdo fica à direita de cada um.
-   É de propósito VERTICAL: "Como atuamos", mais abaixo, já é um trilho
-   horizontal de círculos sobre fundo claro, e repetir aquilo aqui faria as duas
-   seções lerem como a mesma coisa. Aqui o fundo é escuro, os marcos são menores
-   e a leitura desce em vez de atravessar.
-   Cada marco desenha o trecho de linha até o próximo, e o último não desenha
-   nada: assim a trilha termina exatamente nele, sem depender de medir altura. */
+   Trilha em diagonal: cada marco nasce um degrau à direita do anterior, e o
+   que liga um ao outro é uma curva dourada que desce e vira — o mesmo gesto
+   dos arcos do manual da marca.
+   É de propósito DIAGONAL e não reta: "Como atuamos", mais abaixo, já é um
+   trilho horizontal de círculos sobre fundo claro, e uma trilha reta aqui
+   repetiria a mesma leitura. Aqui o percurso desce enquanto avança.
+   A curva é feita com duas bordas e um raio no canto: a borda esquerda desce
+   do marco, o raio vira, e a borda de baixo entra no marco seguinte pela
+   esquerda. Como ela mora no ::before de cada item e se estende até depois
+   dele (bottom negativo), a altura variável do texto não quebra o encaixe. */
 .modelos{ padding:100px 0 112px; --pontos-x:30%; --pontos-y:20%; }
-.modelos-trilha{ margin-top:18px; }
+.modelos-trilha{ --degrau:72px; margin-top:18px; }
 .modelo{
-  position:relative; padding:0 0 46px 76px;
+  position:relative; padding:0 0 54px 76px;
+  /* o degrau da diagonal; o --passo de cada item vem logo abaixo */
+  margin-left:calc(var(--passo, 0) * var(--degrau));
 }
+.modelo:nth-child(1){ --passo:0; }
+.modelo:nth-child(2){ --passo:1; }
+.modelo:nth-child(3){ --passo:2; }
+.modelo:nth-child(4){ --passo:3; }
 .modelo:last-child{ padding-bottom:0; }
+/* a curva que leva ao próximo marco: desce, vira à direita e entra nele */
 .modelo:not(:last-child)::before{
-  content:""; position:absolute; left:23px; top:52px; bottom:-2px;
-  width:2px; border-radius:2px;
-  background:linear-gradient(180deg, rgba(214,184,58,.5) 0%, rgba(214,184,58,.28) 100%);
+  content:""; position:absolute;
+  left:23px; top:52px; bottom:-26px; width:var(--degrau);
+  border-left:2px solid rgba(214,184,58,.45);
+  border-bottom:2px solid rgba(214,184,58,.45);
+  border-bottom-left-radius:34px;
 }
 /* o marco: o fundo opaco é o que "corta" a linha por trás do número */
 .modelo-numero{
@@ -900,10 +911,14 @@ dialog:not([open]){ display:none; }
 
   .solucoes-grade{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; }
   .solucao-corpo{ padding:18px 16px 22px; }
-  /* a trilha encolhe no celular: marco menor e menos recuo, para o texto não
-     ficar espremido numa coluna estreita demais */
-  .modelo{ padding:0 0 38px 58px; }
-  .modelo:not(:last-child)::before{ left:19px; top:44px; }
+  /* no celular não há largura para a diagonal: o degrau zera, a trilha fica
+     reta e a curva vira um traço vertical simples */
+  .modelos-trilha{ --degrau:0px; }
+  .modelo{ padding:0 0 38px 58px; margin-left:0; }
+  .modelo:not(:last-child)::before{
+    left:19px; top:44px; bottom:-20px; width:0;
+    border-bottom:0; border-bottom-left-radius:0;
+  }
   .modelo-numero{ width:40px; height:40px; font-size:16px; }
   .modelo h3{ font-size:17px; margin-top:7px; }
   .diferenciais-lista{ grid-template-columns:1fr; gap:24px; }
