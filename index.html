@@ -47,7 +47,7 @@
   --fonte-corpo:  'Poppins', -apple-system, 'Segoe UI', sans-serif;
 
   --container: 1280px;
-  --topo-h: 38px;  /* faixa de utilidades (contato, portal, idioma) */
+  --topo-h: 38px;  /* faixa de utilidades (contato e idioma) */
   --nav-h: 80px;   /* faixa da navegação */
 }
 
@@ -163,8 +163,6 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .botao--contorno:hover{ background:rgba(255,255,255,.1); border-color:var(--branco); }
 .botao--escuro{ background:var(--azul); color:var(--branco); }
 .botao--escuro:hover{ background:#0A2A5C; }
-.botao--contorno-escuro{ background:transparent; color:var(--azul); border-color:rgba(0,25,63,.3); }
-.botao--contorno-escuro:hover{ background:var(--azul); color:var(--branco); border-color:var(--azul); }
 
 @media (prefers-reduced-motion: reduce){
   .botao, .botao .icone{ transition:none; }
@@ -182,9 +180,10 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .marca--rodape img{ width:220px; }
 
 /* ============ CABEÇALHO ============
-   Duas faixas num bloco fixo: a de utilidades (contato, Portal do Cliente e
-   PT/EN) em cima e a navegação embaixo. Juntas elas não caberiam numa linha
-   só com os sete itens do menu e o botão do layout. Ao rolar, o bloco sobe a
+   Duas faixas num bloco fixo: a de utilidades (contato e PT/EN) em cima e a
+   navegação embaixo. Juntas elas não caberiam numa linha só com os sete
+   itens do menu e o botão do layout. O "Portal do Cliente" que morava na
+   faixa de cima saiu a pedido do cliente (out/2026). Ao rolar, o bloco sobe a
    altura da faixa de cima e só a navegação fica na tela: as utilidades servem
    a quem chega, não a quem já está lendo. */
 .nav{
@@ -279,7 +278,6 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .menu-mobile .botao{ margin-top:12px; }
 /* o primeiro botão depois da lista de links ganha respiro maior */
 .menu-mobile a:not(.botao) + .botao{ margin-top:28px; }
-.menu-mobile .icone{ width:18px; height:18px; }
 .menu-mobile-idioma{ display:flex; gap:6px; margin-top:24px; }
 .menu-mobile-idioma .idioma-btn{ padding:8px 14px; font-size:13px; color:rgba(0,25,63,.55); }
 .menu-mobile-idioma .idioma-btn:hover{ color:var(--azul); }
@@ -422,6 +420,48 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   color:var(--azul); margin:2px 0 8px;
 }
 .sobre-cartao p{ font-size:13.5px; line-height:1.65; margin:0; }
+
+/* ============ SEU PARCEIRO NO COMÉRCIO EXTERIOR ============
+   Texto do cliente, palavra por palavra. O que ele pediu para ressaltar — o
+   Radar ilimitado e a parceria com a Hargus — vai em dois cartões azuis, os
+   únicos blocos escuros numa seção branca: é para o olho cair neles antes de
+   qualquer leitura. O terceiro parágrafo, que é o fecho, fica solto embaixo. */
+.parceiro{ padding:104px 0 112px; background:var(--branco); }
+.parceiro .titulo{ margin-bottom:52px; }
+.parceiro-grade{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:24px; }
+.parceiro-cartao{
+  position:relative; overflow:hidden; padding:42px 40px 46px; border-radius:10px;
+  background:linear-gradient(135deg, var(--azul) 0%, #0B2F63 100%);
+  color:var(--texto-claro); box-shadow:0 24px 50px rgba(0,25,63,.18);
+}
+/* o mesmo pontilhado das seções escuras, no canto de cima */
+.parceiro-cartao::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(150,185,235,.24) 1px, transparent 1.5px);
+  background-size:10px 10px;
+  -webkit-mask-image:radial-gradient(ellipse 60% 70% at 92% 0%, #000 0%, transparent 75%);
+          mask-image:radial-gradient(ellipse 60% 70% at 92% 0%, #000 0%, transparent 75%);
+}
+.parceiro-cartao > *{ position:relative; }
+.parceiro-cartao .icone{ width:50px; height:50px; color:var(--dourado); stroke-width:1.25; margin-bottom:22px; }
+.parceiro-cartao h3{
+  font-family:var(--fonte-titulo); font-weight:400;
+  font-size:clamp(1.55rem, 2.3vw, 2rem); line-height:1.15; color:var(--branco);
+  margin-bottom:18px;
+}
+/* filete dourado sob o rótulo: o mesmo gesto do item ativo do menu */
+.parceiro-cartao h3::after{
+  content:""; display:block; width:46px; height:3px; border-radius:2px;
+  margin-top:16px; background:var(--dourado);
+}
+.parceiro-cartao p{ font-size:15px; margin:0; }
+.parceiro-cartao a{ color:var(--dourado); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
+.parceiro-cartao a:hover{ color:var(--branco); }
+.parceiro-fecho{
+  max-width:60ch; margin:48px auto 0; text-align:center;
+  font-family:var(--fonte-titulo); font-size:clamp(1.15rem, 1.7vw, 1.4rem); line-height:1.55;
+  color:var(--azul);
+}
 
 /* ============ SEÇÕES ESCURAS ============
    Quem somos, modelos e diferenciais dividem o azul. O globo esmaecido
@@ -726,7 +766,7 @@ dialog:not([open]){ display:none; }
 
 /* ============ RESPONSIVO ============ */
 /* sete itens de menu, o botão e a marca deixam de caber numa linha: o menu
-   vira painel e as utilidades (portal, idioma) descem para dentro dele */
+   vira painel e o seletor de idioma desce para dentro dele */
 @media (max-width:1220px){
   :root{ --topo-h:0px; }
   .nav-topo{ display:none; }
@@ -787,6 +827,7 @@ dialog:not([open]){ display:none; }
   .diferenciais-foto{ width:100%; }
   .diferenciais-foto::after{ background:linear-gradient(0deg, var(--azul) 25%, rgba(0,25,63,.72) 100%); }
 
+  .parceiro-grade{ grid-template-columns:1fr; }
   .trabalhe .container{ grid-template-columns:1fr; }
   .cta .container{ grid-template-columns:1fr; }
   .rodape-grade{ grid-template-columns:1fr 1fr; }
@@ -800,7 +841,9 @@ dialog:not([open]){ display:none; }
   .hero-botoes .botao{ flex:1 1 100%; }
   .hero-destaques{ flex-direction:column; gap:18px; }
 
-  .sobre, .quem-somos, .solucoes, .modelos, .como, .diferenciais{ padding:76px 0 84px; }
+  .sobre, .parceiro, .quem-somos, .solucoes, .modelos, .como, .diferenciais{ padding:76px 0 84px; }
+  .parceiro .titulo{ margin-bottom:36px; }
+  .parceiro-cartao{ padding:30px 26px 34px; }
   .sobre{ padding-bottom:84px; }
   /* no celular o cartão não cabe flutuando: desce para baixo da foto,
      ainda encavalado na borda dela */
@@ -862,7 +905,7 @@ dialog:not([open]){ display:none; }
   <symbol id="i-navio" viewBox="0 0 24 24"><path d="M2.5 14.5h19l-2.2 4.5a1.5 1.5 0 0 1-1.3.8H6a1.5 1.5 0 0 1-1.3-.8z"/><path d="M5.5 14.5v-4H10v4M10 14.5v-4h4.5v4M14.5 14.5V7h4v7.5M16.5 7V4.5"/></symbol>
   <symbol id="i-caixas" viewBox="0 0 24 24"><rect x="3.5" y="12.5" width="8" height="8" rx=".8"/><rect x="12.5" y="12.5" width="8" height="8" rx=".8"/><rect x="8" y="3.5" width="8" height="8" rx=".8"/><path d="M7.5 12.5V15M16.5 12.5V15M12 3.5V6"/></symbol>
   <symbol id="i-maleta" viewBox="0 0 24 24"><rect x="3" y="7.5" width="18" height="12.5" rx="2"/><path d="M9 7.5V5.6A1.6 1.6 0 0 1 10.6 4h2.8A1.6 1.6 0 0 1 15 5.6v1.9M3 13h18M10.5 13v1.6h3V13"/></symbol>
-  <symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6.5 7-6.5s7 2.9 7 6.5"/></symbol>
+  <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6.4-6.4"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="16.6" cy="15.4" r="1" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-email" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.8 6.5L12 13l8.2-6.5"/></symbol>
   <symbol id="i-telefone" viewBox="0 0 24 24"><path d="M6.6 3.5h2.6l1.6 4.4-2.1 1.5a11.5 11.5 0 0 0 5.9 5.9l1.5-2.1 4.4 1.6v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></symbol>
   <symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21.5s7-6.4 7-11.8a7 7 0 1 0-14 0c0 5.4 7 11.8 7 11.8z"/><circle cx="12" cy="9.7" r="2.5"/></symbol>
@@ -885,13 +928,6 @@ dialog:not([open]){ display:none; }
         </a>
       </div>
       <div class="nav-topo-grupo">
-        <!-- Placeholder: o portal do cliente ainda não existe — trocar o href="#"
-             pelo link real assim que ele estiver no ar. São DOIS: este e o do
-             painel do menu mobile, lá embaixo. -->
-        <a href="#" class="nav-portal">
-          <svg class="icone" aria-hidden="true"><use href="#i-pessoa"/></svg>
-          <span data-en="Client Portal">Portal do Cliente</span>
-        </a>
         <!-- Seletor de idioma: troca todo o texto marcado com data-en* (ver
              <script>, seção IDIOMA). O painel mobile tem uma cópia; as duas
              ficam em sincronia porque aplicarIdioma() atualiza todo .idioma-btn. -->
@@ -945,13 +981,6 @@ dialog:not([open]){ display:none; }
   <a href="#contato" class="botao botao--dourado" data-contato>
     <span data-en="Talk to Horizon">Falar com a Horizon</span>
     <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
-  </a>
-  <!-- irmão do .nav-portal da faixa de utilidades: aquela some abaixo de
-       1220px, então o portal precisa existir aqui também. Os dois href="#"
-       trocam juntos. -->
-  <a href="#" class="botao botao--contorno-escuro">
-    <svg class="icone" aria-hidden="true"><use href="#i-pessoa"/></svg>
-    <span data-en="Client Portal">Portal do Cliente</span>
   </a>
   <div class="menu-mobile-idioma" role="group" aria-label="Idioma / Language">
     <button type="button" class="idioma-btn ativo" data-lang="pt" aria-pressed="true">Português</button>
@@ -1017,7 +1046,7 @@ dialog:not([open]){ display:none; }
         <p class="eyebrow" data-en="About Horizon">A Horizon</p>
         <h2 class="titulo" data-en-html="More than importing.<br>We build businesses.">Mais do que importar.<br>Construímos negócios.</h2>
         <p data-en="We structure international business and the entry of products into Brazil, with commercial vision, tax and regulatory intelligence and a network of strategic partners.">Estruturamos negócios internacionais e a entrada de produtos no Brasil, com visão comercial, inteligência tributária e regulatória e uma rede de parceiros estratégicos.</p>
-        <a href="#quem-somos" class="botao botao--escuro">
+        <a href="#parceiro" class="botao botao--escuro">
           <span data-en="Get to know Horizon">Conheça a Horizon</span>
           <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
         </a>
@@ -1045,9 +1074,37 @@ dialog:not([open]){ display:none; }
     </div>
   </section>
 
+  <!-- ============ SEU PARCEIRO NO COMÉRCIO EXTERIOR ============
+       Texto enviado pelo cliente (out/2026), mantido palavra por palavra — só
+       os títulos dos dois cartões foram tirados do próprio texto, para dar o
+       destaque que ele pediu ao Radar ilimitado e à parceria com a Hargus.
+       A seção acende "A Horizon" no menu, como a de missão e valores. -->
+  <section class="parceiro" id="parceiro" data-secao="#a-horizon">
+    <div class="container">
+      <h2 class="titulo reveal" data-en="Your partner in foreign trade.">Seu parceiro no comércio exterior.</h2>
+
+      <div class="parceiro-grade">
+        <article class="parceiro-cartao reveal">
+          <svg class="icone" aria-hidden="true"><use href="#i-radar"/></svg>
+          <h3 data-en="Unlimited Radar">Radar ilimitado</h3>
+          <p data-en="Horizon Comercial holds an unlimited Radar license (the Brazilian Federal Revenue authorization for foreign trade operations), which allows it to import and export products from a wide range of segments with no value limit, offering security and flexibility for different types of business.">A Horizon Comercial possui Radar ilimitado (habilitação da Receita Federal para operações de comércio exterior), estando apta a realizar operações de importação e exportação de produtos de diversos segmentos, sem limite de valores, oferecendo segurança e flexibilidade para diferentes tipos de negócios.</p>
+        </article>
+        <article class="parceiro-cartao reveal" style="--atraso:.1s">
+          <svg class="icone" aria-hidden="true"><use href="#i-aperto"/></svg>
+          <h3 data-en="Partnership with Hargus Brazil">Parceria com a Hargus Brazil</h3>
+          <p data-en-html='Through a strategic partnership with <a href="https://hargusbrazil.com.br" target="_blank" rel="noopener noreferrer">Hargus Brazil</a>, we also offer domestic and international freight forwarding solutions, connecting our foreign trade operations to the best logistics alternatives.'>Por meio de uma parceria estratégica com a <a href="https://hargusbrazil.com.br" target="_blank" rel="noopener noreferrer">Hargus Brazil</a>, contamos também com soluções de agenciamento de cargas nacionais e internacionais, conectando nossas operações de comércio exterior às melhores alternativas logísticas.</p>
+        </article>
+      </div>
+
+      <p class="parceiro-fecho reveal" data-en="This way, we provide our clients with a complete solution, with more agility, security and efficiency in their international operations.">Dessa forma, proporcionamos aos nossos clientes uma solução completa, com mais agilidade, segurança e eficiência em suas operações internacionais.</p>
+    </div>
+  </section>
+
   <!-- ============ QUEM SOMOS ============
        O layout traz o selo desta seção em inglês ("Who we are"), único fora do
-       português no site inteiro — aqui ele segue os demais. -->
+       português no site inteiro — aqui ele segue os demais.
+       É a única seção sem texto de apoio ao lado do título: saiu a pedido,
+       para o cabeçalho ficar só com "Nossa missão, visão e valores". -->
   <section class="quem-somos secao-escura pontilhado" id="quem-somos" data-secao="#a-horizon">
     <div class="container">
       <div class="secao-topo reveal">
@@ -1055,7 +1112,6 @@ dialog:not([open]){ display:none; }
           <p class="eyebrow eyebrow--claro" data-en="Who we are">Quem somos</p>
           <h2 class="titulo titulo--claro" data-en="Our mission, vision and values.">Nossa missão, visão e valores.</h2>
         </div>
-        <p data-en="Long-term relationships, built on ethics, responsibility and sustainability.">Relações de longo prazo, construídas com ética, responsabilidade e sustentabilidade.</p>
       </div>
 
       <div class="pilares">
