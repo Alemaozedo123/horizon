@@ -1098,10 +1098,14 @@ dialog:not([open]){ display:none; }
         <h2 class="titulo" data-en-html="More than importing.<br>We build businesses.">Mais do que importar.<br>Construímos negócios.</h2>
         <p data-en="We structure international business and the entry of products into Brazil, with commercial vision, tax and regulatory intelligence and a network of strategic partners.">Estruturamos negócios internacionais e a entrada de produtos no Brasil, com visão comercial, inteligência tributária e regulatória e uma rede de parceiros estratégicos.</p>
         <!-- Apresentação institucional em PDF, como o "Baixar apresentação" da
-             HARGUS. O cliente só mandou a versão em inglês: quando vier a em
-             português, o href passa a trocar com o idioma dentro de
-             aplicarIdioma(), como é feito lá. -->
-        <a href="apresentacao-horizon-en.pdf" download class="botao botao--escuro botao--baixar">
+             HARGUS: o href acompanha o idioma, pelo mesmo data-en-* que traduz
+             o resto da página (href entrou em ATRIBUTOS_TRADUZIDOS).
+             O href desta linha é o que vale em português e o data-en-href é o
+             que vale em inglês. Hoje os dois apontam para o mesmo arquivo
+             porque o cliente só mandou a apresentação em inglês — QUANDO VIER A
+             EM PORTUGUÊS: salvar como apresentacao-horizon-pt.pdf na raiz e
+             trocar só o href abaixo por esse nome. Nada mais precisa mudar. -->
+        <a href="apresentacao-horizon-en.pdf" data-en-href="apresentacao-horizon-en.pdf" download class="botao botao--escuro botao--baixar">
           <span data-en="Download presentation">Baixar apresentação</span>
           <svg class="icone" aria-hidden="true"><use href="#i-baixar"/></svg>
         </a>
@@ -1898,8 +1902,11 @@ dialog:not([open]){ display:none; }
   try { if (localStorage.getItem(CHAVE_IDIOMA) === 'en') idioma = 'en'; } catch (e) {}
   function msg(pt, en){ return idioma === 'en' ? en : pt; }
 
-  var ATRIBUTOS_TRADUZIDOS = ['placeholder', 'content', 'aria-label', 'alt'];
-  var traduziveis = document.querySelectorAll('[data-en], [data-en-html], [data-en-placeholder], [data-en-content], [data-en-aria-label], [data-en-alt]');
+  /* href entra na lista para o botão da apresentação baixar o PDF do idioma em
+     que a pessoa está lendo, como faz o site da HARGUS — e serve para qualquer
+     outro link que um dia tenha destino diferente por idioma. */
+  var ATRIBUTOS_TRADUZIDOS = ['placeholder', 'content', 'aria-label', 'alt', 'href'];
+  var traduziveis = document.querySelectorAll('[data-en], [data-en-html], [data-en-placeholder], [data-en-content], [data-en-aria-label], [data-en-alt], [data-en-href]');
   traduziveis.forEach(function(el){
     if (el.hasAttribute('data-en-html')) el.setAttribute('data-pt-html', el.innerHTML);
     else if (el.hasAttribute('data-en')) el.setAttribute('data-pt', el.textContent);
