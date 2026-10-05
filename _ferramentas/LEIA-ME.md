@@ -1,7 +1,9 @@
-# Gerar as fotos do site pela API da Higgsfield
+# Gerar as imagens do site pela API da Higgsfield
 
 Pasta fora do site: o GitHub Pages não publica pastas que começam com `_`.
-Custo por uso, sem plano — cerca de US$ 0,06 para as 9 fotos com 2 versões de cada.
+Custo por uso, sem plano. Preços conferidos em 04/10/2026: ilustração no
+Recraft V4.1 Pro em 2k a US$ 0,21 cada (as 8 do pedido ≈ US$ 1,70) e vídeo no
+Kling 3.0 4k a US$ 0,357 por segundo (5s = US$ 1,79).
 
 ## A chave
 
@@ -53,7 +55,8 @@ node gerar_video.js videos-horizon.json --orcar    # custo estimado, sem gastar
 node gerar_video.js videos-horizon.json            # gera
 ```
 
-Modelo: `kling-video/v3.0/4k/image-to-video`, a US$ 0,071 por segundo (5s ≈ US$ 0,35).
+Modelo: `kling-video/v3.0/4k/image-to-video`, a US$ 0,357 por segundo (5s = US$ 1,79).
+O 0,071 que constava aqui era do Kling 3.0 comum, não da versão 4k — cinco vezes menos.
 O master em 4K cai em `_videos-gerados/`, fora do Git.
 
 **Descreva o movimento de forma explícita.** Pedir "gira no seu eixo" produziu
@@ -87,8 +90,8 @@ de o vídeo carregar, e sendo o mesmo quadro ninguém vê a troca.
 
 ## Depois de gerar
 
-As candidatas saem em `_imagens-geradas/` (fora do Git), duas de cada e
-numeradas: `hero-1.png`, `hero-2.png`... Escolhemos juntos, as escolhidas são
+As candidatas saem em `_imagens-geradas/` (fora do Git), numeradas conforme o
+`num_images` do pedido: `escritorio-1.png`... Escolhemos juntos, as escolhidas são
 otimizadas para `img/` com os nomes que o `index.html` espera, e a pasta de
 candidatas é descartada.
 

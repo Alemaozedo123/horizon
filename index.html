@@ -304,13 +304,24 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 }
 .hero-palco{
   position:sticky; top:0;
-  height:100vh; min-height:560px;
+  /* svh = altura visível com as barras do navegador à mostra. Com vh puro o
+     celular conta a tela sem a barra e o rodapé do palco nasce escondido
+     atrás dela; vh fica antes como saída para navegador que não conhece svh. */
+  height:100vh; height:100svh; min-height:560px;
   overflow:hidden;
   display:flex; align-items:center;
   padding:calc(var(--topo-h) + var(--nav-h) + 68px) 0 64px;
   box-sizing:border-box;
 }
 .hero-palco > .container{ width:100%; }
+/* Conteúdo mais alto que a tela — celular em pé, janela achatada: sem trilho.
+   O palco grudado mede exatamente uma tela e recorta o que passa dela: num
+   aparelho de 360×640 o título começava atrás do cabeçalho e o terceiro
+   destaque ficava de fora. Quem liga esta classe é o <script>, medindo se o
+   conteúdo cabe. Solta, a abertura volta à altura do próprio conteúdo e o globo
+   continua girando com a rolagem, só que enquanto ela sai da tela. */
+.hero.hero--solto{ height:auto; }
+.hero--solto .hero-palco{ position:relative; height:auto; min-height:0; }
 @media (prefers-reduced-motion: reduce){
   /* sem o giro não há o que esperar: a abertura volta a ser uma tela só */
   .hero{ height:auto; }
@@ -1788,6 +1799,29 @@ dialog:not([open]){ display:none; }
 
   document.getElementById('ano-atual').textContent = new Date().getFullYear();
 
+  /* ============ ABERTURA: trilho só quando o conteúdo cabe na tela ============
+     O palco grudado mede uma tela e recorta o que passa dela. Se o conteúdo
+     (título, texto, botões, destaques) for mais alto que isso — celular em pé,
+     janela achatada —, a classe hero--solto desliga o trilho no CSS e a
+     abertura volta à altura do próprio conteúdo. A medida é sempre feita com o
+     trilho ligado: solto, o palco cresce junto com o conteúdo e a conta daria
+     sempre "cabe". Refaz ao redimensionar e quando as fontes chegam — a troca
+     de fonte muda a quebra das linhas e, com ela, a altura. */
+  (function trilhoSeCouber(){
+    var abertura = document.getElementById('inicio');
+    var palco = abertura.querySelector('.hero-palco');
+    var conteudo = abertura.querySelector('.hero-conteudo');
+    function ajustar(){
+      abertura.classList.remove('hero--solto');
+      var estilo = getComputedStyle(palco);
+      var precisa = conteudo.offsetHeight + parseFloat(estilo.paddingTop) + parseFloat(estilo.paddingBottom);
+      abertura.classList.toggle('hero--solto', precisa > palco.clientHeight + 1);
+    }
+    ajustar();
+    window.addEventListener('resize', ajustar, { passive: true });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustar);
+  })();
+
   /* ============ ABERTURA: o globo que gira com a rolagem ============
      O vídeo não toca: ele fica parado no primeiro quadro e é a rolagem que o
      faz avançar, quadro a quadro, como um boneco de papel. Quem abre o site vê
@@ -1806,6 +1840,7 @@ dialog:not([open]){ display:none; }
     var video = document.getElementById('hero-video');
     var secao = document.getElementById('inicio');
     if (!video || !secao || reduzMovimento) return;
+    var palco = secao.querySelector('.hero-palco');
 
     var alvo = 0;        /* segundo do vídeo que a rolagem está pedindo */
     var atual = 0;       /* segundo onde o vídeo realmente está */
@@ -1815,12 +1850,16 @@ dialog:not([open]){ display:none; }
        o palco se solta e a seção seguinte começa a subir. É esse 0→1 que vira o
        tempo do vídeo, então o globo gira na medida exata da rolagem e para
        quando a pessoa para.
-       O curso é a altura do trilho MENOS a da tela: é esse o trecho em que o
+       O curso é a altura do trilho MENOS a do palco: é esse o trecho em que o
        palco fica grudado. Usar a altura cheia faria a volta terminar tarde,
-       já com o palco saindo de vista. */
+       já com o palco saindo de vista.
+       Sem trilho (hero--solto, conteúdo que não cabe na tela) não há trecho
+       grudado: aí o curso é a abertura inteira saindo de vista. */
     function progresso(){
       var caixa = secao.getBoundingClientRect();
-      var curso = caixa.height - window.innerHeight;
+      var curso = secao.classList.contains('hero--solto')
+        ? caixa.height
+        : caixa.height - palco.offsetHeight;
       if (curso <= 0) return 0;                 /* trilho menor que a tela: nada a percorrer */
       var andado = -caixa.top;                  /* topo do trilho acima da borda da tela */
       return Math.min(1, Math.max(0, andado / curso));
