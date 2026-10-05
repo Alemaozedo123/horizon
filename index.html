@@ -6,7 +6,7 @@
 <!-- ============ POLÍTICA DE CONTEÚDO ============
      Mesma lógica do site da HARGUS: o GitHub Pages não deixa configurar
      cabeçalhos HTTP, então a CSP vai por <meta>. A página só conversa com o
-     formsubmit.co — por fetch (contato e cotação) e por envio de formulário
+     formsubmit.co — por fetch (contato) e por envio de formulário
      (currículo, que precisa do POST tradicional para o anexo chegar) — e com
      o Google Fonts; não carrega script, imagem nem plugin de terceiro.
      media-src 'self' é o que deixa o vídeo da abertura tocar: sem ele o
@@ -601,7 +601,7 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 }
 .rodape-baixo p{ margin:0; }
 
-/* ============ MODAIS: contato, cotação e currículo ============
+/* ============ MODAIS: contato e currículo ============
    <dialog> nativo, como nos modais da HARGUS: foco preso, Esc fecha e o resto
    da página fica inerte sem JS extra. Navegador sem <dialog> segue o href dos
    botões e cai na chamada final, onde está o e-mail. */
@@ -615,7 +615,7 @@ dialog:not([open]){ display:none; }
   box-shadow:0 30px 80px rgba(0,10,25,.4);
   overflow:hidden;
 }
-/* cotação e currículo têm formulário maior: mais largura, dois campos por linha */
+/* o currículo tem formulário maior: mais largura, dois campos por linha */
 .modal--ampla{ width:min(680px, calc(100vw - 28px)); }
 .modal[open]{ display:flex; flex-direction:column; animation:modal-entra .28s cubic-bezier(.16,.8,.24,1); }
 .modal::backdrop{ background:rgba(0,12,28,.66); }
@@ -654,7 +654,7 @@ dialog:not([open]){ display:none; }
   font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--azul);
 }
 .opcional{ font-weight:400; letter-spacing:0; text-transform:none; color:var(--texto); }
-.campo input, .campo textarea, .campo select{
+.campo input, .campo textarea{
   width:100%; padding:12px 14px; border:1px solid #D5DCE6; border-radius:5px;
   font-family:inherit; font-size:15px; color:var(--azul); background-color:var(--branco);
   transition:border-color .2s ease, box-shadow .2s ease;
@@ -662,24 +662,12 @@ dialog:not([open]){ display:none; }
 .campo textarea{ min-height:112px; resize:vertical; line-height:1.6; }
 .campo textarea.campo-baixo{ min-height:78px; }
 .campo input::placeholder, .campo textarea::placeholder{ color:#A3ADBB; }
-.campo input:focus, .campo textarea:focus, .campo select:focus{
+.campo input:focus, .campo textarea:focus{
   outline:none; border-color:var(--dourado-escuro); box-shadow:0 0 0 3px rgba(214,184,58,.3);
 }
 .campo [aria-invalid="true"]{ border-color:#B3261E; }
 .campo [aria-invalid="true"]:focus{ box-shadow:0 0 0 3px rgba(179,38,30,.16); }
 .campo-erro{ display:block; margin-top:6px; font-size:12.5px; color:#B3261E; }
-
-/* <select> imita o <input>; a seta vai desenhada no próprio fundo porque
-   appearance:none tira a nativa */
-.campo select{
-  padding-right:38px; appearance:none; -webkit-appearance:none;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A5568' stroke-width='2' stroke-linecap='round'><path d='M6 9l6 6 6-6'/></svg>");
-  background-repeat:no-repeat; background-position:right 12px center; background-size:16px;
-}
-/* opção vazia em cinza enquanto nada foi escolhido, como um placeholder; as
-   opções reais ganham a cor normal de volta quando a lista abre */
-.campo select:invalid, .campo select option[value=""]{ color:#A3ADBB; }
-.campo select option:not([value=""]){ color:var(--azul); }
 
 .campo input[type="file"]{
   padding:10px 12px; border-style:dashed; border-color:#C3CCD8; background-color:#F7F9FC;
@@ -691,12 +679,6 @@ dialog:not([open]){ display:none; }
   font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
 }
 .campo input[type="file"][aria-invalid="true"]{ border-style:solid; border-color:#B3261E; }
-
-/* divisor da parte opcional do formulário de cotação */
-.modal-secao{
-  margin:26px 0 16px; padding-top:20px; border-top:1px solid var(--linha);
-  font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--azul);
-}
 
 .consentimento{
   display:flex; align-items:flex-start; gap:10px; margin:4px 0 2px;
@@ -839,9 +821,8 @@ dialog:not([open]){ display:none; }
   .modal-topo h2{ font-size:1.35rem; }
   .modal-forma, .modal-enviando, .modal-sucesso{ padding:22px; }
   .campo-linha{ grid-template-columns:1fr; }
-  /* abaixo de 16px o iOS dá zoom na página ao focar o campo — vale para o
-     <select> também, não só para input e textarea */
-  .campo input, .campo textarea, .campo select{ font-size:16px; }
+  /* abaixo de 16px o iOS dá zoom na página ao focar o campo */
+  .campo input, .campo textarea{ font-size:16px; }
   .campo input[type="file"]{ font-size:13px; }
 }
 
@@ -965,10 +946,6 @@ dialog:not([open]){ display:none; }
     <span data-en="Talk to Horizon">Falar com a Horizon</span>
     <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
   </a>
-  <a href="#contato" class="botao botao--escuro" data-cotacao>
-    <span data-en="Request a quote">Solicite uma cotação</span>
-    <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
-  </a>
   <!-- irmão do .nav-portal da faixa de utilidades: aquela some abaixo de
        1220px, então o portal precisa existir aqui também. Os dois href="#"
        trocam juntos. -->
@@ -1006,7 +983,7 @@ dialog:not([open]){ display:none; }
     <div class="container">
       <div class="hero-conteudo">
         <h1 data-en-html='Connecting<br>global opportunities<br><span class="destaque">to the Brazilian market.</span>'>Conectando<br>oportunidades globais<br><span class="destaque">ao mercado brasileiro.</span></h1>
-        <p class="hero-texto" data-en="We turn global products, brands and opportunities into sustainable business in Brazil.">Transformamos produtos, marcas e oportunidades globais em negócios sustentáveis no Brasil.</p>
+        <p class="hero-texto" data-en="We offer complete foreign trade solutions for companies that want to import, sell and expand their business throughout Brazil.">Oferecemos soluções completas em comércio exterior para empresas que desejam importar, comercializar e expandir seus negócios em todo o território brasileiro.</p>
         <div class="hero-botoes">
           <a href="#contato" class="botao botao--dourado" data-contato>
             <span data-en="Talk to Horizon">Falar com a Horizon</span>
@@ -1096,12 +1073,10 @@ dialog:not([open]){ display:none; }
           <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
           <h3 data-en="Values">Valores</h3>
           <ul class="valores">
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Ethics and integrity">Ética e integridade</span></li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Customer focus">Foco no cliente</span></li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Regulatory compliance">Conformidade regulatória</span></li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Customer success">Sucesso do cliente</span></li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Trust and transparency">Confiança e transparência</span></li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Excellence in solutions">Excelência nas soluções</span></li>
             <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Agility and efficiency">Agilidade e eficiência</span></li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Long-term vision">Visão de longo prazo</span></li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Sustainable development">Desenvolvimento sustentável</span></li>
           </ul>
         </article>
       </div>
@@ -1307,9 +1282,10 @@ dialog:not([open]){ display:none; }
   </section>
 
   <!-- ============ CHAMADA FINAL ============
-       Faz também o papel da faixa "Fale com um especialista" da HARGUS: os
-       dois botões de contato moram aqui, e e-mail e telefone estão logo
-       abaixo, no rodapé. -->
+       Faz também o papel da faixa "Fale com um especialista" da HARGUS: o
+       botão de contato mora aqui, e e-mail, telefone e endereços estão logo
+       abaixo, no rodapé. O botão "Solicite uma cotação" e o formulário dele
+       saíram a pedido do cliente (out/2026). -->
   <section class="cta" id="contato" data-secao="#contato">
     <div class="container">
       <h2 class="titulo reveal reveal--esq" data-en-html="Is there an opportunity in Brazil?<br>Let&#39;s structure it.">Existe uma oportunidade no Brasil?<br>Vamos estruturá-la.</h2>
@@ -1318,10 +1294,6 @@ dialog:not([open]){ display:none; }
         <div class="cta-botoes">
           <a href="mailto:comercial@horizoncomercial.com.br" class="botao botao--dourado" data-contato>
             <span data-en="Talk to Horizon">Falar com a Horizon</span>
-            <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
-          </a>
-          <a href="mailto:comercial@horizoncomercial.com.br" class="botao botao--escuro" data-cotacao>
-            <span data-en="Request a quote">Solicite uma cotação</span>
             <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
           </a>
         </div>
@@ -1379,13 +1351,16 @@ dialog:not([open]){ display:none; }
             <svg class="icone" aria-hidden="true"><use href="#i-telefone"/></svg>
             <a href="tel:+5541992067373">+55 41 99206-7373</a>
           </li>
+          <!-- as duas unidades, na ordem que o cliente passou; são os mesmos
+               endereços da HARGUS, daí a busca do Maps levar bairro e CEP,
+               que não aparecem no texto -->
           <li>
             <svg class="icone" aria-hidden="true"><use href="#i-local"/></svg>
-            <span data-en="Curitiba - PR | Brazil">Curitiba - PR | Brasil</span>
+            <a href="https://www.google.com/maps/search/?api=1&query=R.%20Domingos%20Rampelotti%2C%203601%20-%20S%C3%A3o%20Roque%2C%20Itaja%C3%AD%20-%20SC%2C%2088317-600" target="_blank" rel="noopener noreferrer">R. Domingos Rampelotti, 3601 - Itajaí/SC</a>
           </li>
           <li>
-            <svg class="icone" aria-hidden="true"><use href="#i-globo"/></svg>
-            <span data-en="International Operations">Operações Internacionais</span>
+            <svg class="icone" aria-hidden="true"><use href="#i-local"/></svg>
+            <a href="https://www.google.com/maps/search/?api=1&query=Av.%20Jo%C3%A3o%20Gualberto%2C%201342%20-%20Juvev%C3%AA%2C%20Curitiba%20-%20PR%2C%2080030-000" target="_blank" rel="noopener noreferrer">Av. João Gualberto, 1342 - Curitiba/PR</a>
           </li>
         </ul>
       </div>
@@ -1482,190 +1457,6 @@ dialog:not([open]){ display:none; }
     <h3 data-en="Message sent">Mensagem enviada</h3>
     <p data-en="We've received your message. Our team will get back to you shortly.">Recebemos seu contato. Nossa equipe retorna em breve.</p>
     <button type="button" class="botao botao--escuro modal-enviar" id="fale-sucesso-fechar" data-fechar-contato><span data-en="Close">Fechar</span></button>
-  </div>
-</dialog>
-
-<!-- ============ MODAL: SOLICITE UMA COTAÇÃO ============
-     Mesmo formulário da HARGUS: só o contato e a área de atuação são
-     obrigatórios; os dados da mercadoria são opcionais e só os preenchidos
-     vão para o e-mail. Aberto por [data-cotacao]. -->
-<dialog class="modal modal--ampla" id="cotacao" data-estado="formulario" aria-labelledby="cotacao-titulo">
-  <div class="modal-topo">
-    <p class="eyebrow eyebrow--claro" data-en="Request a quote">Solicite uma cotação</p>
-    <h2 id="cotacao-titulo" data-en="Leave your details">Deixe seus dados</h2>
-    <button type="button" class="modal-fechar" data-fechar-cotacao aria-label="Fechar" data-en-aria-label="Close">
-      <svg class="icone" aria-hidden="true"><use href="#i-fechar"/></svg>
-    </button>
-  </div>
-
-  <form class="modal-forma" id="cotacao-forma" method="post" novalidate>
-    <p class="modal-intro" data-en="We only need your contact details to reply. Goods details are optional — the more you fill in, the more accurate the quote.">Precisamos só do contato para responder. Os dados da mercadoria são opcionais — quanto mais você preencher, mais precisa vem a cotação.</p>
-
-    <div class="modal-falha" role="alert">
-      <svg class="icone" aria-hidden="true"><use href="#i-alerta"/></svg>
-      <span data-en-html='We couldn&#39;t send this right now. Please try again shortly or write to
-        <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>.'>Não conseguimos enviar agora. Tente de novo em instantes ou escreva para
-        <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>.</span>
-    </div>
-
-    <div class="campo">
-      <label for="cotacao-nome" data-en="Full name">Nome completo</label>
-      <input id="cotacao-nome" name="nome" type="text" autocomplete="name" maxlength="120"
-             placeholder="Como podemos te chamar?" data-en-placeholder="What should we call you?" aria-describedby="erro-cotacao-nome" required>
-      <span class="campo-erro" id="erro-cotacao-nome"></span>
-    </div>
-
-    <div class="campo-linha">
-      <div class="campo">
-        <label for="cotacao-telefone" data-en="Phone">Telefone</label>
-        <input id="cotacao-telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24"
-               placeholder="+55 41 99999-9999" aria-describedby="erro-cotacao-telefone" required>
-        <span class="campo-erro" id="erro-cotacao-telefone"></span>
-      </div>
-      <div class="campo">
-        <label for="cotacao-email" data-en="Email">E-mail</label>
-        <input id="cotacao-email" name="email" type="email" autocomplete="email" maxlength="160"
-               placeholder="voce@empresa.com" data-en-placeholder="you@company.com" aria-describedby="erro-cotacao-email" required>
-        <span class="campo-erro" id="erro-cotacao-email"></span>
-      </div>
-    </div>
-
-    <div class="campo">
-      <label for="cotacao-area" data-en="What industry does your company operate in?">Em qual área sua empresa atua?</label>
-      <select id="cotacao-area" name="area_atuacao" aria-describedby="erro-cotacao-area" required>
-        <option value="" data-en="Select">Selecione</option>
-        <option data-en="Automotive/naval/aerospace">Automobilística/naval/aeronáutica</option>
-        <option data-en="Food/beverages">Alimentícia/bebidas</option>
-        <option data-en="Construction">Construção civil</option>
-        <option data-en="Clean/solar energy">Energia limpa/solar</option>
-        <option data-en="Electronics/IT equipment">Equipamentos eletrônicos/informática</option>
-        <option data-en="Timber/furniture">Madeireira/moveleira</option>
-        <option data-en="Machinery">Maquinários</option>
-        <option data-en="Metallurgy/steel">Metalúrgica/siderúrgica</option>
-        <option data-en="Pulp and paper">Papel e celulose</option>
-        <option data-en="Chemical/petrochemical">Química/petroquímica</option>
-        <option data-en="Textile">Têxtil</option>
-        <option data-en="Other">Outros</option>
-      </select>
-      <span class="campo-erro" id="erro-cotacao-area"></span>
-    </div>
-
-    <p class="modal-secao"><span data-en="Goods details">Dados da mercadoria</span> <span class="opcional" data-en="— optional">— opcional</span></p>
-
-    <div class="campo">
-      <label for="cotacao-descricao" data-en="Full description of the goods">Descrição completa da mercadoria</label>
-      <textarea id="cotacao-descricao" class="campo-baixo" name="descricao" rows="3" maxlength="2000" placeholder="O que é, para que serve, embalagem..." data-en-placeholder="What it is, its purpose, packaging..."></textarea>
-    </div>
-
-    <div class="campo-linha">
-      <div class="campo">
-        <label for="cotacao-valor" data-en="Value of the goods">Valor da mercadoria</label>
-        <input id="cotacao-valor" name="valor" type="text" maxlength="60" placeholder="Ex.: USD 12.000,00" data-en-placeholder="E.g.: USD 12,000.00">
-      </div>
-      <div class="campo">
-        <label for="cotacao-ncm" data-en="NCM / HS code">NCM</label>
-        <input id="cotacao-ncm" name="ncm" type="text" inputmode="numeric" maxlength="20" placeholder="Ex.: 8471.30.19" data-en-placeholder="E.g.: 8471.30.19">
-      </div>
-    </div>
-
-    <div class="campo-linha">
-      <div class="campo">
-        <label for="cotacao-incoterm">Incoterm</label>
-        <select id="cotacao-incoterm" name="incoterm">
-          <option value="" data-en="Select">Selecione</option>
-          <option>EXW</option><option>FCA</option><option>FAS</option><option>FOB</option>
-          <option>CFR</option><option>CIF</option><option>CPT</option><option>CIP</option>
-          <option>DAP</option><option>DPU</option><option>DDP</option>
-        </select>
-      </div>
-      <div class="campo">
-        <label for="cotacao-pais" data-en="Country of origin">País de origem</label>
-        <input id="cotacao-pais" name="pais" type="text" maxlength="60" placeholder="Ex.: China" data-en-placeholder="E.g.: China">
-      </div>
-    </div>
-
-    <div class="campo-linha">
-      <div class="campo">
-        <label for="cotacao-porto-origem" data-en="Port of origin">Porto de origem</label>
-        <input id="cotacao-porto-origem" name="porto_origem" type="text" maxlength="60" placeholder="Ex.: Shanghai" data-en-placeholder="E.g.: Shanghai">
-      </div>
-      <div class="campo">
-        <label for="cotacao-porto-destino" data-en="Port of destination">Porto de destino</label>
-        <input id="cotacao-porto-destino" name="porto_destino" type="text" maxlength="60" placeholder="Ex.: Paranaguá" data-en-placeholder="E.g.: Paranaguá">
-      </div>
-    </div>
-
-    <div class="campo-linha">
-      <div class="campo">
-        <label for="cotacao-tipo-carga" data-en="General or special cargo">Carga geral ou especial</label>
-        <select id="cotacao-tipo-carga" name="tipo_carga">
-          <option value="" data-en="Select">Selecione</option>
-          <option data-en="General">Geral</option>
-          <option data-en="Special">Especial</option>
-        </select>
-      </div>
-      <div class="campo">
-        <label for="cotacao-temperatura" data-en="Temperature control">Controle de temperatura</label>
-        <input id="cotacao-temperatura" name="temperatura" type="text" maxlength="60" placeholder="Se sim, qual? Ex.: 2 °C a 8 °C" data-en-placeholder="If yes, which range? E.g.: 2°C to 8°C">
-      </div>
-    </div>
-
-    <div class="campo-linha">
-      <div class="campo">
-        <label for="cotacao-quantidade" data-en="Quantity">Quantidade</label>
-        <input id="cotacao-quantidade" name="quantidade" type="text" maxlength="60" placeholder="Ex.: 12 pallets" data-en-placeholder="E.g.: 12 pallets">
-      </div>
-      <div class="campo">
-        <label for="cotacao-peso" data-en="Gross weight">Peso bruto</label>
-        <input id="cotacao-peso" name="peso" type="text" maxlength="60" placeholder="Ex.: 4.800 kg" data-en-placeholder="E.g.: 4,800 kg">
-      </div>
-    </div>
-
-    <div class="campo-linha">
-      <div class="campo">
-        <label for="cotacao-volume">Volume (CBM)</label>
-        <input id="cotacao-volume" name="volume" type="text" maxlength="30" placeholder="Ex.: 18,5" data-en-placeholder="E.g.: 18.5">
-      </div>
-      <div class="campo">
-        <label for="cotacao-modal" data-en="Transport mode">Modal de transporte</label>
-        <select id="cotacao-modal" name="modal">
-          <option value="" data-en="Select">Selecione</option>
-          <option data-en="Air">Aéreo</option>
-          <option data-en="Sea">Marítimo</option>
-          <option data-en="Road">Rodoviário</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="campo">
-      <label for="cotacao-enderecos" data-en="Pickup and/or delivery addresses">Endereços para coleta e/ou entrega</label>
-      <textarea id="cotacao-enderecos" class="campo-baixo" name="enderecos" rows="2" maxlength="1000" placeholder="Caso seja necessário" data-en-placeholder="If applicable"></textarea>
-    </div>
-
-    <div class="modal-isca" aria-hidden="true">
-      <label for="cotacao-isca">Não preencha este campo</label>
-      <input id="cotacao-isca" name="_honey" type="text" tabindex="-1" autocomplete="off">
-    </div>
-
-    <button type="submit" class="botao botao--dourado modal-enviar">
-      <span data-en="Submit request">Enviar solicitação</span>
-      <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
-    </button>
-    <p class="modal-aviso" data-en="We only use your data to respond to this request.">Usamos seus dados apenas para responder a esta solicitação.</p>
-  </form>
-
-  <div class="modal-enviando" aria-live="polite">
-    <div class="modal-roda" aria-hidden="true"></div>
-    <p data-en="Submitting your request…">Enviando sua solicitação…</p>
-  </div>
-
-  <div class="modal-sucesso" aria-live="polite">
-    <div class="modal-selo" aria-hidden="true">
-      <svg class="icone"><use href="#i-check"/></svg>
-    </div>
-    <h3 data-en="Request submitted">Solicitação enviada</h3>
-    <p data-en="We've received your details. Our team will get back to you with a quote shortly.">Recebemos seus dados. Nossa equipe retorna com a cotação em breve.</p>
-    <button type="button" class="botao botao--escuro modal-enviar" id="cotacao-sucesso-fechar" data-fechar-cotacao><span data-en="Close">Fechar</span></button>
   </div>
 </dialog>
 
@@ -1909,7 +1700,7 @@ dialog:not([open]){ display:none; }
     video.load();
   })();
 
-  /* Para onde chegam contato, cotação e currículo. O FormSubmit só entrega
+  /* Para onde chegam contato e currículo. O FormSubmit só entrega
      depois que o dono deste endereço clicar no e-mail de ativação que ele
      manda no primeiro envio — e a ativação vale por endereço E por domínio:
      refazer quando o site for para o endereço definitivo. Até lá os
@@ -1963,7 +1754,7 @@ dialog:not([open]){ display:none; }
     travarPagina(aberto);
   }
   hamburguer.addEventListener('click', function(){ abrirMenu(!menuAberto()); });
-  menuMobile.querySelectorAll('a:not([data-contato]):not([data-cotacao])').forEach(function(a){
+  menuMobile.querySelectorAll('a:not([data-contato])').forEach(function(a){
     a.addEventListener('click', function(){ abrirMenu(false); });
   });
   document.addEventListener('keydown', function(e){
@@ -2075,7 +1866,7 @@ dialog:not([open]){ display:none; }
   }
 
   /* ============ MODAIS: base comum ============
-     Os três formulários (contato, cotação e currículo) dividem abrir, fechar,
+     Os dois formulários (contato e currículo) dividem abrir, fechar,
      validar e devolver o foco — a HARGUS repete esse código em cada modal;
      aqui ele mora uma vez só. Cada modal passa os seus campos e regras; a
      regra recebe o próprio elemento (arquivo e caixa de seleção não se leem
@@ -2115,7 +1906,7 @@ dialog:not([open]){ display:none; }
 
     nomes.forEach(function(chave){
       var el = campos[chave];
-      var deEscolha = el.type === 'file' || el.type === 'checkbox' || el.tagName === 'SELECT';
+      var deEscolha = el.type === 'file' || el.type === 'checkbox';
       if (deEscolha){
         el.addEventListener('change', function(){ validar(chave); });
       } else {
@@ -2185,7 +1976,7 @@ dialog:not([open]){ display:none; }
     return { dialogo:dialogo, campos:campos, validarTudo:validarTudo, abrir:abrir };
   }
 
-  /* Envio por fetch para o FormSubmit (contato e cotação). Ele responde 200
+  /* Envio por fetch para o FormSubmit (contato). Ele responde 200
      mesmo quando recusa (endereço ainda não ativado, isca preenchida): quem
      decide é o campo success. Numa falha, o formulário volta com o que já
      estava digitado — perder os dados num erro de rede seria pior que o erro. */
@@ -2267,72 +2058,8 @@ dialog:not([open]){ display:none; }
       });
     })();
 
-    /* ---------- Solicite uma cotação ---------- */
-    (function(){
-      /* dados opcionais da mercadoria: [id do campo, rótulo no e-mail].
-         Nenhum entra na validação; só os preenchidos viram linha na mensagem. */
-      var DETALHES = [
-        ['cotacao-descricao',     'Descrição da mercadoria'],
-        ['cotacao-valor',         'Valor da mercadoria'],
-        ['cotacao-ncm',           'NCM'],
-        ['cotacao-incoterm',      'Incoterm'],
-        ['cotacao-pais',          'País de origem'],
-        ['cotacao-porto-origem',  'Porto de origem'],
-        ['cotacao-porto-destino', 'Porto de destino'],
-        ['cotacao-tipo-carga',    'Carga geral ou especial'],
-        ['cotacao-temperatura',   'Controle de temperatura'],
-        ['cotacao-quantidade',    'Quantidade'],
-        ['cotacao-peso',          'Peso bruto'],
-        ['cotacao-volume',        'Volume (CBM)'],
-        ['cotacao-modal',         'Modal de transporte'],
-        ['cotacao-enderecos',     'Endereços para coleta/entrega']
-      ];
-      var forma = document.getElementById('cotacao-forma');
-      var modal = criarModal({
-        dialogo: document.getElementById('cotacao'),
-        prefixo: 'cotacao-',
-        abrirCom: '[data-cotacao]',
-        fecharCom: '[data-fechar-cotacao]',
-        campos: {
-          nome:     document.getElementById('cotacao-nome'),
-          telefone: document.getElementById('cotacao-telefone'),
-          email:    document.getElementById('cotacao-email'),
-          area:     document.getElementById('cotacao-area')
-        },
-        regras: {
-          nome: regraNome, telefone: regraTelefone, email: regraEmail,
-          area: function(el){ return el.value ? '' : msg('Selecione a área de atuação da empresa.', "Select your company's industry."); }
-        }
-      });
-
-      forma.addEventListener('submit', function(e){
-        e.preventDefault();
-        if (!modal.validarTudo()) return;
-        var c = modal.campos;
-        var corpo = {
-          _subject: 'Nova solicitação de cotação — ' + c.nome.value.trim(),
-          _template: 'table',
-          _captcha: 'false',
-          _replyto: c.email.value.trim(),
-          _honey: document.getElementById('cotacao-isca').value,
-          Nome: c.nome.value.trim(),
-          Telefone: c.telefone.value.trim(),
-          'E-mail': c.email.value.trim(),
-          'Área de atuação': c.area.value
-        };
-        /* campo vazio não vira linha no e-mail: quem lê vê só o que foi informado */
-        DETALHES.forEach(function(par){
-          var valor = document.getElementById(par[0]).value.trim();
-          if (valor) corpo[par[1]] = valor;
-        });
-        corpo.Idioma = idioma === 'en' ? 'Inglês' : 'Português';
-        corpo.Origem = window.location.href;
-        enviarPorFetch(modal, forma, corpo, 'cotacao-sucesso-fechar');
-      });
-    })();
-
     /* ---------- Trabalhe conosco (currículo) ----------
-       Diferente dos outros dois, este NÃO usa fetch. Na HARGUS a rota AJAX do
+       Diferente do contato, este NÃO usa fetch. Na HARGUS a rota AJAX do
        FormSubmit respondia success e descartava o anexo (confirmado num envio
        de teste em 15/09/2026): anexo, na documentação deles, é só por POST de
        formulário tradicional com enctype="multipart/form-data". Então a
