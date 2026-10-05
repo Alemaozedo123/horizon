@@ -511,55 +511,67 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .solucao p{ font-size:13.5px; line-height:1.65; margin:0; }
 
 /* ============ MODELOS DE NEGÓCIO ============
-   Trilha em diagonal: cada marco nasce um degrau à direita do anterior, e o
-   que liga um ao outro é uma curva dourada que desce e vira — o mesmo gesto
-   dos arcos do manual da marca.
-   É de propósito DIAGONAL e não reta: "Como atuamos", mais abaixo, já é um
-   trilho horizontal de círculos sobre fundo claro, e uma trilha reta aqui
-   repetiria a mesma leitura. Aqui o percurso desce enquanto avança.
-   A curva é feita com duas bordas e um raio no canto: a borda esquerda desce
-   do marco, o raio vira, e a borda de baixo entra no marco seguinte pela
-   esquerda. Como ela mora no ::before de cada item e se estende até depois
-   dele (bottom negativo), a altura variável do texto não quebra o encaixe. */
-.modelos{ padding:100px 0 112px; --pontos-x:30%; --pontos-y:20%; }
-.modelos-trilha{ --degrau:72px; margin-top:18px; }
-.modelo{
-  position:relative; padding:0 0 54px 76px;
-  /* o degrau da diagonal; o --passo de cada item vem logo abaixo */
-  margin-left:calc(var(--passo, 0) * var(--degrau));
+   Percurso: os quatro modelos atravessam a seção da esquerda para a direita,
+   em alturas alternadas, ligados por uma curva dourada que sobe e desce — o
+   desenho que o cliente pediu. Uma seta percorre essa curva conforme a página
+   rola, no mesmo princípio do globo da abertura: quem comanda é a rolagem.
+   A curva mora num <svg> com viewBox fixo e preserveAspectRatio="none", então
+   ela se estica com a largura da seção e os cartões, posicionados nas mesmas
+   coordenadas em porcentagem, continuam encostados nela em qualquer tela.
+   A seta NÃO vive dentro desse svg: esticada, ela deformaria. Ela é um
+   elemento à parte, que o <script> move em pixels, convertendo o ponto do
+   caminho para a caixa da trilha. */
+.modelos{ padding:100px 0 96px; --pontos-x:30%; --pontos-y:20%; }
+.modelos-trilha{
+  position:relative; margin-top:36px;
+  /* a altura acompanha a do viewBox (1200x400) para a curva não achatar */
+  aspect-ratio:1200/400; min-height:330px;
 }
-.modelo:nth-child(1){ --passo:0; }
-.modelo:nth-child(2){ --passo:1; }
-.modelo:nth-child(3){ --passo:2; }
-.modelo:nth-child(4){ --passo:3; }
-.modelo:last-child{ padding-bottom:0; }
-/* a curva que leva ao próximo marco: desce, vira à direita e entra nele */
-.modelo:not(:last-child)::before{
-  content:""; position:absolute;
-  left:23px; top:52px; bottom:-26px; width:var(--degrau);
-  border-left:2px solid rgba(214,184,58,.45);
-  border-bottom:2px solid rgba(214,184,58,.45);
-  border-bottom-left-radius:34px;
+.trilha-curva{ position:absolute; inset:0; width:100%; height:100%; }
+.trilha-curva path{ fill:none; stroke:rgba(214,184,58,.45); stroke-width:2; vector-effect:non-scaling-stroke; }
+/* a parte já percorrida fica acesa: o traço é revelado atrás da seta */
+.trilha-curva .percorrido{ stroke:var(--dourado); stroke-width:2.5; }
+.trilha-seta{
+  position:absolute; left:0; top:0; width:26px; height:26px; margin:-13px 0 0 -13px;
+  color:var(--dourado); will-change:transform; pointer-events:none;
 }
-/* o marco: o fundo opaco é o que "corta" a linha por trás do número */
+.trilha-seta svg{ width:100%; height:100%; display:block; }
+
+/* cada modelo encosta no seu ponto da curva: --x e --y são as mesmas
+   coordenadas do caminho, em porcentagem da caixa. O alinhamento horizontal é
+   pelo NUMERAL e não pelo meio do cartão — 22px é metade do círculo, então ele
+   fica em cima do ponto e o texto corre para a direita a partir dali. É isso
+   que mantém os quatro dentro da seção, sem o primeiro vazar pela esquerda
+   nem o último pela direita. */
+/* O seletor é forte de propósito: estes cartões também são .reveal, e a regra
+   de entrada termina em "transform:none" — que aqui apagaria o deslocamento e
+   jogaria os quatro para cima da curva, no mesmo lugar. Aqui o transform é
+   posição, não animação; quem anima a entrada é só a opacidade, logo abaixo. */
+.modelos-trilha .modelo,
+.modelos-trilha .modelo.reveal,
+.modelos-trilha .modelo.reveal.visivel{
+  position:absolute; left:var(--x); top:var(--y); width:23%;
+  transform:translate(-22px, var(--lado, -100%));
+  padding:0;
+}
+.modelos-trilha .modelo.reveal{ opacity:0; }
+.modelos-trilha .modelo.reveal.visivel{ opacity:1; }
+/* os ímpares ficam acima da curva e os pares abaixo, como no desenho */
+.modelo:nth-child(odd){ --lado:calc(-100% - 34px); }
+.modelo:nth-child(even){ --lado:34px; }
 .modelo-numero{
-  position:absolute; left:0; top:4px; z-index:1;
   display:flex; align-items:center; justify-content:center;
-  width:48px; height:48px; border-radius:50%;
+  width:44px; height:44px; border-radius:50%;
   border:1.5px solid rgba(214,184,58,.65); background:var(--azul);
-  font-family:var(--fonte-titulo); font-size:19px; line-height:1;
-  color:var(--dourado);
+  font-family:var(--fonte-titulo); font-size:18px; line-height:1;
+  color:var(--dourado); margin-bottom:12px;
   transition:border-color .3s ease, background .3s ease, color .3s ease;
 }
 .modelo:hover .modelo-numero{
   border-color:var(--dourado); background:var(--dourado); color:var(--azul);
 }
-.modelo h3{
-  font-size:18.5px; font-weight:600; line-height:1.3; color:var(--branco); margin:10px 0 0;
-}
-.modelo p{
-  font-size:14.5px; line-height:1.75; margin:8px 0 0; color:var(--texto-claro); max-width:60ch;
-}
+.modelo h3{ font-size:16.5px; font-weight:600; line-height:1.3; color:var(--branco); margin:0; }
+.modelo p{ font-size:13.5px; line-height:1.6; margin:8px 0 0; color:var(--texto-claro); }
 
 /* ============ COMO ATUAMOS ============ */
 .como{ padding:104px 0 112px; }
@@ -849,6 +861,21 @@ dialog:not([open]){ display:none; }
 
   .secao-topo{ grid-template-columns:1fr; align-items:start; margin-bottom:44px; }
 
+  /* O percurso horizontal precisa de largura: abaixo disto, quatro cartões lado
+     a lado ficariam com ~100px cada, e os de cima encavalariam o título da
+     seção. A curva e a seta somem e os modelos viram uma lista empilhada, com o
+     numeral guiando a leitura. O seletor repete a força do de cima, senão o
+     position:absolute de lá continuaria valendo. */
+  .modelos-trilha{ aspect-ratio:auto; min-height:0; }
+  .trilha-curva, .trilha-seta{ display:none; }
+  .modelos-trilha .modelo,
+  .modelos-trilha .modelo.reveal,
+  .modelos-trilha .modelo.reveal.visivel{
+    position:static; width:auto; transform:none;
+    padding:26px 0; border-top:1px solid rgba(214,184,58,.25);
+  }
+  .modelos-trilha .modelo:first-of-type{ border-top:0; padding-top:4px; }
+
   /* o respiro é do palco, não do trilho: aplicado no trilho ele empurraria o
      palco para baixo e deixaria uma faixa vazia acima do globo */
   .hero-palco{ padding:calc(var(--nav-h) + 60px) 0 60px; }
@@ -911,15 +938,7 @@ dialog:not([open]){ display:none; }
 
   .solucoes-grade{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; }
   .solucao-corpo{ padding:18px 16px 22px; }
-  /* no celular não há largura para a diagonal: o degrau zera, a trilha fica
-     reta e a curva vira um traço vertical simples */
-  .modelos-trilha{ --degrau:0px; }
-  .modelo{ padding:0 0 38px 58px; margin-left:0; }
-  .modelo:not(:last-child)::before{
-    left:19px; top:44px; bottom:-20px; width:0;
-    border-bottom:0; border-bottom-left-radius:0;
-  }
-  .modelo-numero{ width:40px; height:40px; font-size:16px; }
+  .modelo-numero{ width:40px; height:40px; font-size:16px; margin-bottom:10px; }
   .modelo h3{ font-size:17px; margin-top:7px; }
   .diferenciais-lista{ grid-template-columns:1fr; gap:24px; }
   .trabalhe{ padding:64px 0; }
@@ -1285,22 +1304,38 @@ dialog:not([open]){ display:none; }
       </div>
 
       <div class="modelos-trilha">
-        <article class="modelo reveal">
+                <!-- A curva e os quatro pontos vivem nas mesmas coordenadas: o viewBox
+             é 1200x400 e cada cartão fica na porcentagem equivalente, então os
+             dois se esticam juntos e os cartões nunca descolam da linha.
+             O caminho aparece duas vezes: o de baixo é a trilha inteira, apagada,
+             e o de cima é o trecho já percorrido, que o <script> vai revelando. -->
+        <svg class="trilha-curva" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M48,280 C160,280 220,120 336,120 S500,288 624,288 S800,100 912,100"/>
+          <path class="percorrido" id="trilha-percorrido" d="M48,280 C160,280 220,120 336,120 S500,288 624,288 S800,100 912,100"/>
+        </svg>
+        <!-- a seta fica fora do svg esticado: ali dentro ela sairia deformada.
+             Quem a posiciona é o <script>, em pixels. -->
+        <div class="trilha-seta" id="trilha-seta" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </div>
+        <article class="modelo reveal" style="--x:4%; --y:70%">
           <span class="modelo-numero" aria-hidden="true">01</span>
           <h3 data-en-html="Import on Behalf of Third Parties">Importação por Conta e Ordem</h3>
           <p data-en="For companies buying with their own funds, with Horizon structuring and running the operation.">Para empresas que compram com recursos próprios, com a Horizon estruturando e executando a operação.</p>
         </article>
-        <article class="modelo reveal" style="--atraso:.08s">
+        <article class="modelo reveal" style="--x:28%; --y:30%; --atraso:.08s">
           <span class="modelo-numero" aria-hidden="true">02</span>
           <h3 data-en-html="Import by Order">Importação por Encomenda</h3>
           <p data-en="Horizon takes part in both the import and the sale, with responsibilities defined by contract.">A Horizon participa da importação e da comercialização, com responsabilidades definidas em contrato.</p>
         </article>
-        <article class="modelo reveal" style="--atraso:.16s">
+        <article class="modelo reveal" style="--x:52%; --y:72%; --atraso:.16s">
           <span class="modelo-numero" aria-hidden="true">03</span>
           <h3 data-en-html="Business Development">Desenvolvimento Comercial</h3>
           <p data-en="International products with potential in the Brazilian market.">Produtos internacionais com potencial no mercado brasileiro.</p>
         </article>
-        <article class="modelo reveal" style="--atraso:.24s">
+        <article class="modelo reveal" style="--x:76%; --y:25%; --atraso:.24s">
           <span class="modelo-numero" aria-hidden="true">04</span>
           <h3 data-en-html="Custom Projects">Projetos Personalizados</h3>
           <p data-en="Tailor-made solutions for operations outside traditional models.">Soluções sob medida para operações fora dos modelos tradicionais.</p>
@@ -2007,6 +2042,69 @@ dialog:not([open]){ display:none; }
     }, { threshold:.15, rootMargin:'0px 0px -8% 0px' });
     revelaveis.forEach(function(el){ observador.observe(el); });
   }
+
+  /* ============ MODELOS: a seta que percorre a curva ============
+     Mesmo princípio do globo da abertura: quem comanda é a rolagem, não o
+     relógio. Enquanto a seção atravessa a tela, a seta caminha de ponta a
+     ponta da curva e o traço dourado acende atrás dela.
+     O ponto vem do próprio caminho (getPointAtLength). Como o <svg> é
+     esticado (preserveAspectRatio="none"), a coordenada do viewBox não é a da
+     tela: a conversão usa a largura e a altura reais da caixa. O ângulo sai de
+     dois pontos vizinhos — é a direção para onde a curva aponta ali. */
+  (function setaDoPercurso(){
+    var trilha = document.querySelector('.modelos-trilha');
+    var seta = document.getElementById('trilha-seta');
+    var traco = document.getElementById('trilha-percorrido');
+    if (!trilha || !seta || !traco || reduzMovimento) return;
+    var caminho = trilha.querySelector('.trilha-curva path');
+    if (!caminho || typeof caminho.getTotalLength !== 'function') return;
+
+    var VB_L = 1200, VB_A = 400;        /* o viewBox declarado no HTML */
+    var total = caminho.getTotalLength();
+    if (!total) return;
+
+    /* o traço aceso começa escondido e vai sendo revelado junto com a seta */
+    traco.style.strokeDasharray = total;
+    traco.style.strokeDashoffset = total;
+
+    var pedido = false;
+
+    function ponto(dist, caixa){
+      var p = caminho.getPointAtLength(Math.max(0, Math.min(total, dist)));
+      return { x: p.x / VB_L * caixa.width, y: p.y / VB_A * caixa.height };
+    }
+
+    function andar(){
+      pedido = false;
+      var caixa = trilha.getBoundingClientRect();
+      if (!caixa.height) return;
+      var tela = window.innerHeight || document.documentElement.clientHeight;
+      /* a seta anda enquanto a trilha cruza a tela: 0 quando ela ainda está
+         chegando por baixo, 1 quando já saiu por cima */
+      var curso = caixa.height + tela * .6;
+      var andado = tela - caixa.top - tela * .4;
+      var progresso = Math.min(1, Math.max(0, andado / curso));
+
+      var dist = progresso * total;
+      var a = ponto(dist, caixa);
+      var b = ponto(dist + Math.max(1, total * .004), caixa);   /* vizinho, para o ângulo */
+      var angulo = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+
+      seta.style.transform = 'translate(' + a.x.toFixed(1) + 'px,' + a.y.toFixed(1) + 'px) rotate(' + angulo.toFixed(1) + 'deg)';
+      traco.style.strokeDashoffset = (total - dist).toFixed(1);
+    }
+
+    function agendar(){
+      if (pedido) return;
+      pedido = true;
+      requestAnimationFrame(andar);
+    }
+
+    window.addEventListener('scroll', agendar, { passive: true });
+    window.addEventListener('resize', agendar, { passive: true });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(agendar);
+    andar();
+  })();
 
   /* ============ CHAMADA FINAL: a curva que se desenha ============
      O site abre com o globo girando e fecha com esta linha chegando do outro
