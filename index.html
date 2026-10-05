@@ -510,19 +510,37 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .solucao h3{ font-size:15.5px; font-weight:600; line-height:1.35; min-height:2.7em; color:var(--azul); margin-bottom:12px; }
 .solucao p{ font-size:13.5px; line-height:1.65; margin:0; }
 
-/* ============ MODELOS DE NEGÓCIO ============ */
+/* ============ MODELOS DE NEGÓCIO ============
+   Lista, não grade. A seção de Soluções logo acima já é uma fileira de cartões
+   claros, e repetir a forma aqui fazia as duas virarem a mesma coisa. Agora
+   cada modelo é uma linha larga sobre o azul: numeral grande em serifa à
+   esquerda, título e texto à direita, separados por filetes. O fundo da seção
+   aparece inteiro, sem caixas brancas furando o azul, e o ritmo passa de
+   "blocos lado a lado" para "índice que se lê de cima para baixo". */
 .modelos{ padding:100px 0 112px; --pontos-x:30%; --pontos-y:20%; }
-.modelos-grade{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:18px; }
-/* cor própria: o cartão é claro, mas mora numa seção escura que passa
-   branco para todo texto de dentro */
+.modelos-lista{ margin-top:8px; border-top:1px solid rgba(214,184,58,.28); }
 .modelo{
-  padding:32px 28px 34px; border-radius:8px; color:var(--texto);
-  background:linear-gradient(180deg, var(--branco) 0%, var(--cinza-claro) 100%);
-  box-shadow:0 18px 40px rgba(0,0,0,.18);
+  display:grid; grid-template-columns:132px minmax(0,1fr) minmax(0,1.25fr);
+  align-items:start; gap:0 40px;
+  padding:34px 0 32px;
+  border-bottom:1px solid rgba(214,184,58,.28);
+  transition:background .3s ease;
 }
-.modelo-numero{ display:block; font-size:28px; font-weight:600; line-height:1; color:var(--dourado-escuro); margin-bottom:16px; }
-.modelo h3{ font-size:16.5px; font-weight:600; line-height:1.35; color:var(--azul); margin-bottom:14px; }
-.modelo p{ font-size:14px; line-height:1.7; margin:0; }
+/* o realce acompanha a linha inteira e sangra para fora do container, para
+   parecer uma faixa e não um retângulo colado no texto */
+.modelo:hover{ background:linear-gradient(90deg, rgba(214,184,58,.07) 0%, rgba(214,184,58,0) 72%); }
+.modelo-numero{
+  font-family:var(--fonte-titulo); font-size:clamp(40px, 4.4vw, 58px);
+  font-weight:400; line-height:.9; color:var(--dourado);
+  /* o numeral é um marcador, não um dado a ser lido em voz alta */
+  opacity:.9;
+}
+.modelo h3{
+  font-size:19px; font-weight:600; line-height:1.3; color:var(--branco); margin:4px 0 0;
+}
+.modelo p{
+  font-size:14.5px; line-height:1.75; margin:6px 0 0; color:var(--texto-claro); max-width:52ch;
+}
 
 /* ============ COMO ATUAMOS ============ */
 .como{ padding:104px 0 112px; }
@@ -604,6 +622,25 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .cta-lado p{ font-size:15px; max-width:52ch; margin-bottom:28px; }
 .cta-botoes{ display:flex; flex-wrap:wrap; gap:14px; }
 .cta-curva{ position:absolute; left:0; bottom:16px; width:100%; height:110px; pointer-events:none; }
+/* A curva se desenha da esquerda para a direita quando a seção entra na tela.
+   O traço é transformado num tracejado de um traço só, do comprimento exato da
+   linha: com o deslocamento no máximo ele fica todo fora de vista, e zerando o
+   deslocamento ele entra. O comprimento vem do próprio caminho, medido pelo
+   <script> (getTotalLength) e escrito aqui como --curva — assim mexer no "d"
+   do path não quebra a animação.
+   É o fecho do site: a abertura é o globo girando e o fim é a linha chegando. */
+.cta-curva path{
+  stroke-dasharray:var(--curva, 2000);
+  stroke-dashoffset:var(--curva, 2000);
+}
+.cta-curva.desenhada path{
+  stroke-dashoffset:0;
+  transition:stroke-dashoffset 2.4s cubic-bezier(.33,.1,.2,1);
+}
+@media (prefers-reduced-motion: reduce){
+  /* sem animação a linha simplesmente já está lá, como antes */
+  .cta-curva path{ stroke-dasharray:none; stroke-dashoffset:0; }
+}
 
 /* ============ RODAPÉ ============
    Mesmo desenho do rodapé da HARGUS (pedido de out/2026): marca e frase,
@@ -818,7 +855,10 @@ dialog:not([open]){ display:none; }
   /* empilhados, o filete entre os pilares deita */
   .pilar + .pilar::before{ top:0; right:0; bottom:auto; width:auto; height:1px; }
 
-  .modelos-grade{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+  /* sem largura para três colunas: o texto desce para baixo do título, e o
+     numeral continua à esquerda guiando a leitura */
+  .modelo{ grid-template-columns:96px minmax(0,1fr); gap:0 28px; }
+  .modelo p{ grid-column:2; max-width:none; }
 
   /* a linha do tempo vira vertical: número à esquerda, texto à direita */
   .etapas{ grid-template-columns:1fr; gap:30px; }
@@ -855,7 +895,12 @@ dialog:not([open]){ display:none; }
 
   .solucoes-grade{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; }
   .solucao-corpo{ padding:18px 16px 22px; }
-  .modelos-grade{ grid-template-columns:1fr; }
+  /* no celular o numeral encolhe e deita acima do título: 96px de coluna
+     comeriam metade da largura útil da linha */
+  .modelo{ grid-template-columns:1fr; gap:0; padding:26px 0 24px; }
+  .modelo-numero{ font-size:30px; }
+  .modelo h3{ margin-top:10px; }
+  .modelo p{ grid-column:1; }
   .diferenciais-lista{ grid-template-columns:1fr; gap:24px; }
   .trabalhe{ padding:64px 0; }
   .trabalhe-cabeca{ align-items:flex-start; gap:18px; }
@@ -1215,25 +1260,25 @@ dialog:not([open]){ display:none; }
         <p data-en="The right model for each product, company and goal.">O modelo certo para cada produto, empresa e objetivo.</p>
       </div>
 
-      <div class="modelos-grade">
+      <div class="modelos-lista">
         <article class="modelo reveal">
-          <span class="modelo-numero">01</span>
-          <h3 data-en-html="Import on Behalf<br>of Third Parties">Importação<br>por Conta e Ordem</h3>
+          <span class="modelo-numero" aria-hidden="true">01</span>
+          <h3 data-en-html="Import on Behalf of Third Parties">Importação por Conta e Ordem</h3>
           <p data-en="For companies buying with their own funds, with Horizon structuring and running the operation.">Para empresas que compram com recursos próprios, com a Horizon estruturando e executando a operação.</p>
         </article>
         <article class="modelo reveal" style="--atraso:.08s">
-          <span class="modelo-numero">02</span>
-          <h3 data-en-html="Import<br>by Order">Importação<br>por Encomenda</h3>
+          <span class="modelo-numero" aria-hidden="true">02</span>
+          <h3 data-en-html="Import by Order">Importação por Encomenda</h3>
           <p data-en="Horizon takes part in both the import and the sale, with responsibilities defined by contract.">A Horizon participa da importação e da comercialização, com responsabilidades definidas em contrato.</p>
         </article>
         <article class="modelo reveal" style="--atraso:.16s">
-          <span class="modelo-numero">03</span>
-          <h3 data-en-html="Business<br>Development">Desenvolvimento<br>Comercial</h3>
+          <span class="modelo-numero" aria-hidden="true">03</span>
+          <h3 data-en-html="Business Development">Desenvolvimento Comercial</h3>
           <p data-en="International products with potential in the Brazilian market.">Produtos internacionais com potencial no mercado brasileiro.</p>
         </article>
         <article class="modelo reveal" style="--atraso:.24s">
-          <span class="modelo-numero">04</span>
-          <h3 data-en-html="Custom<br>Projects">Projetos<br>Personalizados</h3>
+          <span class="modelo-numero" aria-hidden="true">04</span>
+          <h3 data-en-html="Custom Projects">Projetos Personalizados</h3>
           <p data-en="Tailor-made solutions for operations outside traditional models.">Soluções sob medida para operações fora dos modelos tradicionais.</p>
         </article>
       </div>
@@ -1935,6 +1980,32 @@ dialog:not([open]){ display:none; }
     }, { threshold:.15, rootMargin:'0px 0px -8% 0px' });
     revelaveis.forEach(function(el){ observador.observe(el); });
   }
+
+  /* ============ CHAMADA FINAL: a curva que se desenha ============
+     O site abre com o globo girando e fecha com esta linha chegando do outro
+     lado. Nada é baixado: a curva já é um <path> no HTML, e animá-la é só
+     revelar o traço aos poucos.
+     O comprimento sai do próprio caminho (getTotalLength), não de um número
+     chutado: assim o "d" do path pode mudar que a animação continua exata.
+     Ela roda uma vez só — desenhar de novo a cada passagem viraria tique. */
+  (function curvaDaChamadaFinal(){
+    var curva = document.querySelector('.cta-curva');
+    if (!curva || reduzMovimento) return;
+    var linha = curva.querySelector('path');
+    if (!linha || typeof linha.getTotalLength !== 'function') return;
+
+    var comprimento = Math.ceil(linha.getTotalLength());
+    if (!comprimento) return;                      /* SVG ainda sem layout */
+    curva.style.setProperty('--curva', comprimento);
+
+    if (!('IntersectionObserver' in window)){ curva.classList.add('desenhada'); return; }
+    var vigiaCurva = new IntersectionObserver(function(entradas){
+      if (!entradas[0].isIntersecting) return;
+      curva.classList.add('desenhada');
+      vigiaCurva.disconnect();
+    }, { threshold:.35 });
+    vigiaCurva.observe(curva);
+  })();
 
   /* ============ MODAIS: base comum ============
      Os dois formulários (contato e currículo) dividem abrir, fechar,
