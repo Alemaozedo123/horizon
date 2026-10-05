@@ -511,35 +511,43 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .solucao p{ font-size:13.5px; line-height:1.65; margin:0; }
 
 /* ============ MODELOS DE NEGÓCIO ============
-   Lista, não grade. A seção de Soluções logo acima já é uma fileira de cartões
-   claros, e repetir a forma aqui fazia as duas virarem a mesma coisa. Agora
-   cada modelo é uma linha larga sobre o azul: numeral grande em serifa à
-   esquerda, título e texto à direita, separados por filetes. O fundo da seção
-   aparece inteiro, sem caixas brancas furando o azul, e o ritmo passa de
-   "blocos lado a lado" para "índice que se lê de cima para baixo". */
+   Trilha, percorrida de cima para baixo. Uma linha dourada desce ligando os
+   quatro marcos, e o conteúdo fica à direita de cada um.
+   É de propósito VERTICAL: "Como atuamos", mais abaixo, já é um trilho
+   horizontal de círculos sobre fundo claro, e repetir aquilo aqui faria as duas
+   seções lerem como a mesma coisa. Aqui o fundo é escuro, os marcos são menores
+   e a leitura desce em vez de atravessar.
+   Cada marco desenha o trecho de linha até o próximo, e o último não desenha
+   nada: assim a trilha termina exatamente nele, sem depender de medir altura. */
 .modelos{ padding:100px 0 112px; --pontos-x:30%; --pontos-y:20%; }
-.modelos-lista{ margin-top:8px; border-top:1px solid rgba(214,184,58,.28); }
+.modelos-trilha{ margin-top:18px; }
 .modelo{
-  display:grid; grid-template-columns:132px minmax(0,1fr) minmax(0,1.25fr);
-  align-items:start; gap:0 40px;
-  padding:34px 0 32px;
-  border-bottom:1px solid rgba(214,184,58,.28);
-  transition:background .3s ease;
+  position:relative; padding:0 0 46px 76px;
 }
-/* o realce acompanha a linha inteira e sangra para fora do container, para
-   parecer uma faixa e não um retângulo colado no texto */
-.modelo:hover{ background:linear-gradient(90deg, rgba(214,184,58,.07) 0%, rgba(214,184,58,0) 72%); }
+.modelo:last-child{ padding-bottom:0; }
+.modelo:not(:last-child)::before{
+  content:""; position:absolute; left:23px; top:52px; bottom:-2px;
+  width:2px; border-radius:2px;
+  background:linear-gradient(180deg, rgba(214,184,58,.5) 0%, rgba(214,184,58,.28) 100%);
+}
+/* o marco: o fundo opaco é o que "corta" a linha por trás do número */
 .modelo-numero{
-  font-family:var(--fonte-titulo); font-size:clamp(40px, 4.4vw, 58px);
-  font-weight:400; line-height:.9; color:var(--dourado);
-  /* o numeral é um marcador, não um dado a ser lido em voz alta */
-  opacity:.9;
+  position:absolute; left:0; top:4px; z-index:1;
+  display:flex; align-items:center; justify-content:center;
+  width:48px; height:48px; border-radius:50%;
+  border:1.5px solid rgba(214,184,58,.65); background:var(--azul);
+  font-family:var(--fonte-titulo); font-size:19px; line-height:1;
+  color:var(--dourado);
+  transition:border-color .3s ease, background .3s ease, color .3s ease;
+}
+.modelo:hover .modelo-numero{
+  border-color:var(--dourado); background:var(--dourado); color:var(--azul);
 }
 .modelo h3{
-  font-size:19px; font-weight:600; line-height:1.3; color:var(--branco); margin:4px 0 0;
+  font-size:18.5px; font-weight:600; line-height:1.3; color:var(--branco); margin:10px 0 0;
 }
 .modelo p{
-  font-size:14.5px; line-height:1.75; margin:6px 0 0; color:var(--texto-claro); max-width:52ch;
+  font-size:14.5px; line-height:1.75; margin:8px 0 0; color:var(--texto-claro); max-width:60ch;
 }
 
 /* ============ COMO ATUAMOS ============ */
@@ -855,10 +863,7 @@ dialog:not([open]){ display:none; }
   /* empilhados, o filete entre os pilares deita */
   .pilar + .pilar::before{ top:0; right:0; bottom:auto; width:auto; height:1px; }
 
-  /* sem largura para três colunas: o texto desce para baixo do título, e o
-     numeral continua à esquerda guiando a leitura */
-  .modelo{ grid-template-columns:96px minmax(0,1fr); gap:0 28px; }
-  .modelo p{ grid-column:2; max-width:none; }
+  .modelo p{ max-width:none; }
 
   /* a linha do tempo vira vertical: número à esquerda, texto à direita */
   .etapas{ grid-template-columns:1fr; gap:30px; }
@@ -895,12 +900,12 @@ dialog:not([open]){ display:none; }
 
   .solucoes-grade{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; }
   .solucao-corpo{ padding:18px 16px 22px; }
-  /* no celular o numeral encolhe e deita acima do título: 96px de coluna
-     comeriam metade da largura útil da linha */
-  .modelo{ grid-template-columns:1fr; gap:0; padding:26px 0 24px; }
-  .modelo-numero{ font-size:30px; }
-  .modelo h3{ margin-top:10px; }
-  .modelo p{ grid-column:1; }
+  /* a trilha encolhe no celular: marco menor e menos recuo, para o texto não
+     ficar espremido numa coluna estreita demais */
+  .modelo{ padding:0 0 38px 58px; }
+  .modelo:not(:last-child)::before{ left:19px; top:44px; }
+  .modelo-numero{ width:40px; height:40px; font-size:16px; }
+  .modelo h3{ font-size:17px; margin-top:7px; }
   .diferenciais-lista{ grid-template-columns:1fr; gap:24px; }
   .trabalhe{ padding:64px 0; }
   .trabalhe-cabeca{ align-items:flex-start; gap:18px; }
@@ -1264,7 +1269,7 @@ dialog:not([open]){ display:none; }
         <p data-en="The right model for each product, company and goal.">O modelo certo para cada produto, empresa e objetivo.</p>
       </div>
 
-      <div class="modelos-lista">
+      <div class="modelos-trilha">
         <article class="modelo reveal">
           <span class="modelo-numero" aria-hidden="true">01</span>
           <h3 data-en-html="Import on Behalf of Third Parties">Importação por Conta e Ordem</h3>
