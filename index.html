@@ -156,6 +156,8 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .botao .icone{ width:18px; height:18px; stroke-width:1.8; transition:transform .2s ease; }
 .botao:hover{ transform:translateY(-2px); }
 .botao:hover .icone{ transform:translateX(3px); }
+/* no botão de download a seta aponta para baixo: é para lá que ela anda */
+.botao--baixar:hover .icone{ transform:translateY(2px); }
 
 .botao--dourado{ background:var(--dourado); color:var(--azul); }
 .botao--dourado:hover{ background:#DFC45A; }
@@ -906,6 +908,7 @@ dialog:not([open]){ display:none; }
     </linearGradient>
   </defs>
   <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-baixar" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol>
   <symbol id="i-globo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M4.8 7.5h14.4M4.8 16.5h14.4M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9S9.4 5.6 12 3z"/></symbol>
   <symbol id="i-grafico" viewBox="0 0 24 24"><path d="M3.5 20.5h17"/><rect x="5" y="14.5" width="3" height="6" rx=".5"/><rect x="10.5" y="11.5" width="3" height="9" rx=".5"/><rect x="16" y="8.5" width="3" height="12" rx=".5"/><path d="M4.5 10.5l5-4 3.5 2 6.5-5"/><path d="M16.5 3.5h3v3"/></symbol>
   <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.6c0 4.6-3.2 8.3-7.5 9.9-4.3-1.6-7.5-5.3-7.5-9.9V6z"/><path d="M8.6 12.1l2.4 2.4 4.6-4.8"/></symbol>
@@ -1062,9 +1065,13 @@ dialog:not([open]){ display:none; }
         <p class="eyebrow" data-en="About Horizon">A Horizon</p>
         <h2 class="titulo" data-en-html="More than importing.<br>We build businesses.">Mais do que importar.<br>Construímos negócios.</h2>
         <p data-en="We structure international business and the entry of products into Brazil, with commercial vision, tax and regulatory intelligence and a network of strategic partners.">Estruturamos negócios internacionais e a entrada de produtos no Brasil, com visão comercial, inteligência tributária e regulatória e uma rede de parceiros estratégicos.</p>
-        <a href="#parceiro" class="botao botao--escuro">
-          <span data-en="Get to know Horizon">Conheça a Horizon</span>
-          <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+        <!-- Apresentação institucional em PDF, como o "Baixar apresentação" da
+             HARGUS. O cliente só mandou a versão em inglês: quando vier a em
+             português, o href passa a trocar com o idioma dentro de
+             aplicarIdioma(), como é feito lá. -->
+        <a href="apresentacao-horizon-en.pdf" download class="botao botao--escuro botao--baixar">
+          <span data-en="Download presentation">Baixar apresentação</span>
+          <svg class="icone" aria-hidden="true"><use href="#i-baixar"/></svg>
         </a>
       </div>
 
