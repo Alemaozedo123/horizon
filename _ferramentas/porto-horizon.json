@@ -1,0 +1,12 @@
+{
+  "_sobre": "Imagem da secao 'A Horizon', no lugar da foto do escritorio: porto de conteineres com o contorno do Brasil em marca d'agua, na linha da referencia enviada pelo cliente. Modelo: Qwen Image 3, que faz fotorrealismo em 2k — o teto de resolucao de imagem da plataforma (nao existe 4K em imagem na Higgsfield; 4K so em video).",
+  "saida": "../_imagens-geradas",
+  "modelo_padrao": "alibaba/qwen-image-3/text-to-image",
+  "parametros_padrao": { "resolution": "2k", "aspect_ratio": "3:2" },
+  "imagens": [
+    {
+      "nome": "porto-brasil",
+      "prompt": "Photorealistic photograph of a container port terminal under a clear pale blue sky: two tall blue gantry cranes over long rows of stacked shipping containers, a large container ship moored alongside the quay on the right, calm water in the foreground reflecting the scene. Shot from across the water at eye level, wide and open, plenty of clean sky above. Softly overlaid on the sky, like a faint translucent white watermark, the outline map of Brazil — subtle, low opacity, clearly secondary to the photograph. Natural daylight, crisp detail, corporate international trade mood. No text, no readable writing, no logos, no watermark text."
+    }
+  ]
+}
