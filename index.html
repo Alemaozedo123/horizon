@@ -55,10 +55,17 @@
 html{ scroll-behavior:smooth; }
 @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
 
+/* Os blocos que entram de lado (.reveal--dir) nascem 36px fora do lugar e, até
+   serem revelados, empurram a largura da página. O corte precisa estar também
+   no <html>: só no <body> ele some com a barra, mas o <html> continua medindo
+   a sobra e a rolagem lateral aparece assim mesmo. "clip" corta sem criar caixa
+   de rolagem — o que importa aqui, porque uma caixa de rolagem no <html>
+   desligaria o position:sticky do palco da abertura. O "hidden" antes dele é a
+   saída para navegador que não conheça clip. */
+html{ overflow-x:hidden; overflow-x:clip; }
+
 body{
   margin:0;
-  /* os blocos que entram de lado (.reveal--dir) nascem fora do lugar e, no
-     celular, virariam rolagem lateral; clip corta sem criar caixa de rolagem */
   overflow-x:hidden;
   overflow-x:clip;
   font-family:var(--fonte-corpo);
@@ -524,8 +531,11 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .modelos{ padding:100px 0 96px; --pontos-x:30%; --pontos-y:20%; }
 .modelos-trilha{
   position:relative; margin-top:36px;
-  /* a altura acompanha a do viewBox (1200x400) para a curva não achatar */
-  aspect-ratio:1200/400; min-height:330px;
+  /* width:100% é obrigatório junto do aspect-ratio. Sem ele o min-height mandava
+     na conta e a caixa ENGORDAVA para manter a proporção: com 330px de altura
+     ela pedia 990px de largura, vazava do container e criava rolagem lateral em
+     telas de ~1000px. Com a largura travada, a proporção governa só a altura. */
+  width:100%; aspect-ratio:1200/400; min-height:300px;
 }
 .trilha-curva{ position:absolute; inset:0; width:100%; height:100%; }
 .trilha-curva path{ fill:none; stroke:rgba(214,184,58,.45); stroke-width:2; vector-effect:non-scaling-stroke; }
@@ -837,6 +847,14 @@ dialog:not([open]){ display:none; }
 /* ============ RESPONSIVO ============ */
 /* sete itens de menu, o botão e a marca deixam de caber numa linha: o menu
    vira painel e o seletor de idioma desce para dentro dele */
+/* O cartão da seção "A Horizon" avança para fora da foto de propósito, mas o
+   right negativo só tem onde caber enquanto sobra margem fora do container
+   (max-width 1280 + 32px de respiro de cada lado = 1344). Abaixo disso ele
+   passava da borda da janela e abria rolagem lateral na página inteira — o
+   ajuste existia, mas só a partir de 960px, e o vazamento começa bem antes. */
+@media (max-width:1360px){
+  .sobre-cartao{ right:16px; }
+}
 @media (max-width:1220px){
   :root{ --topo-h:0px; }
   .nav-topo{ display:none; }
@@ -1868,6 +1886,10 @@ dialog:not([open]){ display:none; }
 
     window.addEventListener('scroll', agendar, { passive: true });
     window.addEventListener('resize', agendar, { passive: true });
+    /* com a aba em segundo plano o navegador suspende requestAnimationFrame: a
+       rolagem continua chegando, mas o quadro nunca roda e o globo fica parado
+       no último ângulo. Ao voltar, recoloca na posição que a rolagem pede. */
+    document.addEventListener('visibilitychange', function(){ if (!document.hidden) animar(); });
 
     video.src = window.matchMedia('(max-width: 820px)').matches
       ? 'img/hero-globo-mobile.mp4'
@@ -2079,11 +2101,20 @@ dialog:not([open]){ display:none; }
       var caixa = trilha.getBoundingClientRect();
       if (!caixa.height) return;
       var tela = window.innerHeight || document.documentElement.clientHeight;
-      /* a seta anda enquanto a trilha cruza a tela: 0 quando ela ainda está
-         chegando por baixo, 1 quando já saiu por cima */
-      var curso = caixa.height + tela * .6;
-      var andado = tela - caixa.top - tela * .4;
-      var progresso = Math.min(1, Math.max(0, andado / curso));
+
+      /* A faixa é declarada pelos dois extremos, em vez de somar margens soltas:
+         fica à vista onde a seta sai e onde ela chega.
+         INÍCIO: o topo da trilha a 85% da altura da tela — ela mal apareceu por
+         baixo e a seta ainda está parada no primeiro ponto.
+         FIM: a base da trilha a 25% da altura — ela ainda está em cena quando a
+         seta chega ao último ponto, que é o que se quer ver acontecer.
+         A conta anterior partia de margens fixas e, numa tela alta, já começava
+         com a seta adiantada: assim que a trilha assomava, ela estava no meio. */
+      var inicio = tela * .85;                       /* posição do topo quando o progresso é 0 */
+      var fim = tela * .25 - caixa.height;           /* posição do topo quando é 1 */
+      var curso = inicio - fim;
+      var progresso = curso > 0 ? (inicio - caixa.top) / curso : 0;
+      progresso = Math.min(1, Math.max(0, progresso));
 
       var dist = progresso * total;
       var a = ponto(dist, caixa);
@@ -2102,6 +2133,10 @@ dialog:not([open]){ display:none; }
 
     window.addEventListener('scroll', agendar, { passive: true });
     window.addEventListener('resize', agendar, { passive: true });
+    /* com a aba em segundo plano o navegador suspende requestAnimationFrame: a
+       rolagem continua chegando, mas o quadro nunca roda e a seta fica onde
+       parou. Ao voltar, recalcula de uma vez em vez de esperar o próximo gesto */
+    document.addEventListener('visibilitychange', function(){ if (!document.hidden) andar(); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(agendar);
     andar();
   })();
