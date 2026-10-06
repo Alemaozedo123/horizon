@@ -623,7 +623,9 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
    Faixa própria, como a da HARGUS, mas em branco: entre o azul dos
    diferenciais e o cinza da chamada final, ela mantém a alternância
    claro/escuro da página. */
-.trabalhe{ padding:84px 0; background:var(--branco); border-bottom:1px solid var(--linha); }
+/* o filete de baixo saiu: quem separa esta seção da seguinte agora é o
+   gradiente escuro que começa ali */
+.trabalhe{ padding:84px 0; background:var(--branco); }
 .trabalhe .container{
   display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
   gap:28px 64px; align-items:center;
@@ -635,11 +637,24 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .trabalhe-lado p{ font-size:15px; max-width:46ch; margin-bottom:22px; }
 
 /* ============ CHAMADA FINAL (#contato) ============ */
-.cta{ position:relative; overflow:hidden; padding:104px 0 140px; }
+/* A DIVISÃO COM "TRABALHE CONOSCO"
+   A seção de cima é branca e esta herdava o cinza-claro do body: dois tons
+   quase iguais, e a emenda entre elas sumia. Mesma saída da seção do
+   parceiro: o gradiente institucional como fundo inteiro, e a passagem vira
+   um salto de claro para escuro.
+   Logo abaixo vem o rodapé, que também é escuro — mas ali já existe a curva
+   dourada atravessando a junção, e o rodapé é azul chapado contra este
+   gradiente diagonal: as duas faixas continuam distintas. */
+.cta{
+  position:relative; overflow:hidden; padding:104px 0 140px;
+  background:var(--gradiente-institucional); color:var(--texto-claro);
+}
 /* o mapa-múndi claro do layout vira um campo de pontos, mais leve que imagem */
 .cta::before{
   content:""; position:absolute; inset:0; pointer-events:none;
-  background-image:radial-gradient(rgba(0,25,63,.11) 1px, transparent 1.5px);
+  /* o campo de pontos que faz as vezes do mapa-múndi acompanha a inversão:
+     era azul sobre o claro, agora é claro sobre o azul */
+  background-image:radial-gradient(rgba(150,185,235,.20) 1px, transparent 1.5px);
   background-size:10px 10px;
   -webkit-mask-image:radial-gradient(ellipse 34% 62% at 74% 44%, #000 0%, transparent 70%);
           mask-image:radial-gradient(ellipse 34% 62% at 74% 44%, #000 0%, transparent 70%);
@@ -652,7 +667,7 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
   gap:36px 72px; align-items:center;
 }
-.cta .titulo{ font-size:clamp(1.8rem, 2.6vw, 2.3rem); }
+.cta .titulo{ font-size:clamp(1.8rem, 2.6vw, 2.3rem); color:var(--branco); }
 .cta-lado p{ font-size:15px; max-width:52ch; margin-bottom:28px; }
 .cta-botoes{ display:flex; flex-wrap:wrap; gap:14px; }
 .cta-curva{ position:absolute; left:0; bottom:16px; width:100%; height:110px; pointer-events:none; }
