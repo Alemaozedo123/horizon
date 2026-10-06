@@ -439,32 +439,13 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
    pontilhado: diagonal contra chapado distingue uma da outra, como lá o
    gradiente da área de contato se distingue do verde dos diferenciais. */
 .parceiro{
-  --desloc:0px;
-  position:relative; overflow:hidden; isolation:isolate;
+  position:relative; overflow:hidden;
   padding:104px 0 112px;
-  /* o azul do manual fica por baixo: é o que aparece caso o script não rode */
-  background:var(--azul);
+  background:var(--gradiente-institucional);
   color:var(--texto-claro);
   /* o filete claro na emenda, igual ao da HARGUS: sem ele o gradiente encosta
      na seção seguinte e as duas viram uma mancha escura só */
   box-shadow:inset 0 -1px 0 rgba(255,255,255,.14);
-}
-/* O GRADIENTE QUE ANDA COM A ROLAGEM
-   Mesma mecânica do .sobre-fundo da HARGUS: o gradiente não está no fundo da
-   seção, e sim numa camada própria mais larga que ela, deslocada no eixo X por
-   --desloc, que o <script> escreve a cada quadro. A sobra lateral (128% de
-   largura, começando em -14%) é o que o deslocamento consome — sem ela o
-   movimento descobriria a borda do gradiente nos extremos.
-   Só transform muda, então quem anima é o compositor e não o layout. */
-.parceiro::before{
-  content:""; position:absolute; top:0; bottom:0; left:-14%; width:128%; z-index:-1;
-  background:var(--gradiente-institucional);
-  transform:translate3d(var(--desloc), 0, 0);
-  will-change:transform;
-}
-@media (prefers-reduced-motion: reduce){
-  /* sem movimento: o gradiente fica parado no meio do curso */
-  .parceiro::before{ transform:none; }
 }
 .parceiro .titulo{ margin-bottom:52px; color:var(--branco); }
 .parceiro-grade{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:24px; }
@@ -2063,46 +2044,6 @@ dialog:not([open]){ display:none; }
   }
 
 
-  /* ============ PARCEIRO: o gradiente que anda com a rolagem ============
-     Mesma mecânica do .sobre da HARGUS: enquanto a seção atravessa a tela, a
-     camada do gradiente desliza no eixo X. O que se vê é a cor mudando de
-     lugar devagar — o azul fechado entra por um lado e o mais aberto sai pelo
-     outro —, sem nada se mexer no layout: só o transform da camada muda.
-     A amplitude é limitada pela sobra lateral da camada (14% para cada lado):
-     passar disso descobriria a borda do gradiente. Em tela estreita a sobra
-     vale menos pixels, daí o teto proporcional à largura da seção. */
-  (function gradienteDoParceiro(){
-    var secao = document.getElementById('parceiro');
-    if (!secao || reduzMovimento) return;
-    var pedido = false;
-
-    function mover(){
-      pedido = false;
-      var caixa = secao.getBoundingClientRect();
-      var tela = window.innerHeight || document.documentElement.clientHeight;
-      if (!caixa.height) return;
-      /* 0 = topo da seção encostando na base da tela · 1 = base saindo por cima */
-      var travessia = (tela - caixa.top) / (tela + caixa.height);
-      travessia = Math.min(1, Math.max(0, travessia));
-      /* centrado em zero: a seção chega com o gradiente deslocado para um lado
-         e sai com ele deslocado para o outro */
-      var amplitude = Math.min(170, caixa.width * .18);
-      secao.style.setProperty('--desloc', ((travessia - .5) * amplitude).toFixed(1) + 'px');
-    }
-
-    function agendar(){
-      if (pedido) return;
-      pedido = true;
-      requestAnimationFrame(mover);
-    }
-
-    window.addEventListener('scroll', agendar, { passive: true });
-    window.addEventListener('resize', agendar, { passive: true });
-    /* a aba em segundo plano suspende o requestAnimationFrame: ao voltar,
-       recoloca o gradiente onde a rolagem atual pede */
-    document.addEventListener('visibilitychange', function(){ if (!document.hidden) mover(); });
-    mover();
-  })();
 
   /* ============ CHAMADA FINAL: a curva que se desenha ============
      O site abre com o globo girando e fecha com esta linha chegando do outro
