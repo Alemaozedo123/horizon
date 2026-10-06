@@ -33,6 +33,12 @@
   --dourado:     #D6B83A; /* Dourado Horizon: destaques, ícones e CTAs */
   --branco:      #FFFFFF;
   --cinza-claro: #EAF0F6; /* fundo das seções claras e do cabeçalho */
+  /* Gradiente institucional, no mesmo papel que ele tem no site da HARGUS:
+     fundo de seção inteira, em diagonal, para a seção se destacar das vizinhas
+     sem depender de uma cor nova. Aqui ele corre dentro do próprio azul da
+     marca — do azul do manual para um azul mais aberto —, porque um gradiente
+     que fosse até o dourado deixaria o texto branco ilegível no fim do curso. */
+  --gradiente-institucional: linear-gradient(120deg, var(--azul) 0%, #0B2F63 58%, #123E7C 100%);
 
   /* NÃO-OFICIAIS — não constam no manual, derivadas dele para legibilidade.
      Validar com o cliente. O dourado oficial tem só 2:1 de contraste com o
@@ -422,41 +428,65 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
    Radar ilimitado e a parceria com a Hargus — vai em dois cartões azuis, os
    únicos blocos escuros numa seção branca: é para o olho cair neles antes de
    qualquer leitura. O terceiro parágrafo, que é o fecho, fica solto embaixo. */
-.parceiro{ padding:104px 0 112px; background:var(--branco); }
-.parceiro .titulo{ margin-bottom:52px; }
+/* A DIVISÃO COM A SEÇÃO DE CIMA
+   A seção anterior usa o cinza-claro do site e esta usava branco puro: dois
+   tons tão próximos que a emenda sumia e as duas liam como uma só, do tamanho
+   de duas telas. A saída é a mesma do site da HARGUS: a seção recebe o
+   gradiente institucional como fundo inteiro. Deixa de ser "mais um claro" e
+   passa a ser o bloco escuro entre a seção da foto e a de quem somos — a
+   divisão vem do salto de claro para escuro, que ninguém deixa de ver.
+   A faixa seguinte (#quem-somos) também é escura, mas é azul chapado com
+   pontilhado: diagonal contra chapado distingue uma da outra, como lá o
+   gradiente da área de contato se distingue do verde dos diferenciais. */
+.parceiro{
+  position:relative; overflow:hidden;
+  padding:104px 0 112px;
+  background:var(--gradiente-institucional);
+  color:var(--texto-claro);
+  /* o filete claro na emenda, igual ao da HARGUS: sem ele o gradiente encosta
+     na seção seguinte e as duas viram uma mancha escura só */
+  box-shadow:inset 0 -1px 0 rgba(255,255,255,.14);
+}
+.parceiro .titulo{ margin-bottom:52px; color:var(--branco); }
 .parceiro-grade{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:24px; }
+/* com a seção escura, os cartões invertem: eram os únicos blocos escuros numa
+   seção branca, e agora são os claros sobre o gradiente — o olho continua
+   caindo neles antes de qualquer leitura, que era o papel deles */
 .parceiro-cartao{
   position:relative; overflow:hidden; padding:42px 40px 46px; border-radius:10px;
-  background:linear-gradient(135deg, var(--azul) 0%, #0B2F63 100%);
-  color:var(--texto-claro); box-shadow:0 24px 50px rgba(0,25,63,.18);
+  background:linear-gradient(135deg, var(--branco) 0%, var(--cinza-claro) 100%);
+  color:var(--texto); box-shadow:0 24px 50px rgba(0,10,30,.28);
 }
 /* o mesmo pontilhado das seções escuras, no canto de cima */
 .parceiro-cartao::before{
   content:""; position:absolute; inset:0; pointer-events:none;
-  background-image:radial-gradient(rgba(150,185,235,.24) 1px, transparent 1.5px);
+  /* o pontilhado acompanha a inversao: era claro sobre o azul, agora e azul
+     diluido sobre o cartao claro */
+  background-image:radial-gradient(rgba(0,25,63,.14) 1px, transparent 1.5px);
   background-size:10px 10px;
   -webkit-mask-image:radial-gradient(ellipse 60% 70% at 92% 0%, #000 0%, transparent 75%);
           mask-image:radial-gradient(ellipse 60% 70% at 92% 0%, #000 0%, transparent 75%);
 }
 .parceiro-cartao > *{ position:relative; }
-.parceiro-cartao .icone{ width:50px; height:50px; color:var(--dourado); stroke-width:1.25; margin-bottom:22px; }
+.parceiro-cartao .icone{ width:50px; height:50px; color:var(--dourado-escuro); stroke-width:1.25; margin-bottom:22px; }
 .parceiro-cartao h3{
   font-family:var(--fonte-titulo); font-weight:400;
-  font-size:clamp(1.55rem, 2.3vw, 2rem); line-height:1.15; color:var(--branco);
+  font-size:clamp(1.55rem, 2.3vw, 2rem); line-height:1.15; color:var(--azul);
   margin-bottom:18px;
 }
 /* filete dourado sob o rótulo: o mesmo gesto do item ativo do menu */
 .parceiro-cartao h3::after{
   content:""; display:block; width:46px; height:3px; border-radius:2px;
-  margin-top:16px; background:var(--dourado);
+  margin-top:16px; background:var(--dourado-escuro);
 }
 .parceiro-cartao p{ font-size:15px; margin:0; }
-.parceiro-cartao a{ color:var(--dourado); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
-.parceiro-cartao a:hover{ color:var(--branco); }
+.parceiro-cartao a{ color:var(--dourado-texto); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
+.parceiro-cartao a:hover{ color:var(--azul); }
 .parceiro-fecho{
   max-width:60ch; margin:48px auto 0; text-align:center;
   font-family:var(--fonte-titulo); font-size:clamp(1.15rem, 1.7vw, 1.4rem); line-height:1.55;
-  color:var(--azul);
+  /* fica direto sobre o gradiente, nao dentro de cartao: branco, nao azul */
+  color:var(--branco);
 }
 
 /* ============ SEÇÕES ESCURAS ============
@@ -501,17 +531,32 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 /* ============ SOLUÇÕES ============ */
 .solucoes{ padding:104px 0 120px; }
 .solucoes-grade{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:16px; }
+/* Sem foto: o cliente pediu os cartões só com o ícone, e maior. O filete
+   dourado no topo é o que impede o cartão de virar uma caixa branca lisa. */
 .solucao{
   display:flex; flex-direction:column; overflow:hidden; border-radius:8px;
   background:linear-gradient(180deg, #FFFFFF 0%, #F6F8FB 100%);
   box-shadow:0 14px 34px rgba(0,25,63,.07);
+  border-top:3px solid var(--dourado);
+  transition:transform .35s cubic-bezier(.16,.8,.24,1), box-shadow .35s ease;
 }
-.solucao img{ width:100%; aspect-ratio:16/10; object-fit:cover; }
-/* cartão sem foto ganha um filete dourado no topo, para não virar uma caixa
-   branca lisa; some sozinho quando a <img> voltar */
-.solucao:not(:has(img)){ border-top:3px solid var(--dourado); }
-.solucao-corpo{ padding:24px 20px 28px; }
-.solucao-corpo .icone{ width:34px; height:34px; color:var(--dourado-escuro); stroke-width:1.4; margin-bottom:18px; }
+.solucao:hover{ transform:translateY(-6px); box-shadow:0 22px 48px rgba(0,25,63,.13); }
+.solucao-corpo{ padding:30px 22px 30px; }
+/* o ícone ganhou o lugar que era da foto: dobrou de tamanho e passou a ser o
+   primeiro elemento que o olho encontra no cartão */
+.solucao-corpo .icone{
+  width:68px; height:68px; color:var(--dourado-escuro); stroke-width:1.15;
+  margin-bottom:22px;
+  transition:transform .45s cubic-bezier(.16,.8,.24,1), color .35s ease;
+}
+/* a animação é curta e discreta: o ícone cresce um pouco e inclina, e o
+   dourado abre. Quem pediu menos movimento no sistema não vê nada disso. */
+.solucao:hover .icone{ transform:scale(1.12) rotate(-4deg); color:var(--dourado); }
+@media (prefers-reduced-motion: reduce){
+  .solucao, .solucao .icone{ transition:none; }
+  .solucao:hover{ transform:none; }
+  .solucao:hover .icone{ transform:none; }
+}
 /* duas linhas reservadas: os títulos de uma linha só não desalinham o texto
    dos cartões vizinhos */
 .solucao h3{ font-size:15.5px; font-weight:600; line-height:1.35; min-height:2.7em; color:var(--azul); margin-bottom:12px; }
@@ -1199,7 +1244,6 @@ dialog:not([open]){ display:none; }
 
       <div class="solucoes-grade">
         <article class="solucao reveal">
-          <img src="img/solucao-comercial.jpg" alt="Ilustração de uma mão com caneta sobre gráficos de análise de mercado" data-en-alt="Illustration of a hand with a pen over market analysis charts" width="332" height="208" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-lupa"/></svg>
             <h3 data-en="Commercial Intelligence">Inteligência Comercial</h3>
@@ -1207,7 +1251,6 @@ dialog:not([open]){ display:none; }
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.06s">
-          <img src="img/solucao-tributaria.jpg" alt="Ilustração de uma pilha de formulários fiscais com caneta e calculadora" data-en-alt="Illustration of a stack of tax forms with a pen and a calculator" width="332" height="208" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-documento"/></svg>
             <h3 data-en="Tax Intelligence">Inteligência Tributária</h3>
@@ -1215,7 +1258,6 @@ dialog:not([open]){ display:none; }
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.12s">
-          <img src="img/solucao-regulatoria.jpg" alt="Ilustração de um certificado oficial sendo assinado, com selo em relevo" data-en-alt="Illustration of an official certificate being signed, with an embossed seal" width="332" height="208" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-escudo"/></svg>
             <h3 data-en="Regulatory Consulting">Consultoria Regulatória</h3>
@@ -1223,7 +1265,6 @@ dialog:not([open]){ display:none; }
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.18s">
-          <img src="img/solucao-logistica.jpg" alt="Ilustração de um navio porta-contêineres navegando em mar calmo" data-en-alt="Illustration of a container ship sailing on calm water" width="332" height="208" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-navio"/></svg>
             <h3 data-en="International Logistics">Logística Internacional</h3>
@@ -1231,7 +1272,6 @@ dialog:not([open]){ display:none; }
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.24s">
-          <img src="img/solucao-estoques.jpg" alt="Ilustração do corredor de um armazém com prateleiras de caixas" data-en-alt="Illustration of a warehouse aisle with racks of boxes" width="332" height="208" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-caixas"/></svg>
             <h3 data-en="Inventory and Distribution">Gestão de Estoques e Distribuição</h3>
@@ -1239,7 +1279,6 @@ dialog:not([open]){ display:none; }
           </div>
         </article>
         <article class="solucao reveal" style="--atraso:.3s">
-          <img src="img/solucao-desenvolvimento.jpg" alt="Ilustração de um aperto de mãos entre dois profissionais" data-en-alt="Illustration of a handshake between two professionals" width="332" height="208" loading="lazy">
           <div class="solucao-corpo">
             <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
             <h3 data-en="Business Development">Desenvolvimento Comercial</h3>
