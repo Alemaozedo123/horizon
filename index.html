@@ -912,6 +912,12 @@ dialog:not([open]){ display:none; }
 
 @media (max-width:420px){
   .solucoes-grade{ grid-template-columns:1fr; }
+
+  /* "Baixar a apresentação institucional" é o rótulo mais longo do site e os
+     botões não quebram linha (white-space:nowrap). Num aparelho de 375px ele
+     cabia por 2px; em 360px, que é comum, passaria da largura. Só este botão
+     ganha permissão de quebrar, e o texto vai centrado nas duas linhas. */
+  .botao--baixar{ white-space:normal; text-align:center; }
 }
 </style>
 </head>
@@ -1097,7 +1103,7 @@ dialog:not([open]){ display:none; }
              EM PORTUGUÊS: salvar como apresentacao-horizon-pt.pdf na raiz e
              trocar só o href abaixo por esse nome. Nada mais precisa mudar. -->
         <a href="apresentacao-horizon-en.pdf" data-en-href="apresentacao-horizon-en.pdf" download class="botao botao--escuro botao--baixar">
-          <span data-en="Download presentation">Baixar apresentação</span>
+          <span data-en="Download the institutional presentation">Baixar a apresentação institucional</span>
           <svg class="icone" aria-hidden="true"><use href="#i-baixar"/></svg>
         </a>
       </div>
