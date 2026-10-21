@@ -517,8 +517,7 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 
 /* ============ QUEM SOMOS: missão, visão e valores ============ */
 .quem-somos{ padding:104px 0 112px; }
-/* dois, não três: os valores saíram daqui para a faixa logo abaixo */
-.pilares{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); }
+.pilares{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); }
 .pilar{ position:relative; padding:0 48px; }
 .pilar:first-child{ padding-left:0; }
 .pilar:last-child{ padding-right:0; }
@@ -526,18 +525,24 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .pilar + .pilar::before{
   content:""; position:absolute; left:0; top:84px; bottom:0; width:1px;
   background:rgba(214,184,58,.5);
+  /* o movimento desta seção: o filete desce no lugar de algo entrar por cima.
+     Quem pediu menos movimento recebe .visivel de saída, então a linha
+     simplesmente já está inteira. */
+  transform:scaleY(0); transform-origin:top;
+  transition:transform 1.1s cubic-bezier(.22,.61,.36,1) .15s;
 }
+.pilar + .pilar.visivel::before{ transform:scaleY(1); }
 .pilar > .icone{ width:54px; height:54px; color:var(--dourado); stroke-width:1.2; margin-bottom:26px; }
 .pilar h3{ font-size:19px; font-weight:600; margin-bottom:14px; }
 .pilar p{ font-size:14.5px; color:var(--texto-claro); margin:0; max-width:36ch; }
-/* A faixa dos valores. O filete dourado no topo faz aqui o mesmo papel que
-   o filete vertical faz entre missão e visão: separa sem precisar de caixa. */
-.valores-faixa{ margin-top:68px; padding-top:52px; border-top:1px solid rgba(214,184,58,.4); }
-.valores-titulo{ font-size:19px; font-weight:600; margin-bottom:32px; }
-.valores-grade{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:32px; }
-.valor .icone{ width:38px; height:38px; color:var(--dourado); stroke-width:1.3; margin-bottom:16px; }
-.valor h4{ font-size:16px; font-weight:600; margin:0 0 10px; }
-.valor p{ font-size:14px; line-height:1.7; color:var(--texto-claro); margin:0; }
+/* Cada valor é o check dourado, o nome e a descrição na mesma linha corrida.
+   O que separa nome de descrição é o peso e a cor, não uma quebra: assim os
+   quatro cabem na altura da coluna ao lado em vez de esticar a seção. */
+.valores{ display:grid; gap:14px; }
+.valores li{ display:grid; grid-template-columns:16px minmax(0,1fr); column-gap:11px; align-items:start; }
+.valores .icone{ width:16px; height:16px; margin-top:4px; color:var(--dourado); stroke-width:2; }
+.valores p{ font-size:13.5px; line-height:1.6; color:var(--texto-claro); margin:0; }
+.valores strong{ font-weight:600; color:var(--branco); }
 
 /* ============ SOLUÇÕES ============ */
 /* O cliente achou o fundo chapado demais. A seção passa a descer do branco
@@ -554,14 +559,26 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 /* Sem foto: o cliente pediu os cartões só com o ícone, e maior. O filete
    dourado no topo é o que impede o cartão de virar uma caixa branca lisa. */
 .solucao{
+  position:relative;
   display:flex; flex-direction:column; overflow:hidden; border-radius:8px;
   background:linear-gradient(180deg, #FFFFFF 0%, #F6F8FB 100%);
   box-shadow:0 14px 34px rgba(0,25,63,.07);
-  border-top:3px solid var(--dourado);
   transition:transform .35s cubic-bezier(.16,.8,.24,1), box-shadow .35s ease;
 }
+/* O movimento desta seção: o filete dourado do topo deixou de ser borda para
+   poder crescer da esquerda para a direita quando o cartão entra, um atrás do
+   outro pelo --atraso que já escalonava a fileira. Os 3px que a borda ocupava
+   foram para o padding do corpo, então nada mudou de lugar. O overflow:hidden
+   do cartão é quem arredonda as pontas do filete. */
+.solucao::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:3px; z-index:1;
+  background:var(--dourado);
+  transform:scaleX(0); transform-origin:left;
+  transition:transform .9s cubic-bezier(.22,.61,.36,1) var(--atraso, 0s);
+}
+.solucao.visivel::before{ transform:scaleX(1); }
 .solucao:hover{ transform:translateY(-6px); box-shadow:0 22px 48px rgba(0,25,63,.13); }
-.solucao-corpo{ padding:30px 22px 30px; }
+.solucao-corpo{ padding:33px 22px 30px; }  /* 30 + os 3 que eram da borda */
 /* o ícone ganhou o lugar que era da foto: dobrou de tamanho e passou a ser o
    primeiro elemento que o olho encontra no cartão */
 .solucao-corpo .icone{
@@ -575,7 +592,8 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
    sistema não vê nada disso. */
 .solucao:hover .icone{ transform:scale(1.12) translateY(-2px); color:var(--dourado); }
 @media (prefers-reduced-motion: reduce){
-  .solucao, .solucao .icone{ transition:none; }
+  .solucao, .solucao .icone, .solucao::before{ transition:none; }
+  .solucao::before{ transform:none; }
   .solucao:hover{ transform:none; }
   .solucao:hover .icone{ transform:none; }
 }
@@ -585,7 +603,14 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .solucao p{ font-size:13.5px; line-height:1.65; margin:0; }
 
 /* ============ MODELOS DE NEGÓCIO ============ */
-.modelos{ padding:100px 0 112px; --pontos-x:30%; --pontos-y:20%; }
+/* Esta seção e a de missão e valores eram duas azuis chapadas com pontinhos,
+   quase gêmeas. Aqui entra o gradiente institucional das outras, mas correndo
+   na diagonal oposta — mesma família, leitura diferente. É o que tira o fundo
+   de uma cor só; o movimento já é a entrada escalonada dos quatro cartões. */
+.modelos{
+  padding:100px 0 112px; --pontos-x:30%; --pontos-y:20%;
+  background:linear-gradient(300deg, var(--azul) 0%, #0B2F63 58%, #123E7C 100%);
+}
 .modelos-grade{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:18px; }
 /* cor própria: o cartão é claro, mas mora numa seção escura que passa
    branco para todo texto de dentro */
@@ -693,8 +718,9 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .cta-lado p{ font-size:15px; max-width:52ch; margin-bottom:28px; }
 .cta-botoes{ display:flex; flex-wrap:wrap; gap:14px; }
 /* ============ A CURVA DOURADA QUE SE DESENHA ============
-   Nasceu aqui, na chamada final, e o cliente pediu a mesma linha em mais três
-   seções, para o fundo delas não ficar de uma cor só. Virou peça comum.
+   É só desta seção. Já esteve em mais três, e quatro vezes a mesma linha
+   deixou o site repetitivo: cada seção passou a ter um movimento tirado da
+   sua própria estrutura, e a curva voltou a ser o fecho, que é o papel dela.
    O traço é transformado num tracejado de um traço só, do comprimento exato da
    linha: com o deslocamento no máximo ele fica todo fora de vista, e zerando o
    deslocamento ele entra, da esquerda para a direita. O comprimento vem do
@@ -717,11 +743,7 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 /* a da chamada final é o fecho do site: a abertura é o globo girando e o fim
    é esta linha chegando do outro lado */
 .cta-curva{ bottom:16px; height:110px; }
-/* cada uma cabe dentro do respiro de baixo da sua seção (112 ou 120px):
-   passando disso a linha cruzaria o texto do último bloco */
-.quem-somos .curva-secao{ bottom:10px; height:98px; }
-.solucoes .curva-secao{ bottom:14px; height:102px; }
-.modelos .curva-secao{ bottom:10px; height:98px; }
+
 
 /* ============ RODAPÉ ============
    Mesmo desenho do rodapé da HARGUS (pedido de out/2026): marca e frase,
@@ -942,12 +964,14 @@ dialog:not([open]){ display:none; }
   .sobre-cartao{ right:16px; }
 
   .pilares{ grid-template-columns:1fr; gap:40px; }
-  .valores-faixa{ margin-top:52px; padding-top:42px; }
-  .valores-grade{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:28px; }
   .pilar, .pilar:first-child, .pilar:last-child{ padding:0; }
   .pilar + .pilar{ padding-top:40px; }
   /* empilhados, o filete entre os pilares deita */
-  .pilar + .pilar::before{ top:0; right:0; bottom:auto; width:auto; height:1px; }
+  .pilar + .pilar::before{
+    top:0; right:0; bottom:auto; width:auto; height:1px;
+    transform:scaleX(0); transform-origin:left;
+  }
+  .pilar + .pilar.visivel::before{ transform:scaleX(1); }
 
   /* a linha do tempo vira vertical: número à esquerda, texto à direita */
   .etapas{ grid-template-columns:1fr; gap:30px; }
@@ -968,11 +992,8 @@ dialog:not([open]){ display:none; }
 
 @media (max-width:640px){
   .modelos-grade{ grid-template-columns:1fr; }
-  .valores-grade{ grid-template-columns:1fr; gap:26px; }
   /* no celular o respiro de baixo cai para 84px: a curva acompanha */
-  .solucoes .curva-secao, .modelos .curva-secao{ bottom:8px; height:68px; }
-  /* a de "quem somos" é a mais apertada: ali os valores vão até embaixo */
-  .quem-somos .curva-secao{ bottom:6px; height:46px; }
+
   .container{ padding:0 20px; }
   .nav-cta{ display:none; }
   .nav .marca img{ width:160px; }
@@ -989,7 +1010,7 @@ dialog:not([open]){ display:none; }
   .sobre-cartao{ position:relative; right:auto; bottom:auto; width:auto; margin:-40px 14px 0; }
 
   .solucoes-grade{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; }
-  .solucao-corpo{ padding:18px 16px 22px; }
+  .solucao-corpo{ padding:21px 16px 22px; }
   .modelo h3{ font-size:17px; margin-top:7px; }
   .diferenciais-lista{ grid-template-columns:1fr; gap:24px; }
   .trabalhe{ padding:64px 0; }
@@ -1057,11 +1078,6 @@ dialog:not([open]){ display:none; }
   <symbol id="i-telefone" viewBox="0 0 24 24"><path d="M6.6 3.5h2.6l1.6 4.4-2.1 1.5a11.5 11.5 0 0 0 5.9 5.9l1.5-2.1 4.4 1.6v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></symbol>
   <symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21.5s7-6.4 7-11.8a7 7 0 1 0-14 0c0 5.4 7 11.8 7 11.8z"/><circle cx="12" cy="9.7" r="2.5"/></symbol>
   <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
-  <!-- os quatro dos valores, nos mesmos desenhos do site da HARGUS -->
-  <symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></symbol>
-  <symbol id="i-confianca" viewBox="0 0 24 24"><path d="M8 12l3 3 5-6"/><path d="M2 12l4-4 4 3 4-3 4 3 4-4"/></symbol>
-  <symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></symbol>
-  <symbol id="i-lampada" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-3.4 10.9c.6.4.9 1.1.9 1.8v.3h5v-.3c0-.7.3-1.4.9-1.8A6 6 0 0 0 12 3z"/><path d="M9.5 19h5M10.5 21.5h3"/></symbol>
   <symbol id="i-alerta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.8V13M12 16.4v.1"/></symbol>
 </svg>
 
@@ -1276,43 +1292,33 @@ dialog:not([open]){ display:none; }
           <h3 data-en="Vision">Visão</h3>
           <p data-en="To give clients tax certainty and guidance from customs clearance to the products' arrival on the market.">Dar aos clientes segurança tributária e orientação do desembaraço aduaneiro à chegada dos produtos ao mercado.</p>
         </article>
-      </div>
-
-      <!-- Os valores saíram da coluna ao lado de Missão e Visão: com a descrição
-           que o cliente pediu em cada um, aquela terceira coluna ficaria bem mais
-           alta que as outras duas e desalinharia a linha inteira. Aqui eles têm
-           faixa própria, em quatro colunas. São os mesmos quatro do site da HARGUS. -->
-      <div class="valores-faixa">
-        <h3 class="valores-titulo reveal" data-en="Values">Valores</h3>
-        <div class="valores-grade">
-          <article class="valor reveal">
-            <svg class="icone" aria-hidden="true"><use href="#i-pessoa"/></svg>
-            <h4 data-en="Customer Success">Sucesso do Cliente</h4>
-            <p data-en="Total focus on customer satisfaction.">Foco total na satisfação do cliente.</p>
-          </article>
-          <article class="valor reveal" style="--atraso:.08s">
-            <svg class="icone" aria-hidden="true"><use href="#i-confianca"/></svg>
-            <h4 data-en="Reliability">Confiabilidade</h4>
-            <p data-en="Transparency and commitment to the customer.">Transparência e compromisso com o cliente.</p>
-          </article>
-          <article class="valor reveal" style="--atraso:.16s">
-            <svg class="icone" aria-hidden="true"><use href="#i-raio"/></svg>
-            <h4 data-en="Efficiency">Eficiência</h4>
-            <p data-en="Commitment to efficiency and quality in every process.">Compromisso com eficiência e qualidade em cada processo.</p>
-          </article>
-          <article class="valor reveal" style="--atraso:.24s">
-            <svg class="icone" aria-hidden="true"><use href="#i-lampada"/></svg>
-            <h4 data-en="Innovation">Inovação</h4>
-            <p data-en="Using technology to transform logistics.">Uso de tecnologia para transformar a logística.</p>
-          </article>
-        </div>
+        <article class="pilar reveal" style="--atraso:.2s">
+          <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
+          <h3 data-en="Values">Valores</h3>
+          <!-- Os quatro são os do site da HARGUS. Nome e descrição correm no mesmo
+               parágrafo, separados só pelo peso e pela cor: em blocos separados esta
+               coluna dobrava de altura e a seção inteira ficava enorme. -->
+          <ul class="valores">
+            <li>
+              <svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>
+              <p><strong data-en="Customer Success">Sucesso do Cliente</strong> <span data-en="Total focus on customer satisfaction.">Foco total na satisfação do cliente.</span></p>
+            </li>
+            <li>
+              <svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>
+              <p><strong data-en="Reliability">Confiabilidade</strong> <span data-en="Transparency and commitment to the customer.">Transparência e compromisso com o cliente.</span></p>
+            </li>
+            <li>
+              <svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>
+              <p><strong data-en="Efficiency">Eficiência</strong> <span data-en="Commitment to efficiency and quality in every process.">Compromisso com eficiência e qualidade em cada processo.</span></p>
+            </li>
+            <li>
+              <svg class="icone" aria-hidden="true"><use href="#i-check"/></svg>
+              <p><strong data-en="Innovation">Inovação</strong> <span data-en="Using technology to transform logistics.">Uso de tecnologia para transformar a logística.</span></p>
+            </li>
+          </ul>
+        </article>
       </div>
     </div>
-    <!-- a mesma linha que fecha o site, aqui para o fundo não ficar de uma
-         cor só; ela se desenha quando a seção entra na tela -->
-    <svg class="curva-secao" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 30C232 102 520 106 772 56S1206 8 1440 80" fill="none" stroke="url(#grad-curva)" stroke-width="2" vector-effect="non-scaling-stroke"/>
-    </svg>
   </section>
 
   <!-- ============ SOLUÇÕES ============ -->
@@ -1371,11 +1377,6 @@ dialog:not([open]){ display:none; }
         </article>
       </div>
     </div>
-    <!-- a mesma linha que fecha o site, aqui para o fundo não ficar de uma
-         cor só; ela se desenha quando a seção entra na tela -->
-    <svg class="curva-secao" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 86C214 22 498 16 758 66S1232 118 1440 28" fill="none" stroke="url(#grad-curva)" stroke-width="2" vector-effect="non-scaling-stroke"/>
-    </svg>
   </section>
 
   <!-- ============ MODELOS DE NEGÓCIO ============
@@ -1417,11 +1418,6 @@ dialog:not([open]){ display:none; }
         </article>
       </div>
     </div>
-    <!-- a mesma linha que fecha o site, aqui para o fundo não ficar de uma
-         cor só; ela se desenha quando a seção entra na tela -->
-    <svg class="curva-secao" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 64C240 112 502 18 782 32S1178 106 1440 42" fill="none" stroke="url(#grad-curva)" stroke-width="2" vector-effect="non-scaling-stroke"/>
-    </svg>
   </section>
 
   <!-- ============ COMO ATUAMOS ============ -->
