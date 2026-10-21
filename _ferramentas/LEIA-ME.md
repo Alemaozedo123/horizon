@@ -65,32 +65,37 @@ eixo vertical, da esquerda para a direita, com o continente deslizando de lado e
 os polos parados — e listar no `negative_prompt` o que não se quer (giro
 vertical, cambalhota, câmera orbitando).
 
-### Preparar um vídeo de fundo que fica em laço
+### O vídeo do Kling não serve para elemento gráfico nítido
 
-O Kling entrega 5 segundos cujo fim não casa com o começo — nas rotas do
-parceiro, os arcos terminam apagados e começam acesos. Emendar isso em `loop`
-dá um salto visível a cada volta. A saída é o **vaivém**: o vídeo seguido dele
-mesmo de trás para frente, que fecha nas duas pontas sem emenda e dobra a
-duração de graça.
+A animação de fundo da seção do parceiro começou como vídeo e acabou em SVG.
+Vale guardar o porquê, porque custa US$ 1,79 descobrir de novo.
+
+O cliente reclamou da qualidade duas vezes. Na primeira eu achei que era
+compressão minha e subi de 1440px/`crf 32` para 1920px/`crf 23` — onze vezes
+o bitrate. Continuou ruim. Só então recortei a fonte a 1:1 e comparei com a
+imagem que a tinha originado: **a imagem do Recraft tem costa e divisa
+nítidas; o vídeo do Kling, na mesma escala, está borrado.** O "4k" dele é
+ampliação, não detalhe. Nenhuma taxa de bits recupera o que não foi gerado.
+
+Como conferir em trinta segundos, antes de gastar com encode:
 
 ```
-ffmpeg -i _videos-gerados/parceiro-rotas.mp4 \
-  -filter_complex "[0:v]fps=24,scale=1920:-2,split[a][b];[b]reverse[r];[a][r]concat=n=2:v=1[v]" \
-  -map "[v]" -c:v libx264 -crf 23 -preset slow -x264-params "aq-mode=3:aq-strength=1.2" \
-  -pix_fmt yuv420p -movflags +faststart -an \
-  img/parceiro-rotas.mp4
+ffmpeg -y -ss 1.5 -i _videos-gerados/SEU.mp4 -frames:v 1 -vf "crop=900:500:200:500" fonte.png
+ffmpeg -y -i _imagens-geradas/SUA-1.jpg      -vf "crop=900:500:250:560" imagem.png
 ```
 
-Aqui **não** se usa `-g 1`: aquilo é para a rolagem poder saltar para qualquer
-quadro, e um vídeo que só toca em laço não precisa.
+Recorte 1:1 dos dois, no mesmo tamanho, e olhe. Se a fonte já estiver mole, o
+problema não é o seu encode.
 
-**Não economize no `crf` deste caso.** A primeira versão saiu em 1440px com
-`crf 32` e ficou em 160 KB, mas o cliente viu a perda na hora: o vídeo é quase
-todo gradiente escuro, que é justamente onde o h.264 faz faixas, e o
-`mix-blend-mode:screen` ainda realça o defeito. 1920px com `crf 23` dá 1,7 MB
-e 1,4 Mbps — dez vezes o que era. O `aq-mode=3` ajuda a segurar as faixas nas
-áreas escuras. Como o arquivo só baixa quando a seção chega na tela, o peso
-não entra no carregamento inicial.
+**A regra que ficou:** linha fina, letra, contorno, qualquer coisa que precise
+de borda limpa — desenhe no navegador, em SVG. Fica nítido em qualquer tela,
+pesa quase nada e o movimento é controlável. O vídeo gerado serve para o que
+é orgânico e sem borda dura, como o globo da abertura, onde a textura é o
+próprio assunto. Na seção do parceiro, as rotas viraram `<path>` animados por
+CSS sobre um mapa que é só imagem parada: 96 KB no lugar de 1,7 MB.
+
+Uma vantagem de brinde: animação em CSS roda no painel de prévia, enquanto
+vídeo preso a `IntersectionObserver` não dá para testar ali.
 
 ### Preparar o vídeo da abertura para a rolagem
 

@@ -458,16 +458,34 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 /* o conteúdo sobe acima do vídeo de fundo */
 .parceiro > .container{ position:relative; z-index:1; }
 .parceiro-fundo{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
-.parceiro-fundo video{
-  display:block; width:100%; height:100%; object-fit:cover;
-  /* .30 e nao mais: medi o quadro mais claro do video composto sobre a ponta
-     clara do gradiente, e acima disso o branco do texto cai abaixo de 4,5:1
-     num ponto de luz dourada. Em .30 o pior caso da 4,6:1. */
-  opacity:.30;
-  /* "screen" clareia em vez de cobrir: o azul escuro do vídeo some dentro do
-     gradiente e só os arcos dourados aparecem. A seção continua sendo o azul
-     institucional, e a animação é só a luz que passa por cima dele. */
-  mix-blend-mode:screen;
+/* o mapa fica discreto: é textura de fundo, não ilustração. Quem o olho tem
+   de encontrar primeiro são os dois cartões. */
+.parceiro-mapa{ display:block; width:100%; height:100%; object-fit:cover; opacity:.5; }
+.parceiro-rotas{ position:absolute; inset:0; width:100%; height:100%; }
+/* a rota apagada fica sempre visível, para a malha se ler mesmo quando a luz
+   está do outro lado; por cima dela corre o ponto aceso */
+/* Onde uma rota passa por trás do título, o branco ainda fica em 8:1: um fio
+   de 1,5px a 26% sobre o azul mal mexe no fundo. Por isso elas podem cruzar
+   a faixa do título sem problema. */
+.rota{ fill:none; stroke:var(--dourado); stroke-width:1.5; opacity:.26; }
+.rota-luz{
+  fill:none; stroke:var(--dourado); stroke-width:2.8; stroke-linecap:round;
+  /* pathLength=1000 no próprio <path> normaliza o traço: o risco e o vão
+     passam a ser frações do caminho, então arcos de comprimentos diferentes
+     animam igual sem ninguém medir nada. */
+  stroke-dasharray:46 954; stroke-dashoffset:1000;
+  animation:rota-correr var(--t, 8s) linear var(--d, 0s) infinite;
+}
+@keyframes rota-correr{ to{ stroke-dashoffset:0; } }
+.porto{ fill:var(--dourado); opacity:.4; animation:porto-pulsar 4.5s ease-in-out var(--d, 0s) infinite; }
+@keyframes porto-pulsar{ 0%, 100%{ opacity:.32; } 50%{ opacity:.8; } }
+/* No celular os cartões empilham e cobrem a seção quase inteira: medi 3% do
+   traçado à vista, o que só renderia lampejos nas bordas. Ali fica só o mapa. */
+@media (max-width:760px){ .parceiro-rotas{ display:none; } }
+@media (prefers-reduced-motion: reduce){
+  /* sem corrida nem pulso: fica a malha parada, que já diz a mesma coisa */
+  .rota-luz, .porto{ animation:none; }
+  .rota-luz{ stroke-dasharray:none; stroke-dashoffset:0; opacity:.22; }
 }
 .parceiro .titulo{ margin-bottom:42px; color:var(--branco); }
 .parceiro-grade{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:24px; }
@@ -1296,14 +1314,44 @@ dialog:not([open]){ display:none; }
        destaque que ele pediu ao Radar ilimitado e à parceria com a Hargus.
        A seção acende "A Horizon" no menu, como a de missão e valores. -->
   <section class="parceiro" id="parceiro" data-secao="#a-horizon">
-    <!-- A animação de fundo: rotas douradas que acendem e apagam sobre um mapa
-         quase apagado. Fica atrás de tudo e de propósito bem discreta — quem
-         manda na seção são os dois cartões claros. O laço é em vaivém (vai e
-         volta), por isso não tem emenda: o fim do vídeo é diferente do começo.
-         Sem src aqui: quem escolhe o arquivo, e quem decide se vale a pena
-         baixar, é o <script> lá embaixo. -->
+    <!-- O fundo da seção: o mapa é imagem (parada e nítida) e as rotas são
+         vetor desenhado aqui. Já foi um vídeo da Higgsfield, trocado porque o
+         Kling devolve a cena borrada — o "4k" dele é ampliação, não detalhe —
+         e isso nenhuma taxa de bits conserta. Em vetor fica nítido em qualquer
+         monitor, pesa 96 KB no lugar de 1,7 MB e o movimento é controlável.
+         As rotas cruzam as faixas de cima e de baixo de propósito. A primeira
+         versão seguia a geografia (tudo partindo de Santos) e quase tudo caía
+         atrás dos dois cartões: medi 15% do traçado à vista. O que sobra nesta
+         seção são a faixa entre o título e os cartões, a faixa entre os cartões
+         e o fecho, e as margens laterais, que crescem no monitor largo — é por
+         lá que elas passam agora. O mapa embaixo continua sendo o mapa; as
+         rotas é que deixaram de tentar ser geografia e viraram desenho.
+         O "slice" corta igual ao object-fit:cover da imagem, então os dois
+         enquadram juntos em qualquer tela. -->
     <div class="parceiro-fundo" aria-hidden="true">
-      <video id="parceiro-video" muted loop playsinline preload="none" poster="img/parceiro-rotas.jpg"></video>
+      <img class="parceiro-mapa" src="img/parceiro-mapa.jpg"
+           srcset="img/parceiro-mapa-pequeno.jpg 1100w, img/parceiro-mapa.jpg 2200w"
+           sizes="100vw" alt="" width="2200" height="1100" loading="lazy" decoding="async">
+      <svg class="parceiro-rotas" viewBox="0 0 2000 1000" preserveAspectRatio="xMidYMid slice">
+        <path class="rota" d="M-60,250 Q1000,78 2060,246"/>
+        <path class="rota-luz" d="M-60,250 Q1000,78 2060,246" pathLength="1000" style="--t:11.5s; --d:0s"/>
+        <path class="rota" d="M-60,160 Q860,300 2060,138"/>
+        <path class="rota-luz" d="M-60,160 Q860,300 2060,138" pathLength="1000" style="--t:9.2s; --d:2.1s"/>
+        <path class="rota" d="M-60,772 Q1020,952 2060,742"/>
+        <path class="rota-luz" d="M-60,772 Q1020,952 2060,742" pathLength="1000" style="--t:12.4s; --d:1.2s"/>
+        <path class="rota" d="M-60,884 Q1120,700 2060,892"/>
+        <path class="rota-luz" d="M-60,884 Q1120,700 2060,892" pathLength="1000" style="--t:10.1s; --d:3.6s"/>
+        <path class="rota" d="M150,232 Q40,506 196,768"/>
+        <path class="rota-luz" d="M150,232 Q40,506 196,768" pathLength="1000" style="--t:7.4s; --d:4.4s"/>
+        <path class="rota" d="M1862,246 Q1972,510 1812,760"/>
+        <path class="rota-luz" d="M1862,246 Q1972,510 1812,760" pathLength="1000" style="--t:8.1s; --d:5.5s"/>
+        <circle class="porto" cx="150" cy="232" r="6" style="--d:0s"/>
+        <circle class="porto" cx="196" cy="768" r="6" style="--d:0.8s"/>
+        <circle class="porto" cx="1862" cy="246" r="6" style="--d:1.6s"/>
+        <circle class="porto" cx="1812" cy="760" r="6" style="--d:2.4s"/>
+        <circle class="porto" cx="1000" cy="140" r="5" style="--d:3.2s"/>
+        <circle class="porto" cx="1020" cy="860" r="5" style="--d:4s"/>
+      </svg>
     </div>
     <div class="container">
       <h2 class="titulo reveal" data-en="Your partner in foreign trade.">Seu parceiro no comércio exterior.</h2>
@@ -2182,28 +2230,6 @@ dialog:not([open]){ display:none; }
   }
 
 
-
-  /* ============ PARCEIRO: as rotas douradas do fundo ============
-     Vídeo de enfeite, então só carrega quando serve: nada para quem pediu
-     menos movimento no sistema (fica o pôster, que é o mesmo primeiro quadro),
-     arquivo menor na tela estreita, e pausa quando a seção sai da tela — um
-     laço rodando escondido só gasta bateria. */
-  (function rotasDoParceiro(){
-    var video = document.getElementById('parceiro-video');
-    if (!video || reduzMovimento) return;
-
-    video.src = window.matchMedia('(max-width: 820px)').matches
-      ? 'img/parceiro-rotas-mobile.mp4'
-      : 'img/parceiro-rotas.mp4';
-
-    function toca(){ var p = video.play(); if (p && p.catch) p.catch(function(){}); }
-    if (!('IntersectionObserver' in window)){ toca(); return; }
-
-    var vigia = new IntersectionObserver(function(entradas){
-      if (entradas[0].isIntersecting) toca(); else video.pause();
-    }, { threshold:.01 });
-    vigia.observe(video);
-  })();
 
   /* ============ AS CURVAS DOURADAS QUE SE DESENHAM ============
      O site abre com o globo girando e fecha com uma linha chegando do outro

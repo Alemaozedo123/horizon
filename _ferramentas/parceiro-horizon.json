@@ -1,16 +1,16 @@
 {
-  "_sobre": "Imagem de origem da animação de fundo da seção 'Seu parceiro no comércio exterior'. A receita de estilo é a mesma das outras ilustrações do site (serigrafia sobre azul-marinho, tintas dourada e off-white), escolhida pelo cliente em 2026-10-04 — a animação não podia entrar com outra linguagem. Proporção 16:9 porque é fundo de seção inteira, e não 3:2 como as ilustrações que moram dentro de cartões. Vai ficar bem apagada atrás do gradiente: o que manda na seção são os dois cartões brancos, então a imagem é escura de propósito e deixa o miolo calmo.",
+  "_sobre": "Mapa de fundo da seção do parceiro. SEM os arcos: eles passaram a ser desenhados em SVG na própria página, porque o vídeo do Kling devolveu a cena borrada (o 4k dele é ampliação, não detalhe) e nenhuma taxa de compressão conserta isso. A imagem entra só como mapa, parada e nítida; quem se move é o SVG por cima. Proporção 2:1 (a mais larga que a plataforma aceita; 21:9 é recusado) e não 16:9 porque a faixa da seção é larga e baixa: quanto mais perto da proporção final, menos a imagem é cortada no monitor largo.",
   "saida": "../_imagens-geradas",
   "modelo_padrao": "recraft/v4.1/pro/text-to-image",
   "parametros_padrao": {
     "resolution": "2k",
-    "aspect_ratio": "16:9",
+    "aspect_ratio": "2:1",
     "num_images": 1
   },
   "imagens": [
     {
-      "nome": "parceiro-rotas-b",
-      "prompt": "Flat stylised world map seen from directly above, filling the frame. The ocean is a very dark midnight navy blue, almost black. The continents are the same midnight navy, only one shade lighter, with no borders and no country lines, so they are barely distinguishable from the ocean. Over this, only six or seven thin dim gold arcs curve between distant coastlines, each ending in a small soft gold dot. The arcs are sparse, delicate and hairline thin. The middle third of the picture is empty dark ocean with no arcs and no dots crossing it: all the arcs stay near the left and right edges. Screen-print style editorial illustration with subtle paper grain and a slight off-register print feel, printed in warm gold ink over the midnight navy, in flat ink layers with soft texture instead of smooth digital gradients. Extremely dark overall, very low contrast, quiet and restrained, like a dim hand-printed poster seen in low light. No white, no bright colours, no glow, no text, no labels, no country names, no borders, no grid, no logos, no watermark, no photorealism."
+      "nome": "parceiro-mapa",
+      "prompt": "Flat stylised world map seen from directly above, filling the entire frame edge to edge, centred on the Atlantic with the Americas on the left and Europe, Africa and Asia on the right. The ocean is a very dark midnight navy blue, almost black. The land is the same midnight navy, just one shade lighter, with thin faint country borders a touch lighter still, so the whole map reads as a quiet dark field with crisp edges. Clean sharp coastlines, fine detail, precise vector-like rendering. Nothing else at all: no routes, no arcs, no curves, no lines across the ocean, no dots, no markers, no pins, no glow, no highlights. Extremely dark overall, very low contrast, quiet and restrained. No text, no labels, no country names, no grid, no graticule, no compass, no logos, no watermark, no photorealism, no bright colours, no white."
     }
   ]
 }
