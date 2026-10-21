@@ -616,10 +616,37 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
    branco para todo texto de dentro */
 .modelo{
   padding:32px 28px 34px; border-radius:8px; color:var(--texto);
+  transition:transform .4s cubic-bezier(.16,.8,.24,1), box-shadow .4s ease;
   background:linear-gradient(180deg, var(--branco) 0%, var(--cinza-claro) 100%);
   box-shadow:0 18px 40px rgba(0,0,0,.18);
 }
-.modelo-numero{ display:block; font-size:28px; font-weight:600; line-height:1; color:var(--dourado-escuro); margin-bottom:16px; }
+/* O MOVIMENTO DESTA SEÇÃO: o número sobe para dentro da janela.
+   O <span> é a janela, do tamanho exato de uma linha e com o resto escondido;
+   o <i> é o número, que começa um pouco abaixo dela e sobe. Um atrás do outro,
+   pelo --atraso que já escalonava a entrada dos cartões.
+   A altura da janela sobra 0.18em sobre a letra para o traço de cima do "0"
+   não ficar raspado; os 2px a mais saem da margem de baixo. */
+.modelo-numero{
+  display:block; overflow:hidden;
+  height:1.18em; margin-bottom:11px;
+  font-size:28px; font-weight:600; line-height:1.18; color:var(--dourado-escuro);
+}
+.modelo-numero i{
+  display:block; font-style:normal;
+  transform:translateY(110%);
+  transition:transform .85s cubic-bezier(.22,.9,.3,1) calc(var(--atraso, 0s) + .12s);
+}
+.modelo.visivel .modelo-numero i{ transform:none; }
+/* o cartão responde ao ponteiro como os de Soluções, mas de leve: aqui são
+   quatro blocos grandes, e o mesmo salto de 6px pareceria pulo */
+.modelo:hover{ transform:translateY(-4px); box-shadow:0 26px 52px rgba(0,0,0,.26); }
+.modelo:hover .modelo-numero{ color:var(--dourado); }
+.modelo-numero{ transition:color .35s ease; }
+@media (prefers-reduced-motion: reduce){
+  .modelo, .modelo-numero, .modelo-numero i{ transition:none; }
+  .modelo-numero i{ transform:none; }
+  .modelo:hover{ transform:none; }
+}
 .modelo h3{ font-size:16.5px; font-weight:600; line-height:1.35; color:var(--azul); margin-bottom:14px; }
 .modelo p{ font-size:14px; line-height:1.7; margin:0; }
 
@@ -1397,22 +1424,22 @@ dialog:not([open]){ display:none; }
 
       <div class="modelos-grade">
         <article class="modelo reveal">
-          <span class="modelo-numero">01</span>
+          <span class="modelo-numero"><i>01</i></span>
           <h3 data-en-html="Import on Behalf<br>of Third Parties">Importação<br>por Conta e Ordem</h3>
           <p data-en="Your company carries out the import, relying on our specialized structure to run the process safely and efficiently.">Sua empresa realiza a importação, contando com nossa estrutura especializada para conduzir o processo de forma segura e eficiente.</p>
         </article>
         <article class="modelo reveal" style="--atraso:.08s">
-          <span class="modelo-numero">02</span>
+          <span class="modelo-numero"><i>02</i></span>
           <h3 data-en-html="Import<br>by Order">Importação<br>por Encomenda</h3>
           <p data-en="We structure the import within our own operation and then sell the goods to your company.">Estruturamos a importação em nossa própria operação e, posteriormente, realizamos a venda da mercadoria para sua empresa.</p>
         </article>
         <article class="modelo reveal" style="--atraso:.16s">
-          <span class="modelo-numero">03</span>
+          <span class="modelo-numero"><i>03</i></span>
           <h3 data-en-html="Supplier<br>Development">Desenvolvimento<br>de Fornecedores</h3>
           <p data-en="Starting from your needs, we search for the best manufacturers and suppliers, evaluate the options and structure the operation to bring the product to market.">A partir da sua necessidade, buscamos os melhores fabricantes e fornecedores, avaliamos as opções e estruturamos a operação para trazer o produto ao mercado.</p>
         </article>
         <article class="modelo reveal" style="--atraso:.24s">
-          <span class="modelo-numero">04</span>
+          <span class="modelo-numero"><i>04</i></span>
           <h3 data-en-html="Custom<br>Projects">Projetos<br>Personalizados</h3>
           <p data-en="Tailor-made solutions for operations outside traditional models.">Soluções sob medida para operações fora dos modelos tradicionais.</p>
         </article>
