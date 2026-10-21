@@ -65,6 +65,25 @@ eixo vertical, da esquerda para a direita, com o continente deslizando de lado e
 os polos parados — e listar no `negative_prompt` o que não se quer (giro
 vertical, cambalhota, câmera orbitando).
 
+### Preparar um vídeo de fundo que fica em laço
+
+O Kling entrega 5 segundos cujo fim não casa com o começo — nas rotas do
+parceiro, os arcos terminam apagados e começam acesos. Emendar isso em `loop`
+dá um salto visível a cada volta. A saída é o **vaivém**: o vídeo seguido dele
+mesmo de trás para frente, que fecha nas duas pontas sem emenda e dobra a
+duração de graça.
+
+```
+ffmpeg -i _videos-gerados/parceiro-rotas.mp4 \
+  -filter_complex "[0:v]fps=24,scale=1440:-2,split[a][b];[b]reverse[r];[a][r]concat=n=2:v=1[v]" \
+  -map "[v]" -c:v libx264 -crf 32 -preset slow -pix_fmt yuv420p -movflags +faststart -an \
+  img/parceiro-rotas.mp4
+```
+
+Aqui **não** se usa `-g 1`: aquilo é para a rolagem poder saltar para qualquer
+quadro, e um vídeo que só toca em laço não precisa — sem isso, os 5 segundos em
+1440px cabem em 160 KB.
+
 ### Preparar o vídeo da abertura para a rolagem
 
 O globo do site não toca: ele avança conforme a pessoa rola. Para o navegador

@@ -440,12 +440,31 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
    gradiente da área de contato se distingue do verde dos diferenciais. */
 .parceiro{
   position:relative; overflow:hidden;
+  /* a seção vira o seu próprio grupo de mistura: assim o "screen" do vídeo de
+     fundo reage ao gradiente daqui e a nada mais. Cuidado herdado: isolar só é
+     seguro porque o vídeo é camada normal; foi um ::before com z-index negativo
+     dentro de um isolamento que, uma vez, escondeu este gradiente inteiro. */
+  isolation:isolate;
   padding:104px 0 112px;
   background:var(--gradiente-institucional);
   color:var(--texto-claro);
   /* o filete claro na emenda, igual ao da HARGUS: sem ele o gradiente encosta
      na seção seguinte e as duas viram uma mancha escura só */
   box-shadow:inset 0 -1px 0 rgba(255,255,255,.14);
+}
+/* o conteúdo sobe acima do vídeo de fundo */
+.parceiro > .container{ position:relative; z-index:1; }
+.parceiro-fundo{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.parceiro-fundo video{
+  display:block; width:100%; height:100%; object-fit:cover;
+  /* .30 e nao mais: medi o quadro mais claro do video composto sobre a ponta
+     clara do gradiente, e acima disso o branco do texto cai abaixo de 4,5:1
+     num ponto de luz dourada. Em .30 o pior caso da 4,6:1. */
+  opacity:.30;
+  /* "screen" clareia em vez de cobrir: o azul escuro do vídeo some dentro do
+     gradiente e só os arcos dourados aparecem. A seção continua sendo o azul
+     institucional, e a animação é só a luz que passa por cima dele. */
+  mix-blend-mode:screen;
 }
 .parceiro .titulo{ margin-bottom:52px; color:var(--branco); }
 .parceiro-grade{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:24px; }
@@ -1274,6 +1293,15 @@ dialog:not([open]){ display:none; }
        destaque que ele pediu ao Radar ilimitado e à parceria com a Hargus.
        A seção acende "A Horizon" no menu, como a de missão e valores. -->
   <section class="parceiro" id="parceiro" data-secao="#a-horizon">
+    <!-- A animação de fundo: rotas douradas que acendem e apagam sobre um mapa
+         quase apagado. Fica atrás de tudo e de propósito bem discreta — quem
+         manda na seção são os dois cartões claros. O laço é em vaivém (vai e
+         volta), por isso não tem emenda: o fim do vídeo é diferente do começo.
+         Sem src aqui: quem escolhe o arquivo, e quem decide se vale a pena
+         baixar, é o <script> lá embaixo. -->
+    <div class="parceiro-fundo" aria-hidden="true">
+      <video id="parceiro-video" muted loop playsinline preload="none" poster="img/parceiro-rotas.jpg"></video>
+    </div>
     <div class="container">
       <h2 class="titulo reveal" data-en="Your partner in foreign trade.">Seu parceiro no comércio exterior.</h2>
 
@@ -2151,6 +2179,28 @@ dialog:not([open]){ display:none; }
   }
 
 
+
+  /* ============ PARCEIRO: as rotas douradas do fundo ============
+     Vídeo de enfeite, então só carrega quando serve: nada para quem pediu
+     menos movimento no sistema (fica o pôster, que é o mesmo primeiro quadro),
+     arquivo menor na tela estreita, e pausa quando a seção sai da tela — um
+     laço rodando escondido só gasta bateria. */
+  (function rotasDoParceiro(){
+    var video = document.getElementById('parceiro-video');
+    if (!video || reduzMovimento) return;
+
+    video.src = window.matchMedia('(max-width: 820px)').matches
+      ? 'img/parceiro-rotas-mobile.mp4'
+      : 'img/parceiro-rotas.mp4';
+
+    function toca(){ var p = video.play(); if (p && p.catch) p.catch(function(){}); }
+    if (!('IntersectionObserver' in window)){ toca(); return; }
+
+    var vigia = new IntersectionObserver(function(entradas){
+      if (entradas[0].isIntersecting) toca(); else video.pause();
+    }, { threshold:.01 });
+    vigia.observe(video);
+  })();
 
   /* ============ AS CURVAS DOURADAS QUE SE DESENHAM ============
      O site abre com o globo girando e fecha com uma linha chegando do outro
