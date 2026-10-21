@@ -445,7 +445,10 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
      seguro porque o vídeo é camada normal; foi um ::before com z-index negativo
      dentro de um isolamento que, uma vez, escondeu este gradiente inteiro. */
   isolation:isolate;
-  padding:104px 0 112px;
+  /* 88/92 e nao 104/112: com o respiro de antes a secao dava 844px e nao cabia
+     numa tela de 1080p, que deixa 822px livres abaixo do topo fixo. O corte sai
+     do respiro e das folgas entre os blocos, nao do recheio dos cartoes. */
+  padding:88px 0 92px;
   background:var(--gradiente-institucional);
   color:var(--texto-claro);
   /* o filete claro na emenda, igual ao da HARGUS: sem ele o gradiente encosta
@@ -466,7 +469,7 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
      institucional, e a animação é só a luz que passa por cima dele. */
   mix-blend-mode:screen;
 }
-.parceiro .titulo{ margin-bottom:52px; color:var(--branco); }
+.parceiro .titulo{ margin-bottom:42px; color:var(--branco); }
 .parceiro-grade{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:24px; }
 /* com a seção escura, os cartões invertem: eram os únicos blocos escuros numa
    seção branca, e agora são os claros sobre o gradiente — o olho continua
@@ -502,7 +505,7 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .parceiro-cartao a{ color:var(--dourado-texto); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
 .parceiro-cartao a:hover{ color:var(--azul); }
 .parceiro-fecho{
-  max-width:60ch; margin:48px auto 0; text-align:center;
+  max-width:60ch; margin:36px auto 0; text-align:center;
   font-family:var(--fonte-titulo); font-size:clamp(1.15rem, 1.7vw, 1.4rem); line-height:1.55;
   /* fica direto sobre o gradiente, nao dentro de cartao: branco, nao azul */
   color:var(--branco);

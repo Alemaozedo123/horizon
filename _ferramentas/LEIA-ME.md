@@ -75,14 +75,22 @@ duração de graça.
 
 ```
 ffmpeg -i _videos-gerados/parceiro-rotas.mp4 \
-  -filter_complex "[0:v]fps=24,scale=1440:-2,split[a][b];[b]reverse[r];[a][r]concat=n=2:v=1[v]" \
-  -map "[v]" -c:v libx264 -crf 32 -preset slow -pix_fmt yuv420p -movflags +faststart -an \
+  -filter_complex "[0:v]fps=24,scale=1920:-2,split[a][b];[b]reverse[r];[a][r]concat=n=2:v=1[v]" \
+  -map "[v]" -c:v libx264 -crf 23 -preset slow -x264-params "aq-mode=3:aq-strength=1.2" \
+  -pix_fmt yuv420p -movflags +faststart -an \
   img/parceiro-rotas.mp4
 ```
 
 Aqui **não** se usa `-g 1`: aquilo é para a rolagem poder saltar para qualquer
-quadro, e um vídeo que só toca em laço não precisa — sem isso, os 5 segundos em
-1440px cabem em 160 KB.
+quadro, e um vídeo que só toca em laço não precisa.
+
+**Não economize no `crf` deste caso.** A primeira versão saiu em 1440px com
+`crf 32` e ficou em 160 KB, mas o cliente viu a perda na hora: o vídeo é quase
+todo gradiente escuro, que é justamente onde o h.264 faz faixas, e o
+`mix-blend-mode:screen` ainda realça o defeito. 1920px com `crf 23` dá 1,7 MB
+e 1,4 Mbps — dez vezes o que era. O `aq-mode=3` ajuda a segurar as faixas nas
+áreas escuras. Como o arquivo só baixa quando a seção chega na tela, o peso
+não entra no carregamento inicial.
 
 ### Preparar o vídeo da abertura para a rolagem
 
