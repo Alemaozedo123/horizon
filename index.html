@@ -509,10 +509,16 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   left:calc(var(--pontos-x, 62%) - 450px); top:calc(var(--pontos-y, 35%) - 450px);
   background:radial-gradient(circle, rgba(46,98,170,.28) 0%, rgba(0,25,63,0) 62%);
 }
+/* a mesma mancha, invertida para quem é seção clara: pontos azuis e um halo
+   dourado no lugar do azul. Vem depois da base de propósito — mesmo peso,
+   ganha a última. */
+.pontilhado--claro::before{ background-image:radial-gradient(rgba(0,25,63,.13) 1px, transparent 1.5px); }
+.pontilhado--claro::after{ background:radial-gradient(circle, rgba(214,184,58,.17) 0%, rgba(214,184,58,0) 62%); }
 
 /* ============ QUEM SOMOS: missão, visão e valores ============ */
 .quem-somos{ padding:104px 0 112px; }
-.pilares{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); }
+/* dois, não três: os valores saíram daqui para a faixa logo abaixo */
+.pilares{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); }
 .pilar{ position:relative; padding:0 48px; }
 .pilar:first-child{ padding-left:0; }
 .pilar:last-child{ padding-right:0; }
@@ -524,12 +530,26 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .pilar > .icone{ width:54px; height:54px; color:var(--dourado); stroke-width:1.2; margin-bottom:26px; }
 .pilar h3{ font-size:19px; font-weight:600; margin-bottom:14px; }
 .pilar p{ font-size:14.5px; color:var(--texto-claro); margin:0; max-width:36ch; }
-.valores{ display:grid; gap:9px; }
-.valores li{ display:flex; align-items:center; gap:12px; font-size:14.5px; color:var(--texto-claro); }
-.valores .icone{ width:17px; height:17px; color:var(--dourado); stroke-width:2; }
+/* A faixa dos valores. O filete dourado no topo faz aqui o mesmo papel que
+   o filete vertical faz entre missão e visão: separa sem precisar de caixa. */
+.valores-faixa{ margin-top:68px; padding-top:52px; border-top:1px solid rgba(214,184,58,.4); }
+.valores-titulo{ font-size:19px; font-weight:600; margin-bottom:32px; }
+.valores-grade{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:32px; }
+.valor .icone{ width:38px; height:38px; color:var(--dourado); stroke-width:1.3; margin-bottom:16px; }
+.valor h4{ font-size:16px; font-weight:600; margin:0 0 10px; }
+.valor p{ font-size:14px; line-height:1.7; color:var(--texto-claro); margin:0; }
 
 /* ============ SOLUÇÕES ============ */
-.solucoes{ padding:104px 0 120px; }
+/* O cliente achou o fundo chapado demais. A seção passa a descer do branco
+   para o cinza do manual, em diagonal, e recebe o mesmo pontilhado das
+   escuras, na versão clara. */
+.solucoes{
+  position:relative; overflow:hidden;
+  padding:104px 0 120px;
+  --pontos-x:86%; --pontos-y:24%;
+  background:linear-gradient(168deg, var(--branco) 0%, var(--cinza-claro) 52%, #D4E0EE 100%);
+}
+.solucoes > .container{ position:relative; z-index:1; }
 .solucoes-grade{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:16px; }
 /* Sem foto: o cliente pediu os cartões só com o ícone, e maior. O filete
    dourado no topo é o que impede o cartão de virar uma caixa branca lisa. */
@@ -549,9 +569,11 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   margin-bottom:22px;
   transition:transform .45s cubic-bezier(.16,.8,.24,1), color .35s ease;
 }
-/* a animação é curta e discreta: o ícone cresce um pouco e inclina, e o
-   dourado abre. Quem pediu menos movimento no sistema não vê nada disso. */
-.solucao:hover .icone{ transform:scale(1.12) rotate(-4deg); color:var(--dourado); }
+/* a animação é curta e discreta: o ícone cresce um pouco, sobe e o dourado
+   abre. Era uma inclinação de 4 graus, que o cliente leu como tremida; agora
+   é o mesmo movimento dos cartões da HARGUS. Quem pediu menos movimento no
+   sistema não vê nada disso. */
+.solucao:hover .icone{ transform:scale(1.12) translateY(-2px); color:var(--dourado); }
 @media (prefers-reduced-motion: reduce){
   .solucao, .solucao .icone{ transition:none; }
   .solucao:hover{ transform:none; }
@@ -670,26 +692,36 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .cta .titulo{ font-size:clamp(1.8rem, 2.6vw, 2.3rem); color:var(--branco); }
 .cta-lado p{ font-size:15px; max-width:52ch; margin-bottom:28px; }
 .cta-botoes{ display:flex; flex-wrap:wrap; gap:14px; }
-.cta-curva{ position:absolute; left:0; bottom:16px; width:100%; height:110px; pointer-events:none; }
-/* A curva se desenha da esquerda para a direita quando a seção entra na tela.
+/* ============ A CURVA DOURADA QUE SE DESENHA ============
+   Nasceu aqui, na chamada final, e o cliente pediu a mesma linha em mais três
+   seções, para o fundo delas não ficar de uma cor só. Virou peça comum.
    O traço é transformado num tracejado de um traço só, do comprimento exato da
    linha: com o deslocamento no máximo ele fica todo fora de vista, e zerando o
-   deslocamento ele entra. O comprimento vem do próprio caminho, medido pelo
-   <script> (getTotalLength) e escrito aqui como --curva — assim mexer no "d"
-   do path não quebra a animação.
-   É o fecho do site: a abertura é o globo girando e o fim é a linha chegando. */
-.cta-curva path{
+   deslocamento ele entra, da esquerda para a direita. O comprimento vem do
+   próprio caminho, medido pelo <script> (getTotalLength) e escrito aqui como
+   --curva — assim mexer no "d" do path não quebra a animação.
+   Cada seção diz só onde a sua curva fica; o resto é daqui. */
+.curva-secao{ position:absolute; left:0; width:100%; pointer-events:none; }
+.curva-secao path{
   stroke-dasharray:var(--curva, 2000);
   stroke-dashoffset:var(--curva, 2000);
 }
-.cta-curva.desenhada path{
+.curva-secao.desenhada path{
   stroke-dashoffset:0;
   transition:stroke-dashoffset 2.4s cubic-bezier(.33,.1,.2,1);
 }
 @media (prefers-reduced-motion: reduce){
   /* sem animação a linha simplesmente já está lá, como antes */
-  .cta-curva path{ stroke-dasharray:none; stroke-dashoffset:0; }
+  .curva-secao path{ stroke-dasharray:none; stroke-dashoffset:0; }
 }
+/* a da chamada final é o fecho do site: a abertura é o globo girando e o fim
+   é esta linha chegando do outro lado */
+.cta-curva{ bottom:16px; height:110px; }
+/* cada uma cabe dentro do respiro de baixo da sua seção (112 ou 120px):
+   passando disso a linha cruzaria o texto do último bloco */
+.quem-somos .curva-secao{ bottom:10px; height:98px; }
+.solucoes .curva-secao{ bottom:14px; height:102px; }
+.modelos .curva-secao{ bottom:10px; height:98px; }
 
 /* ============ RODAPÉ ============
    Mesmo desenho do rodapé da HARGUS (pedido de out/2026): marca e frase,
@@ -910,6 +942,8 @@ dialog:not([open]){ display:none; }
   .sobre-cartao{ right:16px; }
 
   .pilares{ grid-template-columns:1fr; gap:40px; }
+  .valores-faixa{ margin-top:52px; padding-top:42px; }
+  .valores-grade{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:28px; }
   .pilar, .pilar:first-child, .pilar:last-child{ padding:0; }
   .pilar + .pilar{ padding-top:40px; }
   /* empilhados, o filete entre os pilares deita */
@@ -934,6 +968,11 @@ dialog:not([open]){ display:none; }
 
 @media (max-width:640px){
   .modelos-grade{ grid-template-columns:1fr; }
+  .valores-grade{ grid-template-columns:1fr; gap:26px; }
+  /* no celular o respiro de baixo cai para 84px: a curva acompanha */
+  .solucoes .curva-secao, .modelos .curva-secao{ bottom:8px; height:68px; }
+  /* a de "quem somos" é a mais apertada: ali os valores vão até embaixo */
+  .quem-somos .curva-secao{ bottom:6px; height:46px; }
   .container{ padding:0 20px; }
   .nav-cta{ display:none; }
   .nav .marca img{ width:160px; }
@@ -1018,6 +1057,11 @@ dialog:not([open]){ display:none; }
   <symbol id="i-telefone" viewBox="0 0 24 24"><path d="M6.6 3.5h2.6l1.6 4.4-2.1 1.5a11.5 11.5 0 0 0 5.9 5.9l1.5-2.1 4.4 1.6v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></symbol>
   <symbol id="i-local" viewBox="0 0 24 24"><path d="M12 21.5s7-6.4 7-11.8a7 7 0 1 0-14 0c0 5.4 7 11.8 7 11.8z"/><circle cx="12" cy="9.7" r="2.5"/></symbol>
   <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <!-- os quatro dos valores, nos mesmos desenhos do site da HARGUS -->
+  <symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></symbol>
+  <symbol id="i-confianca" viewBox="0 0 24 24"><path d="M8 12l3 3 5-6"/><path d="M2 12l4-4 4 3 4-3 4 3 4-4"/></symbol>
+  <symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></symbol>
+  <symbol id="i-lampada" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-3.4 10.9c.6.4.9 1.1.9 1.8v.3h5v-.3c0-.7.3-1.4.9-1.8A6 6 0 0 0 12 3z"/><path d="M9.5 19h5M10.5 21.5h3"/></symbol>
   <symbol id="i-alerta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.8V13M12 16.4v.1"/></symbol>
 </svg>
 
@@ -1198,12 +1242,12 @@ dialog:not([open]){ display:none; }
         </article>
         <article class="parceiro-cartao reveal" style="--atraso:.1s">
           <svg class="icone" aria-hidden="true"><use href="#i-aperto"/></svg>
-          <h3 data-en="Partnership with Hargus Brazil">Parceria com a Hargus Brazil</h3>
-          <p data-en-html='Through a strategic partnership with <a href="https://hargusbrazil.com.br" target="_blank" rel="noopener noreferrer">Hargus Brazil</a>, we also offer domestic and international freight forwarding solutions, connecting our foreign trade operations to the best logistics alternatives.'>Por meio de uma parceria estratégica com a <a href="https://hargusbrazil.com.br" target="_blank" rel="noopener noreferrer">Hargus Brazil</a>, contamos também com soluções de agenciamento de cargas nacionais e internacionais, conectando nossas operações de comércio exterior às melhores alternativas logísticas.</p>
+          <h3 data-en="Hargus Brazil in our group">A Hargus Brazil no grupo</h3>
+          <p data-en-html='<a href="https://hargusbrazil.com.br" target="_blank" rel="noopener noreferrer">Hargus Brazil</a> is part of our group and offers domestic and international freight forwarding solutions, connecting our foreign trade operations to the best logistics alternatives.'>A <a href="https://hargusbrazil.com.br" target="_blank" rel="noopener noreferrer">Hargus Brazil</a> faz parte do nosso grupo e oferece soluções de agenciamento de cargas nacionais e internacionais, conectando nossas operações de comércio exterior às melhores alternativas logísticas.</p>
         </article>
       </div>
 
-      <p class="parceiro-fecho reveal" data-en="This way, we provide our clients with a complete solution, with more agility, security and efficiency in their international operations.">Dessa forma, proporcionamos aos nossos clientes uma solução completa, com mais agilidade, segurança e eficiência em suas operações internacionais.</p>
+      <p class="parceiro-fecho reveal" data-en="We offer our clients an end-to-end integrated solution, bringing greater agility, security and efficiency to every stage of their international operations.">Oferecemos aos nossos clientes uma solução integrada de ponta a ponta, promovendo maior agilidade, segurança e eficiência em todas as etapas das operações internacionais.</p>
     </div>
   </section>
 
@@ -1232,26 +1276,51 @@ dialog:not([open]){ display:none; }
           <h3 data-en="Vision">Visão</h3>
           <p data-en="To give clients tax certainty and guidance from customs clearance to the products' arrival on the market.">Dar aos clientes segurança tributária e orientação do desembaraço aduaneiro à chegada dos produtos ao mercado.</p>
         </article>
-        <article class="pilar reveal" style="--atraso:.2s">
-          <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
-          <h3 data-en="Values">Valores</h3>
-          <ul class="valores">
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Customer success">Sucesso do cliente</span></li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Trust and transparency">Confiança e transparência</span></li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Excellence in solutions">Excelência nas soluções</span></li>
-            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg><span data-en="Agility and efficiency">Agilidade e eficiência</span></li>
-          </ul>
-        </article>
+      </div>
+
+      <!-- Os valores saíram da coluna ao lado de Missão e Visão: com a descrição
+           que o cliente pediu em cada um, aquela terceira coluna ficaria bem mais
+           alta que as outras duas e desalinharia a linha inteira. Aqui eles têm
+           faixa própria, em quatro colunas. São os mesmos quatro do site da HARGUS. -->
+      <div class="valores-faixa">
+        <h3 class="valores-titulo reveal" data-en="Values">Valores</h3>
+        <div class="valores-grade">
+          <article class="valor reveal">
+            <svg class="icone" aria-hidden="true"><use href="#i-pessoa"/></svg>
+            <h4 data-en="Customer Success">Sucesso do Cliente</h4>
+            <p data-en="Total focus on customer satisfaction.">Foco total na satisfação do cliente.</p>
+          </article>
+          <article class="valor reveal" style="--atraso:.08s">
+            <svg class="icone" aria-hidden="true"><use href="#i-confianca"/></svg>
+            <h4 data-en="Reliability">Confiabilidade</h4>
+            <p data-en="Transparency and commitment to the customer.">Transparência e compromisso com o cliente.</p>
+          </article>
+          <article class="valor reveal" style="--atraso:.16s">
+            <svg class="icone" aria-hidden="true"><use href="#i-raio"/></svg>
+            <h4 data-en="Efficiency">Eficiência</h4>
+            <p data-en="Commitment to efficiency and quality in every process.">Compromisso com eficiência e qualidade em cada processo.</p>
+          </article>
+          <article class="valor reveal" style="--atraso:.24s">
+            <svg class="icone" aria-hidden="true"><use href="#i-lampada"/></svg>
+            <h4 data-en="Innovation">Inovação</h4>
+            <p data-en="Using technology to transform logistics.">Uso de tecnologia para transformar a logística.</p>
+          </article>
+        </div>
       </div>
     </div>
+    <!-- a mesma linha que fecha o site, aqui para o fundo não ficar de uma
+         cor só; ela se desenha quando a seção entra na tela -->
+    <svg class="curva-secao" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 30C232 102 520 106 772 56S1206 8 1440 80" fill="none" stroke="url(#grad-curva)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    </svg>
   </section>
 
   <!-- ============ SOLUÇÕES ============ -->
-  <section class="solucoes" id="solucoes" data-secao="#solucoes">
+  <section class="solucoes pontilhado pontilhado--claro" id="solucoes" data-secao="#solucoes">
     <div class="container">
       <div class="secao-topo reveal">
         <div>
-          <p class="eyebrow" data-en="Our solutions">Nossas soluções</p>
+          <p class="eyebrow" data-en="Our capabilities">Nossas competências</p>
           <h2 class="titulo" data-en="Solutions that turn opportunities into business.">Soluções para transformar oportunidades em negócios.</h2>
         </div>
         <p data-en="From market insight to distribution in Brazil.">Do entendimento do mercado à distribuição no Brasil.</p>
@@ -1302,6 +1371,11 @@ dialog:not([open]){ display:none; }
         </article>
       </div>
     </div>
+    <!-- a mesma linha que fecha o site, aqui para o fundo não ficar de uma
+         cor só; ela se desenha quando a seção entra na tela -->
+    <svg class="curva-secao" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 86C214 22 498 16 758 66S1232 118 1440 28" fill="none" stroke="url(#grad-curva)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    </svg>
   </section>
 
   <!-- ============ MODELOS DE NEGÓCIO ============ -->
@@ -1309,7 +1383,7 @@ dialog:not([open]){ display:none; }
     <div class="container">
       <div class="secao-topo reveal">
         <div>
-          <p class="eyebrow eyebrow--claro" data-en="Business models">Modelos de negócio</p>
+          <p class="eyebrow eyebrow--claro" data-en="What we do">O que fazemos</p>
           <h2 class="titulo titulo--claro" data-en-html="Different structures.<br>One goal: making the business happen.">Diferentes estruturas.<br>Um objetivo: viabilizar o negócio.</h2>
         </div>
         <p data-en="The right model for each product, company and goal.">O modelo certo para cada produto, empresa e objetivo.</p>
@@ -1338,6 +1412,11 @@ dialog:not([open]){ display:none; }
         </article>
       </div>
     </div>
+    <!-- a mesma linha que fecha o site, aqui para o fundo não ficar de uma
+         cor só; ela se desenha quando a seção entra na tela -->
+    <svg class="curva-secao" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 64C240 112 502 18 782 32S1178 106 1440 42" fill="none" stroke="url(#grad-curva)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    </svg>
   </section>
 
   <!-- ============ COMO ATUAMOS ============ -->
@@ -1458,7 +1537,7 @@ dialog:not([open]){ display:none; }
         </div>
       </div>
     </div>
-    <svg class="cta-curva" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true">
+    <svg class="curva-secao cta-curva" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true">
       <path d="M0 92C260 28 560 22 840 70S1270 118 1440 12" fill="none" stroke="url(#grad-curva)" stroke-width="2" vector-effect="non-scaling-stroke"/>
     </svg>
   </section>
@@ -2045,30 +2124,33 @@ dialog:not([open]){ display:none; }
 
 
 
-  /* ============ CHAMADA FINAL: a curva que se desenha ============
-     O site abre com o globo girando e fecha com esta linha chegando do outro
-     lado. Nada é baixado: a curva já é um <path> no HTML, e animá-la é só
-     revelar o traço aos poucos.
+  /* ============ AS CURVAS DOURADAS QUE SE DESENHAM ============
+     O site abre com o globo girando e fecha com uma linha chegando do outro
+     lado; o cliente pediu a mesma linha em mais três seções. Nada é baixado:
+     cada curva já é um <path> no HTML, e animá-la é só revelar o traço aos poucos.
      O comprimento sai do próprio caminho (getTotalLength), não de um número
      chutado: assim o "d" do path pode mudar que a animação continua exata.
-     Ela roda uma vez só — desenhar de novo a cada passagem viraria tique. */
-  (function curvaDaChamadaFinal(){
-    var curva = document.querySelector('.cta-curva');
-    if (!curva || reduzMovimento) return;
-    var linha = curva.querySelector('path');
-    if (!linha || typeof linha.getTotalLength !== 'function') return;
+     Cada uma roda uma vez só — desenhar de novo a cada passagem viraria tique. */
+  (function curvasDeSecao(){
+    if (reduzMovimento) return;
+    var curvas = document.querySelectorAll('.curva-secao');
 
-    var comprimento = Math.ceil(linha.getTotalLength());
-    if (!comprimento) return;                      /* SVG ainda sem layout */
-    curva.style.setProperty('--curva', comprimento);
+    Array.prototype.forEach.call(curvas, function(curva){
+      var linha = curva.querySelector('path');
+      if (!linha || typeof linha.getTotalLength !== 'function') return;
 
-    if (!('IntersectionObserver' in window)){ curva.classList.add('desenhada'); return; }
-    var vigiaCurva = new IntersectionObserver(function(entradas){
-      if (!entradas[0].isIntersecting) return;
-      curva.classList.add('desenhada');
-      vigiaCurva.disconnect();
-    }, { threshold:.35 });
-    vigiaCurva.observe(curva);
+      var comprimento = Math.ceil(linha.getTotalLength());
+      if (!comprimento) return;                    /* SVG ainda sem layout */
+      curva.style.setProperty('--curva', comprimento);
+
+      if (!('IntersectionObserver' in window)){ curva.classList.add('desenhada'); return; }
+      var vigia = new IntersectionObserver(function(entradas){
+        if (!entradas[0].isIntersecting) return;
+        curva.classList.add('desenhada');
+        vigia.disconnect();
+      }, { threshold:.35 });
+      vigia.observe(curva);
+    });
   })();
 
   /* ============ MODAIS: base comum ============
