@@ -340,6 +340,28 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   .hero{ height:auto; }
   .hero-palco{ position:static; height:auto; min-height:0; }
 }
+/* JANELA BAIXA: a abertura se aperta em vez de desistir do trilho.
+   O palco só fica grudado enquanto o conteúdo couber numa tela; passando
+   disso, o <script> solta tudo e o globo deixa de girar com a rolagem — que
+   é justamente o efeito que o cliente quer. Em notebook de tela curta o
+   limite era alcançado com folga nenhuma, então aqui o respiro e o título
+   encolhem na medida da altura disponível. Nada some: só fica mais junto.
+   Medido com as réguas de altura, e não de largura, porque o que falta numa
+   tela de notebook é altura. */
+@media (max-height:860px) and (min-width:761px){
+  .hero-palco{ padding:calc(var(--topo-h) + var(--nav-h) + 34px) 0 44px; }
+  .hero h1{ font-size:clamp(2.1rem, 3.6vw, 2.9rem); margin-bottom:18px; }
+  .hero-texto{ font-size:16px; margin-bottom:22px; }
+  .hero-botoes{ margin-bottom:30px; }
+  .hero-destaques{ gap:16px 24px; }
+}
+@media (max-height:700px) and (min-width:761px){
+  .hero-palco{ padding:calc(var(--topo-h) + var(--nav-h) + 18px) 0 32px; }
+  .hero h1{ font-size:clamp(1.9rem, 3.1vw, 2.4rem); margin-bottom:14px; }
+  .hero-texto{ font-size:15.5px; margin-bottom:18px; }
+  .hero-botoes{ margin-bottom:22px; }
+  .hero-destaques .icone{ width:30px; height:30px; }
+}
 /* a foto ocupa a direita e se dissolve no azul à esquerda: o texto nunca
    fica sobre a parte clara da imagem */
 .hero-foto{ position:absolute; top:0; right:0; bottom:0; width:60%; }
