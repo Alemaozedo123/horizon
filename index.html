@@ -508,13 +508,25 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
           mask-image:radial-gradient(ellipse 60% 70% at 92% 0%, #000 0%, transparent 75%);
 }
 .parceiro-cartao > *{ position:relative; }
-.parceiro-cartao .icone{ width:50px; height:50px; color:var(--dourado-escuro); stroke-width:1.25; margin-bottom:22px; }
+/* O ícone estava sozinho numa linha só dele, com 22px de respiro até o
+   título — e logo abaixo vinha o filete dourado, que criava uma segunda
+   divisão. Entre as duas, ele acabava órfão: era o que o cliente leu como
+   "solto". Agora ícone e nome são um bloco, e o filete separa esse bloco do
+   parágrafo, que é o papel que ele deveria ter desde o começo. */
+.parceiro-cabeca{ display:flex; align-items:flex-start; gap:18px; }
+/* o ícone encolheu de 50 para 44: ao lado de uma serifada de 32px, 50
+   competia com ela em vez de acompanhá-la. Os -4px de topo são alinhamento
+   óptico: encostando as caixas, o ícone ficava 3,8px abaixo do centro da
+   primeira linha, porque a caixa da serifada é mais alta que a entrelinha. */
+.parceiro-cartao .icone{ width:44px; height:44px; flex:none; margin-top:-4px; color:var(--dourado-escuro); stroke-width:1.25; }
 .parceiro-cartao h3{
   font-family:var(--fonte-titulo); font-weight:400;
   font-size:clamp(1.55rem, 2.3vw, 2rem); line-height:1.15; color:var(--azul);
   margin-bottom:18px;
 }
-/* filete dourado sob o rótulo: o mesmo gesto do item ativo do menu */
+/* filete dourado sob o bloco: o mesmo gesto do item ativo do menu. Fica no
+   título e não na caixa toda, para começar alinhado com a primeira letra
+   e não embaixo do ícone. */
 .parceiro-cartao h3::after{
   content:""; display:block; width:46px; height:3px; border-radius:2px;
   margin-top:16px; background:var(--dourado-escuro);
@@ -1071,6 +1083,10 @@ dialog:not([open]){ display:none; }
   .sobre, .parceiro, .quem-somos, .solucoes, .modelos, .como, .diferenciais{ padding:76px 0 84px; }
   .parceiro .titulo{ margin-bottom:36px; }
   .parceiro-cartao{ padding:30px 26px 34px; }
+  /* com a tela estreita o título já quebra em três linhas; o ícone menor e
+     mais perto devolve largura para ele */
+  .parceiro-cabeca{ gap:14px; }
+  .parceiro-cartao .icone{ width:36px; height:36px; }
   .sobre{ padding-bottom:84px; }
   /* no celular o cartão não cabe flutuando: desce para baixo da foto,
      ainda encavalado na borda dela */
@@ -1358,13 +1374,17 @@ dialog:not([open]){ display:none; }
 
       <div class="parceiro-grade">
         <article class="parceiro-cartao reveal">
-          <svg class="icone" aria-hidden="true"><use href="#i-radar"/></svg>
-          <h3 data-en="Unlimited Radar">Radar ilimitado</h3>
+          <div class="parceiro-cabeca">
+            <svg class="icone" aria-hidden="true"><use href="#i-radar"/></svg>
+            <h3 data-en="Unlimited Radar">Radar ilimitado</h3>
+          </div>
           <p data-en="Horizon Comercial holds an unlimited Radar license (the Brazilian Federal Revenue authorization for foreign trade operations), which allows it to import and export products from a wide range of segments with no value limit, offering security and flexibility for different types of business.">A Horizon Comercial possui Radar ilimitado (habilitação da Receita Federal para operações de comércio exterior), estando apta a realizar operações de importação e exportação de produtos de diversos segmentos, sem limite de valores, oferecendo segurança e flexibilidade para diferentes tipos de negócios.</p>
         </article>
         <article class="parceiro-cartao reveal" style="--atraso:.1s">
-          <svg class="icone" aria-hidden="true"><use href="#i-aperto"/></svg>
-          <h3 data-en="Hargus Brazil in our group">A Hargus Brazil no grupo</h3>
+          <div class="parceiro-cabeca">
+            <svg class="icone" aria-hidden="true"><use href="#i-aperto"/></svg>
+            <h3 data-en="Hargus Brazil in our group">A Hargus Brazil no grupo</h3>
+          </div>
           <p data-en-html='<a href="https://hargusbrazil.com.br" target="_blank" rel="noopener noreferrer">Hargus Brazil</a> is part of our group and offers domestic and international freight forwarding solutions, connecting our foreign trade operations to the best logistics alternatives.'>A <a href="https://hargusbrazil.com.br" target="_blank" rel="noopener noreferrer">Hargus Brazil</a> faz parte do nosso grupo e oferece soluções de agenciamento de cargas nacionais e internacionais, conectando nossas operações de comércio exterior às melhores alternativas logísticas.</p>
         </article>
       </div>
