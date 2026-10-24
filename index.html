@@ -381,11 +381,19 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   margin:0 0 24px;
 }
 .hero h1 .destaque{ color:var(--dourado); }
-.hero-texto{ font-size:16.5px; color:rgba(226,233,243,.88); max-width:50ch; margin-bottom:36px; }
-.hero-botoes{ display:flex; flex-wrap:wrap; gap:16px; margin-bottom:56px; }
-.hero-destaques{ display:flex; flex-wrap:wrap; gap:22px 40px; }
-.hero-destaques li{ display:flex; align-items:center; gap:14px; }
-.hero-destaques .icone{ width:36px; height:36px; color:var(--dourado); stroke-width:1.3; }
+/* 64ch e não 50: com o texto novo, duas frases em vez de uma, a medida
+   antiga rendia seis linhas. Continua abaixo do limite de leitura confortável
+   e bem dentro dos 800px da coluna. */
+.hero-texto{ font-size:16.5px; color:rgba(226,233,243,.88); max-width:64ch; margin-bottom:28px; }
+.hero-botoes{ display:flex; flex-wrap:wrap; gap:16px; margin-bottom:40px; }
+/* três colunas, não fileira que quebra: com a descrição inteira em cada
+   destaque, a fileira empilhava os três e a abertura crescia 100px. Assim o
+   texto quebra dentro da coluna e eles cabem numa linha só. */
+.hero-destaques{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:22px 28px; }
+/* flex-start e não center: com duas linhas de texto, o ícone centralizado
+   descolava da primeira linha, que é a que ele rotula */
+.hero-destaques li{ display:flex; align-items:flex-start; gap:14px; }
+.hero-destaques .icone{ width:36px; height:36px; flex:none; margin-top:-1px; color:var(--dourado); stroke-width:1.3; }
 .hero-destaques p{ margin:0; font-size:13.5px; line-height:1.45; }
 .hero-destaques strong{ display:block; font-weight:600; color:var(--branco); }
 .hero-destaques span{ display:block; color:rgba(226,233,243,.72); }
@@ -723,6 +731,22 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   border:2.5px solid var(--dourado); background:var(--cinza-claro);
   font-size:14px; font-weight:600; color:var(--azul);
   margin-bottom:26px;
+  transition:transform .35s cubic-bezier(.16,.8,.24,1), box-shadow .35s ease,
+             background-color .35s ease;
+}
+/* O mesmo gesto dos cartões de Soluções e de Modelos, pedido pelo cliente para
+   as bolinhas. Vale o passo inteiro, e não só o círculo: assim o alvo é a
+   coluna toda, que é como a HARGUS faz na mesma lista.
+   O círculo nasce com o fundo da seção para "cortar" o trilho atrás dele; no
+   hover ele vai a branco e ganha sombra, e é isso que o descola da linha. */
+.etapa:hover .etapa-numero{
+  transform:scale(1.12);
+  background:var(--branco);
+  box-shadow:0 8px 20px rgba(0,25,63,.14);
+}
+@media (prefers-reduced-motion: reduce){
+  .etapa-numero{ transition:none; }
+  .etapa:hover .etapa-numero{ transform:none; }
 }
 .etapa h3{ font-size:16.5px; font-weight:600; color:var(--azul); margin-bottom:10px; }
 .etapa p{ font-size:14px; line-height:1.65; margin:0; max-width:26ch; }
@@ -1078,7 +1102,7 @@ dialog:not([open]){ display:none; }
   .nav .marca img{ width:160px; }
 
   .hero-botoes .botao{ flex:1 1 100%; }
-  .hero-destaques{ flex-direction:column; gap:18px; }
+  .hero-destaques{ grid-template-columns:1fr; gap:18px; }
 
   .sobre, .parceiro, .quem-somos, .solucoes, .modelos, .como, .diferenciais{ padding:76px 0 84px; }
   .parceiro .titulo{ margin-bottom:36px; }
@@ -1263,7 +1287,7 @@ dialog:not([open]){ display:none; }
     <div class="container">
       <div class="hero-conteudo">
         <h1 data-en-html='Connecting<br>global opportunities<br><span class="destaque">to the Brazilian market.</span>'>Conectando<br>oportunidades globais<br><span class="destaque">ao mercado brasileiro.</span></h1>
-        <p class="hero-texto" data-en="We offer complete foreign trade solutions for companies that want to import, sell and expand their business throughout Brazil.">Oferecemos soluções completas em comércio exterior para empresas que desejam importar, comercializar e expandir seus negócios em todo o território brasileiro.</p>
+        <p class="hero-texto" data-en="We are an import trading company specialised in connecting Brazilian businesses to opportunities in the global market. We offer integrated solutions in importing, commercial intelligence and logistics to simplify operations, optimise costs and drive our clients’ growth.">Somos uma comercial importadora especializada em conectar empresas brasileiras a oportunidades no mercado global. Oferecemos soluções integradas em importação, inteligência comercial e logística para simplificar operações, otimizar custos e impulsionar o crescimento dos nossos clientes.</p>
         <div class="hero-botoes">
           <a href="#contato" class="botao botao--dourado" data-contato>
             <span data-en="Talk to Horizon">Falar com a Horizon</span>
@@ -1274,15 +1298,18 @@ dialog:not([open]){ display:none; }
         <ul class="hero-destaques">
           <li>
             <svg class="icone" aria-hidden="true"><use href="#i-globo"/></svg>
-            <p><strong data-en="Global vision">Visão global</strong><span data-en="focused on Brazil">com foco no Brasil</span></p>
+            <p><strong data-en="Global connection">Conexão global</strong><span data-en="Access to international suppliers and markets.">Acesso a fornecedores e mercados internacionais.</span></p>
           </li>
           <li>
             <svg class="icone" aria-hidden="true"><use href="#i-grafico"/></svg>
-            <p><strong data-en="Intelligence for">Inteligência para</strong><span data-en="international business">negócios internacionais</span></p>
+            <p><strong data-en="Commercial intelligence">Inteligência comercial</strong><span data-en="Strategies to import competitively.">Estratégias para importar com competitividade.</span></p>
           </li>
           <li>
-            <svg class="icone" aria-hidden="true"><use href="#i-escudo"/></svg>
-            <p><strong data-en="From opportunity">Da oportunidade</strong><span data-en="to market">ao mercado</span></p>
+            <!-- era o escudo, que ilustrava "da oportunidade ao mercado". Com o rótulo
+                 novo o desenho deixou de casar: rede, de integração, é o que o texto
+                 agora diz. De quebra o escudo estava em três lugares da página. -->
+            <svg class="icone" aria-hidden="true"><use href="#i-rede"/></svg>
+            <p><strong data-en="Integrated solutions">Soluções integradas</strong><span data-en="From origin to destination, safely and efficiently.">Da origem ao destino, com segurança e eficiência.</span></p>
           </li>
         </ul>
       </div>
@@ -1604,7 +1631,7 @@ dialog:not([open]){ display:none; }
       <ul class="diferenciais-lista">
         <li class="diferencial reveal">
           <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
-          <p><strong data-en="30+ years">+30 anos</strong><span data-en="of experience in international trade">de experiência em comércio internacional</span></p>
+          <p><strong data-en="35+ years">+35 anos</strong><span data-en="of experience in international trade">de experiência em comércio internacional</span></p>
         </li>
         <li class="diferencial reveal" style="--atraso:.06s">
           <svg class="icone" aria-hidden="true"><use href="#i-rede"/></svg>
@@ -1620,7 +1647,7 @@ dialog:not([open]){ display:none; }
         </li>
         <li class="diferencial reveal" style="--atraso:.24s">
           <svg class="icone" aria-hidden="true"><use href="#i-grafico"/></svg>
-          <p><strong data-en="Long-term vision">Visão de longo prazo</strong><span data-en="for recurring business relationships">para relações comerciais recorrentes</span></p>
+          <p><strong data-en="Long-term partnership">Parceria de longo prazo</strong><span data-en="relationships built on trust">relacionamentos construídos com confiança</span></p>
         </li>
       </ul>
     </div>
