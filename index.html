@@ -517,13 +517,25 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   .rota-luz, .porto{ animation:none; }
   .rota-luz{ stroke-dasharray:none; stroke-dashoffset:0; opacity:.22; }
 }
-.parceiro .titulo{ margin-bottom:42px; color:var(--branco); }
-.parceiro-grade{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:24px; }
+/* Duas colunas: o texto à esquerda deixa metade do mapa à vista, que era a
+   reclamação — os dois cartões lado a lado tapavam a seção inteira e o fundo
+   só aparecia nas bordas. Empilhados à direita, eles ocupam metade da
+   largura. "center" alinha os dois blocos pelo meio, porque a pilha de
+   cartões é bem mais alta que o texto. */
+.parceiro > .container{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:64px; align-items:center;
+}
+.parceiro .titulo{ margin-bottom:24px; color:var(--branco); }
+.parceiro-grade{ display:grid; grid-template-columns:minmax(0,1fr); gap:24px; }
 /* com a seção escura, os cartões invertem: eram os únicos blocos escuros numa
    seção branca, e agora são os claros sobre o gradiente — o olho continua
    caindo neles antes de qualquer leitura, que era o papel deles */
 .parceiro-cartao{
-  position:relative; overflow:hidden; padding:42px 40px 46px; border-radius:10px;
+  /* mais enxuto desde que os cartoes empilharam: eles passaram a mandar na
+     altura da secao, e cada pixel de recheio e tambem um pixel de branco a mais
+     sobre o mapa, que foi a reclamacao */
+  position:relative; overflow:hidden; padding:34px 34px 38px; border-radius:10px;
   background:linear-gradient(135deg, var(--branco) 0%, var(--cinza-claro) 100%);
   color:var(--texto); box-shadow:0 24px 50px rgba(0,10,30,.28);
 }
@@ -565,7 +577,9 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .parceiro-cartao a{ color:var(--dourado-texto); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
 .parceiro-cartao a:hover{ color:var(--azul); }
 .parceiro-fecho{
-  max-width:60ch; margin:36px auto 0; text-align:center;
+  /* era centralizado embaixo; agora é o corpo da coluna da esquerda, então
+     alinha à esquerda como qualquer texto corrido */
+  max-width:44ch; margin:0; text-align:left;
   font-family:var(--fonte-titulo); font-size:clamp(1.15rem, 1.7vw, 1.4rem); line-height:1.55;
   /* fica direto sobre o gradiente, nao dentro de cartao: branco, nao azul */
   color:var(--branco);
@@ -1110,7 +1124,9 @@ dialog:not([open]){ display:none; }
   .diferenciais-foto{ width:100%; }
   .diferenciais-foto::after{ background:linear-gradient(0deg, var(--azul) 25%, rgba(0,25,63,.72) 100%); }
 
-  .parceiro-grade{ grid-template-columns:1fr; }
+  /* uma coluna só: o texto em cima, os cartões embaixo */
+  .parceiro > .container{ grid-template-columns:1fr; gap:44px; }
+  .parceiro-fecho{ max-width:60ch; }
   .trabalhe .container{ grid-template-columns:1fr; }
   .cta .container{ grid-template-columns:1fr; }
 }
@@ -1419,7 +1435,14 @@ dialog:not([open]){ display:none; }
       </svg>
     </div>
     <div class="container">
-      <h2 class="titulo reveal" data-en="Your partner in foreign trade.">Seu parceiro no comércio exterior.</h2>
+      <!-- A coluna da esquerda é o que o cliente pediu: título e fecho soltos
+           sobre o mapa, sem caixa, para o fundo aparecer. O fecho morava
+           embaixo e centralizado; aqui ele encosta no título, que é de quem
+           ele era continuação desde sempre. -->
+      <div class="parceiro-texto">
+        <h2 class="titulo reveal" data-en="Your partner in foreign trade.">Seu parceiro no comércio exterior.</h2>
+        <p class="parceiro-fecho reveal" data-en="We offer our clients an end-to-end integrated solution, bringing greater agility, security and efficiency to every stage of their international operations.">Oferecemos aos nossos clientes uma solução integrada de ponta a ponta, promovendo maior agilidade, segurança e eficiência em todas as etapas das operações internacionais.</p>
+      </div>
 
       <div class="parceiro-grade">
         <article class="parceiro-cartao reveal">
@@ -1437,8 +1460,6 @@ dialog:not([open]){ display:none; }
           <p data-en-html='<a href="https://hargusbrazil.com.br" target="_blank" rel="noopener noreferrer">Hargus Brazil</a> is part of our group and offers domestic and international freight forwarding solutions, connecting our foreign trade operations to the best logistics alternatives.'>A <a href="https://hargusbrazil.com.br" target="_blank" rel="noopener noreferrer">Hargus Brazil</a> faz parte do nosso grupo e oferece soluções de agenciamento de cargas nacionais e internacionais, conectando nossas operações de comércio exterior às melhores alternativas logísticas.</p>
         </article>
       </div>
-
-      <p class="parceiro-fecho reveal" data-en="We offer our clients an end-to-end integrated solution, bringing greater agility, security and efficiency to every stage of their international operations.">Oferecemos aos nossos clientes uma solução integrada de ponta a ponta, promovendo maior agilidade, segurança e eficiência em todas as etapas das operações internacionais.</p>
     </div>
   </section>
 
