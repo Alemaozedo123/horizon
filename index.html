@@ -2444,10 +2444,18 @@ dialog:not([open]){ display:none; }
     var dialogo = modal.dialogo;
     dialogo.dataset.falhou = 'nao';
     dialogo.dataset.estado = 'enviando';
+
+    /* Limite de tempo. O FormSubmit já respondeu um GET simples em 23s; sem
+       corte, um travamento do lado deles deixaria o modal em "enviando" para
+       sempre. 40s é folgado o bastante para a lentidão normal deles. */
+    var corte = ('AbortController' in window) ? new AbortController() : null;
+    var relogio = corte && setTimeout(function(){ corte.abort(); }, 40000);
+
     fetch('https://formsubmit.co/ajax/' + DESTINO_CONTATO, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(corpo)
+      body: JSON.stringify(corpo),
+      signal: corte ? corte.signal : undefined
     }).then(function(r){
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
@@ -2460,11 +2468,19 @@ dialog:not([open]){ display:none; }
       forma.reset();
       dialogo.dataset.estado = 'sucesso';
       document.getElementById(idFecharSucesso).focus();
-    }).catch(function(){
+    }).catch(function(erro){
+      /* O motivo ia para o lixo, e sem ele ninguém descobre por que o envio
+         falhou. A causa mais comum é o endereço ainda não ativado no
+         FormSubmit: ele só entrega depois que o dono clica no e-mail de
+         confirmação do primeiro envio, e isso vale por endereço E por
+         domínio. A mensagem exata dele aparece aqui. */
+      if (window.console && console.warn){
+        console.warn('[Horizon] envio do contato falhou:', (erro && erro.message) || erro);
+      }
       dialogo.dataset.estado = 'formulario';
       dialogo.dataset.falhou = 'sim';
       forma.querySelector('.modal-enviar').focus();
-    });
+    }).then(function(){ if (relogio) clearTimeout(relogio); });
   }
 
   var temDialogo = typeof document.createElement('dialog').showModal === 'function';
