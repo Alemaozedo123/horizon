@@ -53,7 +53,6 @@
   --fonte-corpo:  'Poppins', -apple-system, 'Segoe UI', sans-serif;
 
   --container: 1280px;
-  --topo-h: 38px;  /* faixa de utilidades (contato e idioma) */
   --nav-h: 80px;   /* faixa da navegação */
 }
 
@@ -201,29 +200,28 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
    faixa de cima saiu a pedido do cliente (out/2026). Ao rolar, o bloco sobe a
    altura da faixa de cima e só a navegação fica na tela: as utilidades servem
    a quem chega, não a quem já está lendo. */
+/* Uma barra só, como a da HARGUS. Antes havia uma faixa escura por cima com
+   contato e idioma, e ao rolar o cabeçalho inteiro subia a altura dela para
+   escondê-la — o que levava o seletor de idioma junto. O cliente pediu o
+   idioma sempre à vista, então a faixa saiu e o seletor desceu para esta
+   barra. E-mail e telefone continuam no rodapé, que no celular já era o
+   único lugar onde apareciam. */
 .nav{
   position:fixed; top:0; left:0; right:0; z-index:500;
-  transition:transform .3s ease;
 }
-.nav.nav--rolada{ transform:translateY(calc(-1 * var(--topo-h))); }
-@media (prefers-reduced-motion: reduce){ .nav{ transition:none; } }
 
-.nav-topo{ height:var(--topo-h); background:var(--azul); color:rgba(226,233,243,.82); font-size:12.5px; }
-.nav-topo .container{ height:100%; display:flex; align-items:center; justify-content:space-between; gap:24px; }
-.nav-topo-grupo{ display:flex; align-items:center; gap:26px; }
-.nav-topo a{ display:inline-flex; align-items:center; gap:8px; transition:color .2s ease; }
-.nav-topo a:hover{ color:var(--dourado); }
-.nav-topo .icone{ width:15px; height:15px; }
 
-/* seletor PT/EN: o idioma ativo ganha o selo dourado, o outro fica discreto */
-.idioma{ display:flex; align-items:center; gap:2px; }
+/* Seletor PT/EN. As cores são de fundo claro agora que ele mora na barra, e
+   não mais na faixa escura: o ativo vira um selo azul cheio e o outro fica
+   em azul diluído. É o mesmo tratamento que o painel do celular já usava. */
+.idioma{ display:flex; align-items:center; gap:2px; flex:none; }
 .idioma-btn{
-  padding:4px 9px; border:none; border-radius:3px; background:transparent;
-  font-size:11.5px; font-weight:700; letter-spacing:.08em; color:rgba(226,233,243,.62);
+  padding:5px 10px; border:none; border-radius:3px; background:transparent;
+  font-size:11.5px; font-weight:700; letter-spacing:.08em; color:rgba(0,25,63,.55);
   transition:color .2s ease, background-color .2s ease;
 }
-.idioma-btn:hover{ color:var(--branco); }
-.idioma-btn.ativo{ background:var(--dourado); color:var(--azul); }
+.idioma-btn:hover{ color:var(--azul); }
+.idioma-btn.ativo{ background:var(--azul); color:var(--branco); }
 
 .nav-barra{
   height:var(--nav-h); display:flex; align-items:center;
@@ -293,10 +291,6 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
 .menu-mobile .botao{ margin-top:12px; }
 /* o primeiro botão depois da lista de links ganha respiro maior */
 .menu-mobile a:not(.botao) + .botao{ margin-top:28px; }
-.menu-mobile-idioma{ display:flex; gap:6px; margin-top:24px; }
-.menu-mobile-idioma .idioma-btn{ padding:8px 14px; font-size:13px; color:rgba(0,25,63,.55); }
-.menu-mobile-idioma .idioma-btn:hover{ color:var(--azul); }
-.menu-mobile-idioma .idioma-btn.ativo{ background:var(--azul); color:var(--branco); }
 
 /* ============ HERO ============
    A seção virou trilho: ela é mais alta que a tela e essa altura a mais é o
@@ -323,7 +317,7 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   height:100vh; height:100svh; min-height:560px;
   overflow:hidden;
   display:flex; align-items:center;
-  padding:calc(var(--topo-h) + var(--nav-h) + 68px) 0 64px;
+  padding:calc(var(--nav-h) + 68px) 0 64px;
   box-sizing:border-box;
 }
 .hero-palco > .container{ width:100%; }
@@ -349,14 +343,14 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
    Medido com as réguas de altura, e não de largura, porque o que falta numa
    tela de notebook é altura. */
 @media (max-height:860px) and (min-width:761px){
-  .hero-palco{ padding:calc(var(--topo-h) + var(--nav-h) + 34px) 0 44px; }
+  .hero-palco{ padding:calc(var(--nav-h) + 34px) 0 44px; }
   .hero h1{ font-size:clamp(2.1rem, 3.6vw, 2.9rem); margin-bottom:18px; }
   .hero-texto{ font-size:16px; margin-bottom:22px; }
   .hero-botoes{ margin-bottom:30px; }
   .hero-destaques{ gap:16px 24px; }
 }
 @media (max-height:700px) and (min-width:761px){
-  .hero-palco{ padding:calc(var(--topo-h) + var(--nav-h) + 18px) 0 32px; }
+  .hero-palco{ padding:calc(var(--nav-h) + 18px) 0 32px; }
   .hero h1{ font-size:clamp(1.9rem, 3.1vw, 2.4rem); margin-bottom:14px; }
   .hero-texto{ font-size:15.5px; margin-bottom:18px; }
   .hero-botoes{ margin-bottom:22px; }
@@ -1057,8 +1051,6 @@ dialog:not([open]){ display:none; }
   .sobre-cartao{ right:16px; }
 }
 @media (max-width:1220px){
-  :root{ --topo-h:0px; }
-  .nav-topo{ display:none; }
   .nav-menu{ display:none; }
   .nav-hamburguer{ display:block; }
   /* o rodapé dobra em duas colunas no mesmo ponto: com quatro, a solução de
@@ -1228,30 +1220,6 @@ dialog:not([open]){ display:none; }
 
 <!-- ============ CABEÇALHO ============ -->
 <header class="nav" id="nav">
-  <div class="nav-topo">
-    <div class="container">
-      <div class="nav-topo-grupo">
-        <a href="mailto:comercial@horizoncomercial.com.br">
-          <svg class="icone" aria-hidden="true"><use href="#i-email"/></svg>
-          comercial@horizoncomercial.com.br
-        </a>
-        <a href="tel:+5541992067373">
-          <svg class="icone" aria-hidden="true"><use href="#i-telefone"/></svg>
-          +55 41 99206-7373
-        </a>
-      </div>
-      <div class="nav-topo-grupo">
-        <!-- Seletor de idioma: troca todo o texto marcado com data-en* (ver
-             <script>, seção IDIOMA). O painel mobile tem uma cópia; as duas
-             ficam em sincronia porque aplicarIdioma() atualiza todo .idioma-btn. -->
-        <div class="idioma" role="group" aria-label="Idioma / Language">
-          <button type="button" class="idioma-btn ativo" data-lang="pt" aria-pressed="true">PT</button>
-          <button type="button" class="idioma-btn" data-lang="en" aria-pressed="false">EN</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div class="nav-barra">
     <div class="container">
       <a href="#inicio" class="marca">
@@ -1271,6 +1239,16 @@ dialog:not([open]){ display:none; }
       </nav>
 
       <div class="nav-controles">
+        <!-- Seletor de idioma: troca todo o texto marcado com data-en* (ver
+             <script>, seção IDIOMA). Morava na faixa escura de cima, que subia
+             junto com o cabeçalho ao rolar e levava o seletor embora; aqui ele
+             fica à vista o tempo todo, como no site da HARGUS.
+             O painel mobile tem uma cópia; as duas ficam em sincronia porque
+             aplicarIdioma() atualiza todo .idioma-btn. -->
+        <div class="idioma" role="group" aria-label="Idioma / Language">
+          <button type="button" class="idioma-btn ativo" data-lang="pt" aria-pressed="true">PT</button>
+          <button type="button" class="idioma-btn" data-lang="en" aria-pressed="false">EN</button>
+        </div>
         <a href="#contato" class="botao botao--dourado nav-cta" data-contato>
           <span data-en="Talk to Horizon">Falar com a Horizon</span>
           <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
@@ -1295,10 +1273,6 @@ dialog:not([open]){ display:none; }
     <span data-en="Talk to Horizon">Falar com a Horizon</span>
     <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
   </a>
-  <div class="menu-mobile-idioma" role="group" aria-label="Idioma / Language">
-    <button type="button" class="idioma-btn ativo" data-lang="pt" aria-pressed="true">Português</button>
-    <button type="button" class="idioma-btn" data-lang="en" aria-pressed="false">English</button>
-  </div>
 </nav>
 
 <main id="conteudo">
