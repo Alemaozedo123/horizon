@@ -1486,7 +1486,7 @@ dialog:not([open]){ display:none; }
         <article class="pilar reveal" style="--atraso:.1s">
           <svg class="icone" aria-hidden="true"><use href="#i-olho"/></svg>
           <h3 data-en="Vision">Visão</h3>
-          <p data-en="To give clients tax certainty and guidance from customs clearance to the products' arrival on the market.">Dar aos clientes segurança tributária e orientação do desembaraço aduaneiro à chegada dos produtos ao mercado.</p>
+          <p data-en="To be a benchmark in import solutions, giving companies access to global markets with security, efficiency and competitiveness.">Ser referência em soluções de importação, oferecendo às empresas acesso a mercados globais com segurança, eficiência e competitividade.</p>
         </article>
         <article class="pilar reveal" style="--atraso:.2s">
           <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
@@ -1925,9 +1925,11 @@ dialog:not([open]){ display:none; }
 
     <div class="modal-falha" role="alert">
       <svg class="icone" aria-hidden="true"><use href="#i-alerta"/></svg>
+      <!-- financeiro, e não comercial: currículo agora chega nessa caixa, e o
+           plano B tem de levar o candidato para o mesmo lugar que o plano A -->
       <span data-en-html='We couldn&#39;t send this right now. Please try again shortly or send your resume directly to
-        <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>.'>Não conseguimos enviar agora. Tente de novo em instantes ou envie seu currículo direto para
-        <a href="mailto:comercial@horizoncomercial.com.br">comercial@horizoncomercial.com.br</a>.</span>
+        <a href="mailto:financeiro@horizoncomercial.com.br">financeiro@horizoncomercial.com.br</a>.'>Não conseguimos enviar agora. Tente de novo em instantes ou envie seu currículo direto para
+        <a href="mailto:financeiro@horizoncomercial.com.br">financeiro@horizoncomercial.com.br</a>.</span>
     </div>
 
     <div class="campo-linha">
@@ -2151,12 +2153,18 @@ dialog:not([open]){ display:none; }
     video.load();
   })();
 
-  /* Para onde chegam contato e currículo. O FormSubmit só entrega
-     depois que o dono deste endereço clicar no e-mail de ativação que ele
-     manda no primeiro envio — e a ativação vale por endereço E por domínio:
-     refazer quando o site for para o endereço definitivo. Até lá os
-     formulários mostram o aviso de falha, com o e-mail para contato direto. */
-  var DESTINO = 'comercial@horizoncomercial.com.br';
+  /* Para onde cada formulário entrega. São caixas diferentes a pedido do
+     cliente: contato vai para o comercial, currículo vai para o financeiro.
+
+     ATENÇÃO AO ATIVAR. O FormSubmit só entrega depois que o dono do endereço
+     clicar no e-mail de ativação que ele manda no primeiro envio, e essa
+     ativação vale por endereço E por domínio. Ou seja, são QUATRO ativações
+     no total: os dois endereços agora, e os dois de novo quando o site mudar
+     para o domínio definitivo. Enquanto uma delas faltar, aquele formulário
+     mostra o aviso de falha com o e-mail para contato direto — e não some em
+     silêncio, que é o risco real aqui. */
+  var DESTINO_CONTATO   = 'comercial@horizoncomercial.com.br';
+  var DESTINO_CURRICULO = 'financeiro@horizoncomercial.com.br';
 
   /* ============ CABEÇALHO: faixa de utilidades + menu mobile ============ */
   var nav = document.getElementById('nav');
@@ -2469,7 +2477,7 @@ dialog:not([open]){ display:none; }
     var dialogo = modal.dialogo;
     dialogo.dataset.falhou = 'nao';
     dialogo.dataset.estado = 'enviando';
-    fetch('https://formsubmit.co/ajax/' + DESTINO, {
+    fetch('https://formsubmit.co/ajax/' + DESTINO_CONTATO, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(corpo)
@@ -2559,7 +2567,7 @@ dialog:not([open]){ display:none; }
       var EXTENSOES = ['.pdf', '.doc', '.docx'];
 
       var forma = document.getElementById('trabalhe-forma');
-      forma.action = 'https://formsubmit.co/' + DESTINO;
+      forma.action = 'https://formsubmit.co/' + DESTINO_CURRICULO;
       var dialogo = document.getElementById('trabalhe');
 
       var modal = criarModal({
