@@ -645,7 +645,9 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   background:linear-gradient(168deg, var(--branco) 0%, var(--cinza-claro) 52%, #D4E0EE 100%);
 }
 .solucoes > .container{ position:relative; z-index:1; }
-.solucoes-grade{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:16px; }
+/* cinco e não seis desde que "Desenvolvimento Comercial" saiu: com seis
+   colunas a fileira terminaria com um vão vazio */
+.solucoes-grade{ display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:16px; }
 /* Sem foto: o cliente pediu os cartões só com o ícone, e maior. O filete
    dourado no topo é o que impede o cartão de virar uma caixa branca lisa. */
 .solucao{
@@ -701,7 +703,8 @@ main section[id]{ scroll-margin-top:var(--nav-h); }
   padding:100px 0 112px; --pontos-x:30%; --pontos-y:20%;
   background:linear-gradient(300deg, var(--azul) 0%, #0B2F63 58%, #123E7C 100%);
 }
-.modelos-grade{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:18px; }
+/* três e não quatro desde que o 04 saiu, pelo mesmo motivo das soluções */
+.modelos-grade{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:18px; }
 /* cor própria: o cartão é claro, mas mora numa seção escura que passa
    branco para todo texto de dentro */
 .modelo{
@@ -1071,7 +1074,9 @@ dialog:not([open]){ display:none; }
   :root{ --nav-h:72px; }
 
   /* quatro colunas viram duas: a de nome mais longo já não caberia numa linha */
-  .modelos-grade{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+  /* com três cartões, duas colunas deixariam um sozinho na segunda linha;
+     daqui para baixo eles empilham de uma vez */
+  .modelos-grade{ grid-template-columns:1fr; }
 
   .secao-topo{ grid-template-columns:1fr; align-items:start; margin-bottom:44px; }
 
@@ -1538,13 +1543,6 @@ dialog:not([open]){ display:none; }
             <p data-en="Warehousing, cargo preparation and distribution to retailers and distributors.">Armazenagem, preparação de carga e distribuição para varejo e distribuidores.</p>
           </div>
         </article>
-        <article class="solucao reveal" style="--atraso:.3s">
-          <div class="solucao-corpo">
-            <svg class="icone" aria-hidden="true"><use href="#i-diamante"/></svg>
-            <h3 data-en="Business Development">Desenvolvimento Comercial</h3>
-            <p data-en="Distribution, positioning and channel development.">Distribuição, posicionamento e desenvolvimento de canais.</p>
-          </div>
-        </article>
       </div>
     </div>
   </section>
@@ -1553,8 +1551,9 @@ dialog:not([open]){ display:none; }
        O texto dos cartões 01 a 03 é do cliente (out/2026), palavra por
        palavra. Para os dois primeiros ele mandou só "Conta e Ordem" e
        "Encomenda" como rótulo: o título segue com o nome completo da
-       modalidade. O 03 se chamava "Desenvolvimento Comercial". O 04 não veio
-       no texto novo e ficou como estava. -->
+       modalidade. O 03 se chamava "Desenvolvimento Comercial".
+       Havia um 04, "Projetos Personalizados", excluído a pedido do cliente em
+       out/2026 junto com a solução "Desenvolvimento Comercial". -->
   <section class="modelos secao-escura pontilhado" id="modelos" data-secao="#solucoes">
     <div class="container">
       <div class="secao-topo reveal">
@@ -1580,11 +1579,6 @@ dialog:not([open]){ display:none; }
           <span class="modelo-numero"><i>03</i></span>
           <h3 data-en-html="Supplier<br>Development">Desenvolvimento<br>de Fornecedores</h3>
           <p data-en="Starting from your needs, we search for the best manufacturers and suppliers, evaluate the options and structure the operation to bring the product to market.">A partir da sua necessidade, buscamos os melhores fabricantes e fornecedores, avaliamos as opções e estruturamos a operação para trazer o produto ao mercado.</p>
-        </article>
-        <article class="modelo reveal" style="--atraso:.24s">
-          <span class="modelo-numero"><i>04</i></span>
-          <h3 data-en-html="Custom<br>Projects">Projetos<br>Personalizados</h3>
-          <p data-en="Tailor-made solutions for operations outside traditional models.">Soluções sob medida para operações fora dos modelos tradicionais.</p>
         </article>
       </div>
     </div>
@@ -1766,7 +1760,6 @@ dialog:not([open]){ display:none; }
           <li><a href="#solucoes" data-en="Regulatory Consulting">Consultoria Regulatória</a></li>
           <li><a href="#solucoes" data-en="International Logistics">Logística Internacional</a></li>
           <li><a href="#solucoes" data-en="Inventory and Distribution">Gestão de Estoques e Distribuição</a></li>
-          <li><a href="#solucoes" data-en="Business Development">Desenvolvimento Comercial</a></li>
         </ul>
       </div>
 
