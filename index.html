@@ -6,14 +6,15 @@
 <!-- ============ POLÍTICA DE CONTEÚDO ============
      Mesma lógica do site da HARGUS: o GitHub Pages não deixa configurar
      cabeçalhos HTTP, então a CSP vai por <meta>. A página só conversa com o
-     formsubmit.co — por fetch (contato) e por envio de formulário
-     (currículo, que precisa do POST tradicional para o anexo chegar) — e com
+     dois serviços: o api.web3forms.com por fetch (contato) e o formsubmit.co
+     por envio de formulário (currículo, que precisa do POST tradicional para o
+     anexo chegar; é o único dos dois com anexo no plano gratuito) — e com
      o Google Fonts; não carrega script, imagem nem plugin de terceiro.
      media-src 'self' é o que deixa o vídeo da abertura tocar: sem ele o
      default-src 'none' bloqueia o arquivo e a abertura fica só no poster.
      'unsafe-inline' é obrigatório porque todo o CSS e o JS são inline, e nada
      do que o visitante digita vira HTML (os textos entram por textContent). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src https://formsubmit.co; form-action https://formsubmit.co; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src https://api.web3forms.com; form-action https://formsubmit.co; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title data-en="HORIZON Import Trading — Connecting global opportunities to the Brazilian market">HORIZON Comercial Importadora — Conectando oportunidades globais ao mercado brasileiro</title>
 <meta name="description" data-en-content="Import trading company in Curitiba, Brazil. Commercial, tax and regulatory intelligence, international logistics and distribution to bring global products and brands to the Brazilian market." content="Comercial importadora em Curitiba/PR. Inteligência comercial, tributária e regulatória, logística internacional e distribuição para levar produtos e marcas globais ao mercado brasileiro.">
@@ -2130,7 +2131,13 @@ dialog:not([open]){ display:none; }
      para o domínio definitivo. Enquanto uma delas faltar, aquele formulário
      mostra o aviso de falha com o e-mail para contato direto — e não some em
      silêncio, que é o risco real aqui. */
-  var DESTINO_CONTATO   = 'comercial@horizoncomercial.com.br';
+  /* CONTATO: Web3Forms. A caixa de destino não fica aqui — ela é a que foi
+     registrada ao criar a chave, no painel deles. Trocar de destino é gerar
+     outra chave, não editar este arquivo. */
+  var CHAVE_CONTATO = '0d6c4155-e006-409a-a7ee-775c0ca49630';
+
+  /* CURRÍCULO: segue no FormSubmit, que é o único dos dois que aceita anexo
+     no plano gratuito. Esta caixa está ativada e entregando. */
   var DESTINO_CURRICULO = 'financeiro@horizoncomercial.com.br';
 
   /* ============ CABEÇALHO: faixa de utilidades + menu mobile ============ */
@@ -2451,7 +2458,7 @@ dialog:not([open]){ display:none; }
     var corte = ('AbortController' in window) ? new AbortController() : null;
     var relogio = corte && setTimeout(function(){ corte.abort(); }, 40000);
 
-    fetch('https://formsubmit.co/ajax/' + DESTINO_CONTATO, {
+    fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(corpo),
@@ -2517,11 +2524,14 @@ dialog:not([open]){ display:none; }
         /* a ordem das chaves é a ordem das linhas na tabela do e-mail;
            _replyto faz o "responder" ir direto para quem escreveu */
         var corpo = {
-          _subject: 'Novo contato pelo site — ' + c.nome.value.trim(),
-          _template: 'table',
-          _captcha: 'false',
-          _replyto: c.email.value.trim(),
-          _honey: document.getElementById('fale-isca').value,
+          access_key: CHAVE_CONTATO,
+          subject: 'Novo contato pelo site — ' + c.nome.value.trim(),
+          from_name: 'Site HORIZON',
+          /* "responder" vai direto para quem escreveu */
+          replyto: c.email.value.trim(),
+          /* armadilha de robô: o campo é invisível, e se vier preenchido o
+             Web3Forms descarta o envio sozinho */
+          botcheck: document.getElementById('fale-isca').value,
           Nome: c.nome.value.trim(),
           'E-mail': c.email.value.trim(),
           Telefone: c.telefone.value.trim()
