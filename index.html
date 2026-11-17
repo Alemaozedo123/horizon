@@ -14,7 +14,7 @@
      default-src 'none' bloqueia o arquivo e a abertura fica só no poster.
      'unsafe-inline' é obrigatório porque todo o CSS e o JS são inline, e nada
      do que o visitante digita vira HTML (os textos entram por textContent). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src https://api.web3forms.com; form-action https://formsubmit.co; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src https://api.web3forms.com; form-action 'self' https://formsubmit.co; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title data-en="HORIZON Import Trading — Connecting global opportunities to the Brazilian market">HORIZON Comercial Importadora — Conectando oportunidades globais ao mercado brasileiro</title>
 <meta name="description" data-en-content="Import trading company in Curitiba, Brazil. Commercial, tax and regulatory intelligence, international logistics and distribution to bring global products and brands to the Brazilian market." content="Comercial importadora em Curitiba/PR. Inteligência comercial, tributária e regulatória, logística internacional e distribuição para levar produtos e marcas globais ao mercado brasileiro.">
